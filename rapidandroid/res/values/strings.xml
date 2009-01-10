@@ -5,4 +5,6 @@
 <string name="lbl_formname">Form Name:</string>
 <string name="lbl_description">Description:</string>
 <string name="lbl_formprefix">Prefix:</string>
+<string name="lbl_formchoose">Forms:</string>
+<string name="lbl_dashboardmessages">Recent Messages</string>
 </resources>

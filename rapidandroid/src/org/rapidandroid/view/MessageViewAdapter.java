@@ -93,7 +93,6 @@ public class MessageViewAdapter extends BaseAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getCount()
 	 */
-	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return hackmonitors.length;
@@ -102,7 +101,6 @@ public class MessageViewAdapter extends BaseAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
-	@Override
 	public Object getItem(int position) {		
 		return hackraw[position];
 	}
@@ -110,7 +108,6 @@ public class MessageViewAdapter extends BaseAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
-	@Override
 	public long getItemId(int position) {
 		return position;
 	}
@@ -118,7 +115,6 @@ public class MessageViewAdapter extends BaseAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
-	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		LayoutInflater inflate = LayoutInflater.from(context);
 		View v = inflate.inflate(mRLayoutID,parent);
@@ -149,5 +145,7 @@ public class MessageViewAdapter extends BaseAdapter {
 		return v;
 		
 	}
+
+	
 
 }
