@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+android:id="@+id/widget28"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+android:orientation="vertical"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+	<LinearLayout
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:id="@+id/section_summary" android:layout_width="fill_parent">
+		<TextView
+		android:layout_height="wrap_content"
+		android:text="TextView"
+		android:layout_width="fill_parent" android:id="@+id/txv_monitor">
+		</TextView>
+		<TextView
+		android:layout_height="wrap_content"
+		android:text="TextView"
+		android:id="@+id/txv_timestamp" android:layout_width="fill_parent">
+		</TextView>
+	</LinearLayout>
+	<LinearLayout
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:id="@+id/section_message" android:layout_width="fill_parent">
+		<TextView
+		android:layout_height="wrap_content"
+		android:text="TextView"
+		android:id="@+id/txv_parsed" android:layout_width="fill_parent">
+		</TextView>
+		<TextView
+		android:layout_height="wrap_content"
+		android:text="TextView"
+		android:id="@+id/txv_rawmessage" android:layout_width="fill_parent">
+		</TextView>
+	</LinearLayout>
+</LinearLayout>
