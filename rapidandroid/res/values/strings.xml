@@ -5,6 +5,12 @@
 <string name="lbl_formname">Form Name:</string>
 <string name="lbl_description">Description:</string>
 <string name="lbl_formprefix">Prefix:</string>
-<string name="lbl_formchoose">Forms:</string>
+<string name="lbl_formchoose">Forms</string>
 <string name="lbl_dashboardmessages">Recent Messages</string>
+<string name="dashboard_menu_create">Create Form</string>
+<string name="dashboard_menu_edit">Edit Form</string>
+<string name="dashboard_menu_view">View Form Data</string>
+<string name="formeditor_menu_save">Save</string>
+<string name="formeditor_menu_cancel">Cancel</string>
+<string name="formeditor_menu_add_field">Add Field</string>
 </resources>

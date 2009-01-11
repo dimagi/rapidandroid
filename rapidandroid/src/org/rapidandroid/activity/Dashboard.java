@@ -6,7 +6,15 @@ package org.rapidandroid.activity;
 import org.rapidandroid.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -16,28 +24,248 @@ import android.widget.Spinner;
  * @created 1/9/2009
  */
 public class Dashboard extends Activity {
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		Bundle extras = null;
+		if(intent != null) {
+			intent.getExtras();	//right now this is a case where we don't do much activity back and forth
+		}
+		
+        switch(requestCode) {
+        case ACTIVITY_CREATE:
+            //we should do an update of the view
+        	showDialog(11);
+            break;
+        case ACTIVITY_EDIT:
+        	showDialog(12);            
+            break;
+        case ACTIVITY_VIEW:
+        	showDialog(13);            
+            break;
+        }
+	}
+
+
+	private boolean mFormSelected = false;
+	private int mSelectedFormId = -1;
+	
+	private static final int ACTIVITY_CREATE=0;
+    private static final int ACTIVITY_EDIT=1;
+    private static final int ACTIVITY_VIEW=2;
+    
+    
+        	
+	private static final int MENU_CREATE_ID = Menu.FIRST;
+    private static final int MENU_EDIT_ID = Menu.FIRST + 1;
+    private static final int MENU_VIEW_ID = Menu.FIRST + 2;
+    //private static final int MENU_EXIT = Menu.FIRST + 3; 	//waitaminute, we don't want to exit this thing, do we?
+	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_CREATE_ID,0, R.string.dashboard_menu_create);
+        menu.add(0, MENU_EDIT_ID,0, R.string.dashboard_menu_edit);
+        menu.add(0, MENU_VIEW_ID,0, R.string.dashboard_menu_view);
+        return true;
+	}
+
+
+	@Override
+	protected Dialog onCreateDialog(int id) {		
+		super.onCreateDialog(id);
+		
+		return new AlertDialog.Builder(Dashboard.this)
+        .setTitle("Menu Selection")
+        .setMessage("Selected Menu Item: " + id)
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        /* User clicked OK so do some stuff */
+                    }
+                })
+        .create();
+	}
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		super.onOptionsItemSelected(item);
+		switch(item.getItemId()) {
+		case MENU_CREATE_ID:
+			//showDialog(MENU_CREATE_ID); //debug, we'll need to spawn the activities after this
+			StartFormEditActivity(true);
+			return true;
+		case MENU_EDIT_ID:
+			//showDialog(MENU_EDIT_ID); //debug, we'll need to spawn the activities after this
+			StartFormEditActivity(false);
+			return true;
+		case MENU_VIEW_ID:
+			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
+			if(mSelectedFormId != -1) {
+				StartFormViewerActivity(this.mForms[mSelectedFormId]);
+			} else {
+				showDialog(9999);
+			}
+			
+			return true;
+		
+		}
+		
+		return true;
+	}
+
+
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dashboard);
+		this.GetForms();	
 		
+		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,mForms);
+		spin_forms.setOnItemSelectedListener(mFormSpinnerListener);
+		
+	}
+	
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		super.onPrepareOptionsMenu(menu);		
+		
+		MenuItem editMenu = menu.findItem(MENU_EDIT_ID);
+		editMenu.setEnabled(mFormSelected);
+		
+		MenuItem viewMenu = menu.findItem(MENU_VIEW_ID);
+		viewMenu.setEnabled(mFormSelected);		
+		
+		return true;
+		
+	}
+	
+	//Start the form edit/create activity
+	private void StartFormEditActivity(boolean isNew) {
+		Intent i = new Intent(this, FormEditorActivity.class);
+		if(isNew) {
+		startActivityForResult(i, ACTIVITY_CREATE);
+		} else {
+			startActivityForResult(i, ACTIVITY_EDIT);
+		}
+	}
+	
+	private void StartFormViewerActivity(String selectedFormName) {
+		Intent i = new Intent(this, FormReview.class);
+        i.putExtra("FormName", selectedFormName);	//bad form, should use some enum here        
+        startActivityForResult(i, ACTIVITY_VIEW);		
+	}
+
+	
+	
+
+	//This is a call to the DB to get all the forms that this form can support.
+	private void GetForms() {		
+		//The steps: 
+		//get the spinner control from the layouts
+		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
+		//Get an array of forms from the DB
+		//in the current iteration, it's mForms
+		
+		//Bind that array to an adapter
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mForms);	
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		
+		//apply it to the spinner						
 		spin_forms.setAdapter(adapter);
 		
-		
+	}
+	
+	//this is a call to the DB to update the ListView with the messages for a selected form
+	private void GetMessagesForForm(String formname) {
+		//the steps:
+		//get a hold of the layout resource for the ListView		
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 		
+		//Then get the array of the messages for the given form
+		//in this case, we're just pulling it from mStrings
+		
+		//finally, apply it to the view
 		//MessageViewAdapter msgAdapter = new MessageViewAdapter(lsv.getContext(), R.layout.message_view);
 		
-		lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mStrings));        
-    
+		
+		
+		if(formname == "") {
+			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"Select a form"}));
+		} else {
+			int start = 0;
+			int end = 0;
+			if(formname == "Abbaye de Belloc") {
+				start = 0;
+				end = 129;
+			}
+			else if(formname == "Abbaye du Mont des Cats") {
+				start = 130;
+				end = 259;
+			}
+			else if(formname == "Abertam") {
+				start = 260;
+				end = 389;	
+			}
+			else if(formname == "Abondance") {
+				start = 390;
+				end = 519;
+			}
+			else if(formname == "Ackawi") {
+				start = 520;
+				end = 649;
+			}
+			String[] result = new String[130];
+			int q = 0;
+			for(int i = start; i < end; i++) {
+				result [q++] = mStrings[i];
+			}			
+			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, result));	
+		}		
 	}
+	
+	
+	// Create an anonymous class to act as a button click listener.
+    private AdapterView.OnItemSelectedListener mFormSpinnerListener = new AdapterView.OnItemSelectedListener()
+    {
+//        public void onClick(View v)
+//        {
+//            // To send a result, simply call setResult() before your
+//            // activity is finished, building an Intent with the data
+//            // you wish to send.
+//            Intent data = new Intent();
+//            data.setAction("Corky!");
+//            setResult(RESULT_OK, data);
+//            finish();
+//        }
+
+		public void onItemSelected(AdapterView<?> parent, View theview, int position, long rowid) {
+			//get the position, then reset the 
+			mFormSelected = true;
+			mSelectedFormId = position;
+			GetMessagesForForm(mForms[position]);
+		}
+
+		public void onNothingSelected(AdapterView<?> parent) {
+			// blow away the listview's items
+			mFormSelected = false;
+			mSelectedFormId = -1;
+			GetMessagesForForm("");			
+		}
+    };
+	
 	private String[] mForms = {
-            "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" 
+            "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" 
 	};
 	
+	//654 items
 	private String[] mStrings = {
             "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
             "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale",
