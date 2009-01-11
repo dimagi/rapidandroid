@@ -11,9 +11,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -36,20 +39,25 @@ public class Dashboard extends Activity {
         switch(requestCode) {
         case ACTIVITY_CREATE:
             //we should do an update of the view
+        	dialogMessage = "Activity Done";
         	showDialog(11);
             break;
         case ACTIVITY_EDIT:
+        	dialogMessage = "Activity Done";
         	showDialog(12);            
             break;
         case ACTIVITY_VIEW:
+        	dialogMessage = "Activity Done";
         	showDialog(13);            
             break;
         }
 	}
 
-
+	private String dialogMessage = "";
+	
 	private boolean mFormSelected = false;
 	private int mSelectedFormId = -1;
+	private int mMessageSelected = -1;
 	
 	private static final int ACTIVITY_CREATE=0;
     private static final int ACTIVITY_EDIT=1;
@@ -61,10 +69,15 @@ public class Dashboard extends Activity {
     private static final int MENU_EDIT_ID = Menu.FIRST + 1;
     private static final int MENU_VIEW_ID = Menu.FIRST + 2;
     //private static final int MENU_EXIT = Menu.FIRST + 3; 	//waitaminute, we don't want to exit this thing, do we?
+    
+    private static final int CONTEXT_ITEM_TEST1 = ContextMenu.FIRST;
+    private static final int CONTEXT_ITEM_TEST2 = ContextMenu.FIRST + 1;
 	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		//add images:
+		//http://developerlife.com/tutorials/?p=304
 		super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_CREATE_ID,0, R.string.dashboard_menu_create);
         menu.add(0, MENU_EDIT_ID,0, R.string.dashboard_menu_edit);
@@ -79,7 +92,7 @@ public class Dashboard extends Activity {
 		
 		return new AlertDialog.Builder(Dashboard.this)
         .setTitle("Menu Selection")
-        .setMessage("Selected Menu Item: " + id)
+        .setMessage("Selected Menu Item: " + id + " " + dialogMessage)
         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -127,7 +140,41 @@ public class Dashboard extends Activity {
 		
 		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
-		spin_forms.setOnItemSelectedListener(mFormSpinnerListener);
+		spin_forms.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+		    {	
+				public void onItemSelected(AdapterView<?> parent, View theview, int position, long rowid) {
+					//get the position, then reset the 
+					mFormSelected = true;
+					mSelectedFormId = position;
+					GetMessagesForForm(mForms[position]);
+				}
+	
+				public void onNothingSelected(AdapterView<?> parent) {
+					// blow away the listview's items
+					mFormSelected = false;
+					mSelectedFormId = -1;
+					GetMessagesForForm("");			
+				}
+		});	
+		
+		//add some events to the listview
+		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
+		
+		//bind a context menu
+		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() { 
+		    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+				menu.add(0, CONTEXT_ITEM_TEST1, 0, "Context 1");				
+				menu.add(0, CONTEXT_ITEM_TEST2, 0, "Context 2");
+			} 
+		  }); 
+		//bind the click event
+		lsv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+	    {
+			public void onItemClick(AdapterView<?> parent, View theparent, int position, long rowid) {
+				// TODO Auto-generated method stub
+				mMessageSelected = position;				
+			}
+	    });
 		
 	}
 	
@@ -155,6 +202,41 @@ public class Dashboard extends Activity {
 		} else {
 			startActivityForResult(i, ACTIVITY_EDIT);
 		}
+	}
+	
+	@Override
+	//http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
+	//UGH, things changed from .9 to 1.0
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+		switch (item.getItemId()) { 
+		  case CONTEXT_ITEM_TEST1:	
+		    // This is actually where the magic happens. 
+		    // As we use an adapter view (which the ListView is) 
+		    // We can cast item.getMenuInfo() to AdapterContextMenuInfo		    
+			   
+
+			  //To get the id of the clicked item in the list use menuInfo.id 
+			  dialogMessage = "Context 1: List pos: " + menuInfo.position+ " id:" + menuInfo.id + " mMessageSelected: " + mMessageSelected;
+			  showDialog(55);
+		    break; 
+		  case CONTEXT_ITEM_TEST2:	
+			    // This is actually where the magic happens. 
+			    // As we use an adapter view (which the ListView is) 
+			    // We can cast item.getMenuInfo() to AdapterContextMenuInfo
+				  //To get the id of the clicked item in the list use menuInfo.id 
+				  dialogMessage = "Context 2: List pos: " + menuInfo.position+ " id:" + menuInfo.id + " mMessageSelected: " + mMessageSelected;
+				  showDialog(56);
+			    break; 
+		  default: 
+		    return super.onContextItemSelected(item); 
+		  } 
+		  return true; 
+	}
+
+	private boolean applyMessageContextMenu(MenuItem item) {
+		showDialog(item.getItemId());		
+		return true;
 	}
 	
 	private void StartFormViewerActivity(String selectedFormName) {
@@ -195,6 +277,8 @@ public class Dashboard extends Activity {
 		//finally, apply it to the view
 		//MessageViewAdapter msgAdapter = new MessageViewAdapter(lsv.getContext(), R.layout.message_view);
 		
+		//lsv.createContextMenu(menu)
+		
 		
 		
 		if(formname == "") {
@@ -230,36 +314,6 @@ public class Dashboard extends Activity {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, result));	
 		}		
 	}
-	
-	
-	// Create an anonymous class to act as a button click listener.
-    private AdapterView.OnItemSelectedListener mFormSpinnerListener = new AdapterView.OnItemSelectedListener()
-    {
-//        public void onClick(View v)
-//        {
-//            // To send a result, simply call setResult() before your
-//            // activity is finished, building an Intent with the data
-//            // you wish to send.
-//            Intent data = new Intent();
-//            data.setAction("Corky!");
-//            setResult(RESULT_OK, data);
-//            finish();
-//        }
-
-		public void onItemSelected(AdapterView<?> parent, View theview, int position, long rowid) {
-			//get the position, then reset the 
-			mFormSelected = true;
-			mSelectedFormId = position;
-			GetMessagesForForm(mForms[position]);
-		}
-
-		public void onNothingSelected(AdapterView<?> parent) {
-			// blow away the listview's items
-			mFormSelected = false;
-			mSelectedFormId = -1;
-			GetMessagesForForm("");			
-		}
-    };
 	
 	private String[] mForms = {
             "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" ,"Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi" 
