@@ -3,6 +3,7 @@
  */
 package org.rapidandroid.activity;
 
+import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 
 import android.app.Activity;
@@ -27,32 +28,6 @@ import android.widget.Spinner;
  * @created 1/9/2009
  */
 public class Dashboard extends Activity {
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		super.onActivityResult(requestCode, resultCode, intent);
-		Bundle extras = null;
-		if(intent != null) {
-			intent.getExtras();	//right now this is a case where we don't do much activity back and forth
-		}
-		
-        switch(requestCode) {
-        case ACTIVITY_CREATE:
-            //we should do an update of the view
-        	dialogMessage = "Activity Done";
-        	showDialog(11);
-            break;
-        case ACTIVITY_EDIT:
-        	dialogMessage = "Activity Done";
-        	showDialog(12);            
-            break;
-        case ACTIVITY_VIEW:
-        	dialogMessage = "Activity Done";
-        	showDialog(13);            
-            break;
-        }
-	}
-
 	private String dialogMessage = "";
 	
 	private boolean mFormSelected = false;
@@ -61,82 +36,24 @@ public class Dashboard extends Activity {
 	
 	private static final int ACTIVITY_CREATE=0;
     private static final int ACTIVITY_EDIT=1;
-    private static final int ACTIVITY_VIEW=2;
-    
-    
+    private static final int ACTIVITY_VIEW=2;	//this and ACTIVITY_REPORTS don't really need to be reported back to this view.
+    private static final int ACTIVITY_REPORTS=3;	    
         	
 	private static final int MENU_CREATE_ID = Menu.FIRST;
     private static final int MENU_EDIT_ID = Menu.FIRST + 1;
     private static final int MENU_VIEW_ID = Menu.FIRST + 2;
+    private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
     //private static final int MENU_EXIT = Menu.FIRST + 3; 	//waitaminute, we don't want to exit this thing, do we?
     
     private static final int CONTEXT_ITEM_TEST1 = ContextMenu.FIRST;
     private static final int CONTEXT_ITEM_TEST2 = ContextMenu.FIRST + 1;
 	
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		//add images:
-		//http://developerlife.com/tutorials/?p=304
-		super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_CREATE_ID,0, R.string.dashboard_menu_create);
-        menu.add(0, MENU_EDIT_ID,0, R.string.dashboard_menu_edit);
-        menu.add(0, MENU_VIEW_ID,0, R.string.dashboard_menu_view);
-        return true;
-	}
-
-
-	@Override
-	protected Dialog onCreateDialog(int id) {		
-		super.onCreateDialog(id);
-		
-		return new AlertDialog.Builder(Dashboard.this)
-        .setTitle("Menu Selection")
-        .setMessage("Selected Menu Item: " + id + " " + dialogMessage)
-        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        /* User clicked OK so do some stuff */
-                    }
-                })
-        .create();
-	}
-
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
-		super.onOptionsItemSelected(item);
-		switch(item.getItemId()) {
-		case MENU_CREATE_ID:
-			//showDialog(MENU_CREATE_ID); //debug, we'll need to spawn the activities after this
-			StartFormEditActivity(true);
-			return true;
-		case MENU_EDIT_ID:
-			//showDialog(MENU_EDIT_ID); //debug, we'll need to spawn the activities after this
-			StartFormEditActivity(false);
-			return true;
-		case MENU_VIEW_ID:
-			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
-			if(mSelectedFormId != -1) {
-				StartFormViewerActivity(this.mForms[mSelectedFormId]);
-			} else {
-				showDialog(9999);
-			}
-			
-			return true;
-		
-		}
-		
-		return true;
-	}
-
-
-	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+    
+    protected void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dashboard);
 		this.GetForms();	
+		
 		
 		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
@@ -167,21 +84,91 @@ public class Dashboard extends Activity {
 				menu.add(0, CONTEXT_ITEM_TEST2, 0, "Context 2");
 			} 
 		  }); 
-		//bind the click event
-		lsv.setOnItemClickListener(new AdapterView.OnItemClickListener()
-	    {
-			public void onItemClick(AdapterView<?> parent, View theparent, int position, long rowid) {
-				// TODO Auto-generated method stub
-				mMessageSelected = position;				
-			}
-	    });
+//		//bind the click event
+//		lsv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+//	    {
+//			public void onItemClick(AdapterView<?> parent, View theparent, int position, long rowid) {
+//				// TODO Auto-generated method stub
+//				mMessageSelected = position;				
+//			}
+//	    });
 		
 	}
+    
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		Bundle extras = null;
+		if(intent != null) {
+			extras = intent.getExtras();	//right now this is a case where we don't do much activity back and forth
+		}
+		
+        switch(requestCode) {
+        case ACTIVITY_CREATE:
+            //we should do an update of the view
+        	dialogMessage = "Activity Done";
+        	showDialog(11);
+            break;
+        case ACTIVITY_EDIT:
+        	dialogMessage = "Activity Done";
+        	showDialog(12);            
+            break;
+        case ACTIVITY_VIEW:
+        	dialogMessage = "Activity Done";
+        	showDialog(13);            
+            break;
+        }
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		//add images:
+		//http://developerlife.com/tutorials/?p=304
+		super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_CREATE_ID,0, R.string.dashboard_menu_create);
+        menu.add(0, MENU_EDIT_ID,0, R.string.dashboard_menu_edit);
+        menu.add(0, MENU_VIEW_ID,0, R.string.dashboard_menu_view);
+        menu.add(0, MENU_SHOW_REPORTS,0, R.string.dashboard_menu_show_reports);
+        return true;
+	}	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		super.onOptionsItemSelected(item);
+		switch(item.getItemId()) {
+		case MENU_CREATE_ID:
+			//showDialog(MENU_CREATE_ID); //debug, we'll need to spawn the activities after this
+			StartFormEditActivity(true);
+			return true;
+		case MENU_EDIT_ID:
+			//showDialog(MENU_EDIT_ID); //debug, we'll need to spawn the activities after this
+			StartFormEditActivity(false);
+			return true;
+		case MENU_VIEW_ID:
+			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
+			if(mSelectedFormId != -1) {
+				StartFormViewerActivity(this.mForms[mSelectedFormId]);
+			} else {
+				showDialog(9999);
+			}			
+			return true;
+		case MENU_SHOW_REPORTS:
+			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
+			this.dialogMessage = "TODO:  Go to the reports activity";
+			showDialog(9999);					
+			
+			return true;		
+		}
+		
+		return true;
+	}
+	
 	
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
+		// Flip the enabled status of menu items depending on selection of a form
 		super.onPrepareOptionsMenu(menu);		
 		
 		MenuItem editMenu = menu.findItem(MENU_EDIT_ID);
@@ -190,16 +177,36 @@ public class Dashboard extends Activity {
 		MenuItem viewMenu = menu.findItem(MENU_VIEW_ID);
 		viewMenu.setEnabled(mFormSelected);		
 		
-		return true;
+		MenuItem reportsMenu = menu.findItem(MENU_SHOW_REPORTS);
+		reportsMenu.setEnabled(mFormSelected);
 		
+		return true;		
 	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {		
+		super.onCreateDialog(id);
+		
+		return new AlertDialog.Builder(Dashboard.this)
+        .setTitle("Menu Selection")
+        .setMessage("Selected Menu Item: " + id + " " + dialogMessage)
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        /* User clicked OK so do some stuff */
+                    }
+                })
+        .create();
+	}
+
 	
 	//Start the form edit/create activity
 	private void StartFormEditActivity(boolean isNew) {
 		Intent i = new Intent(this, FormEditorActivity.class);
 		if(isNew) {
-		startActivityForResult(i, ACTIVITY_CREATE);
+			i.putExtra(ActivityConstants.EDIT_FORM,"");
+			startActivityForResult(i, ACTIVITY_CREATE);
 		} else {
+			i.putExtra(ActivityConstants.EDIT_FORM,mForms[mSelectedFormId]);
 			startActivityForResult(i, ACTIVITY_EDIT);
 		}
 	}
@@ -245,8 +252,6 @@ public class Dashboard extends Activity {
         startActivityForResult(i, ACTIVITY_VIEW);		
 	}
 
-	
-	
 
 	//This is a call to the DB to get all the forms that this form can support.
 	private void GetForms() {		
@@ -278,8 +283,6 @@ public class Dashboard extends Activity {
 		//MessageViewAdapter msgAdapter = new MessageViewAdapter(lsv.getContext(), R.layout.message_view);
 		
 		//lsv.createContextMenu(menu)
-		
-		
 		
 		if(formname == "") {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"Select a form"}));

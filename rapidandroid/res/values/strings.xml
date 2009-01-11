@@ -13,4 +13,6 @@
 <string name="formeditor_menu_save">Save</string>
 <string name="formeditor_menu_cancel">Cancel</string>
 <string name="formeditor_menu_add_field">Add Field</string>
+<string name="dashboard_menu_show_reports">Reports</string>
+<string name="menu_done">Finished</string>
 </resources>

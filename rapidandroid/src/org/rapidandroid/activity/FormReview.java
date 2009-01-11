@@ -6,9 +6,14 @@ package org.rapidandroid.activity;
 import org.rapidandroid.R;
 import org.rapidandroid.view.SpeechView;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -23,23 +28,75 @@ public class FormReview extends ListActivity {	//this could totally be a list ac
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
+	
+	private static final int MENU_VIEW_REPORTS = Menu.FIRST;
+    private static final int MENU_DONE = Menu.FIRST + 1;
+    
+    private String mDialogMessage = "";
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
-//		setContentView(R.layout.form_review);
-//		ListView lsv = (ListView) findViewById(R.id.lsv_messages);
-		
+		//dmyung 1/11/2009 :: changed to list activity, so we are not rendering from an xml file at the moment.
+		//setContentView(R.layout.form_review);
+		//ListView lsv = (ListView) findViewById(R.id.lsv_messages);		
 		//MessageViewAdapter msgAdapter = new MessageViewAdapter(lsv.getContext(), R.layout.message_view);
 		//MessageViewAdapter msgAdapter = new MessageViewAdapter(this, R.layout.message_view);
 		//lsv.setAdapter(msgAdapter);
-		
-		SpeechListAdapter spc = new SpeechListAdapter(this);
 		//lsv.setAdapter(spc);
+		
+		//right now we're using the API example of the Speech List for a simple customizable List elements.
+		SpeechListAdapter spc = new SpeechListAdapter(this);
 		setListAdapter(spc);
-		//lsv.set
 	}	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_VIEW_REPORTS,0, R.string.dashboard_menu_show_reports);
+        menu.add(0, MENU_DONE,0, R.string.menu_done);
+        return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		switch(item.getItemId()) {
+		case MENU_VIEW_REPORTS:
+			mDialogMessage = "TODO:  Go to reports activity";
+			showDialog(0);
+			return true;
+		case MENU_DONE:
+			finish();
+			return true;
+		}
+		return true;
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {		
+		super.onCreateDialog(id);
+		
+		return new AlertDialog.Builder(FormReview.this)
+        .setTitle("Debug Dialog")
+        .setMessage(mDialogMessage)
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        /* User clicked OK so do some stuff */
+                    }
+                })
+        .create();
+	}
+
+	@Override
+    protected void onListItemClick(ListView l, View v, int position, long id) 
+    {    
+       ((SpeechListAdapter)getListAdapter()).toggle(position);
+    }
 
 	
 	 /**
@@ -102,6 +159,7 @@ public class FormReview extends ListActivity {	//this could totally be a list ac
             
             return sv;
         }
+        
 
         public void toggle(int position) {
             mExpanded[position] = !mExpanded[position];
