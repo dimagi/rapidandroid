@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/widget74"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	>
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" style="?android:attr/listSeparatorTextViewStyle"
+		android:text="@string/lbl_fieldname" android:id="@string/lbl_fieldname">
+	</TextView>
+	<EditText android:id="@+id/etx_fieldname"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:textSize="14sp"></EditText>
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" style="?android:attr/listSeparatorTextViewStyle"
+		android:text="@string/lbl_fieldprompt" android:id="@string/lbl_fieldprompt">
+	</TextView>
+	<EditText android:id="@+id/etx_fieldprompt"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:textSize="14sp"></EditText>
+
+	<TextView android:id="@+id/lbl_fieldtypechoose"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="@string/lbl_fieldtypechoose" style="?android:attr/listSeparatorTextViewStyle">
+	</TextView>
+	<Spinner android:id="@+id/cbx_fieldtype" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+	</Spinner>
+
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn_finishaddfield" android:text="@string/btn_finishaddfield"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn_canceladdfield" android:text="@string/btn_canceladdfield"></Button>
+</LinearLayout>

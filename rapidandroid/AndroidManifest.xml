@@ -1,21 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.rapidandroid"
-      android:versionCode="1"
-      android:versionName="1.0.0">
-     <application android:icon="@drawable/icon" android:label="@string/app_name">
-     
-     <activity android:label="@string/app_name" android:name=".activity.Dashboard">
-        <intent-filter>
-                        <action android:name="android.intent.action.MAIN" />
-                        <category android:name="android.intent.category.DEFAULT" />
-                        <category android:name="android.intent.category.LAUNCHER" />
-		</intent-filter>        
-        </activity>
+	package="org.rapidandroid" android:versionCode="1" android:versionName="1.0.0">
     
-    	<activity android:name=".activity.FormEditorActivity">
-        </activity>
-		<activity android:name=".activity.FormReview">       
-        </activity>		
+    
+   
+
+	<application android:icon="@drawable/icon" android:label="@string/app_name">
+
+		<activity android:label="@string/app_name" android:name=".activity.Dashboard">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.LAUNCHER" />
+
+			
+
+<action android:name="org.rapidandroid.Dashboard.WAKE_UP"></action>
+</intent-filter>
+
+		</activity>
+		<receiver android:name=".intent.SmsReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
+            
+
+</intent-filter>
+        </receiver>
+
+		<activity android:name=".activity.FormEditor"></activity>
+		<activity android:name=".activity.FormReview"></activity>
+		<activity android:name=".activity.FormCreator"></activity>
+		<activity android:name=".activity.AddField"></activity>
+		
+
+	
+
+
+
+
 </application>
+
+
+	
+
+
+
+
+<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
+<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
+<uses-permission android:name="android.permission.WRITE_SMS"></uses-permission>
+<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+
 </manifest> 

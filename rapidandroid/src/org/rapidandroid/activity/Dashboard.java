@@ -47,14 +47,24 @@ public class Dashboard extends Activity {
     
     private static final int CONTEXT_ITEM_TEST1 = ContextMenu.FIRST;
     private static final int CONTEXT_ITEM_TEST2 = ContextMenu.FIRST + 1;
+    private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
+    private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
 	
     
     protected void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dashboard);
+		
+		
+		if (savedInstanceState != null) {
+			String from = savedInstanceState.getString("from");
+			String body = savedInstanceState.getString("body");
+			dialogMessage = "SMS :: " + from + " : " + body;
+			showDialog(160);
+		}
+		
 		this.GetForms();	
-		
-		
+				
 		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 		spin_forms.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
@@ -84,6 +94,7 @@ public class Dashboard extends Activity {
 				menu.add(0, CONTEXT_ITEM_TEST2, 0, "Context 2");
 			} 
 		  }); 
+		//lsv.set
 //		//bind the click event
 //		lsv.setOnItemClickListener(new AdapterView.OnItemClickListener()
 //	    {
@@ -101,6 +112,8 @@ public class Dashboard extends Activity {
 		Bundle extras = null;
 		if(intent != null) {
 			extras = intent.getExtras();	//right now this is a case where we don't do much activity back and forth
+
+			
 		}
 		
         switch(requestCode) {
@@ -201,11 +214,12 @@ public class Dashboard extends Activity {
 	
 	//Start the form edit/create activity
 	private void StartFormEditActivity(boolean isNew) {
-		Intent i = new Intent(this, FormEditorActivity.class);
+		Intent i;
 		if(isNew) {
-			i.putExtra(ActivityConstants.EDIT_FORM,"");
+			i = new Intent(this, FormCreator.class);			
 			startActivityForResult(i, ACTIVITY_CREATE);
 		} else {
+			i = new Intent(this, FormEditor.class);	
 			i.putExtra(ActivityConstants.EDIT_FORM,mForms[mSelectedFormId]);
 			startActivityForResult(i, ACTIVITY_EDIT);
 		}
