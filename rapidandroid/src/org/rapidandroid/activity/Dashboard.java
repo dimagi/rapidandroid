@@ -11,13 +11,14 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -64,6 +65,9 @@ public class Dashboard extends Activity {
 		}
 		
 		this.GetForms();	
+		
+		
+				 
 				
 		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
@@ -167,9 +171,50 @@ public class Dashboard extends Activity {
 			}			
 			return true;
 		case MENU_SHOW_REPORTS:
+			
+			//"content://sms/undelivered"
+//			01-12 20:57:20.783: DEBUG/SmsProvider(85): insert url=content://sms/inbox, match=2
+			//Uri uriSms = Uri.parse("content://sms/undelivered");
+			/*public String strUriInbox = "content://sms/inbox";//SMS_INBOX:1 
+    public String strUriFailed = "content://sms/failed";//SMS_FAILED:2 
+    public String strUriQueued = "content://sms/queued";//SMS_QUEUED:3 
+    public String strUriSent = "content://sms/sent";//SMS_SENT:4 
+    public String strUriDraft = "content://sms/draft";//SMS_DRAFT:5 
+    public String strUriOutbox = "content://sms/outbox";//SMS_OUTBOX:6 
+    public String strUriUndelivered = 
+"content://sms/undelivered";//SMS_UNDELIVERED 
+    public String strUriAll = "content://sms/all";//SMS_ALL 
+    
+    public String strUriConversations = "content://sms/conversations";//you
+    
+    content://sms/inbox/<id>
+     
+    */
+			Uri uriSms = Uri.parse("content://sms/inbox");
+			Cursor c = getContentResolver().query(uriSms, null,null,null,null); //Sms.Inbox.CONTENT_URI,
+			
+			String[] columnames = c.getColumnNames();
+			int count = c.getCount();
+			c.moveToFirst();
+			String id = c.getString(0);
+			String thread_id = c.getString(1);
+			String addr = c.getString(2);
+			String person = c.getString(3);
+			String date = c.getString(4);
+			String body = c.getString(11);
 			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
-			this.dialogMessage = "TODO:  Go to the reports activity";
+			//this.dialogMessage = "TODO:  Go to the reports activity";
+			getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null,null);
+			//dmyung - oh baby this works.  a bit extreme blowing away the entire conversation.  but at least we know (as of this writing 1/12) that it works in the emulator.
+			
+			dialogMessage = "row count: " + count;
+			
+			
 			showDialog(9999);					
+			
+			ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
+			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, columnames));
+			
 			
 			return true;		
 		}

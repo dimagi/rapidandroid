@@ -6,9 +6,11 @@ package org.rapidandroid.intent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.telephony.gsm.SmsMessage;
 import android.util.Log;
+
 
 /**
  * @author dmyung
@@ -26,7 +28,11 @@ public class SmsReceiver  extends BroadcastReceiver{
 		broadcast.putExtra("from", msg.getOriginatingAddress());		
 		broadcast.putExtra("body", msg.getMessageBody());
 		//broadcast.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 	
-		context.startActivity(new Intent(broadcast));
+		//context.startActivity(new Intent(broadcast));
+		
+//		Cursor c = getContentResolver().query(Sms.Inbox.CONTENT_URI, 
+//				null, null, null, null);//.query(Sms.CONTENT_URI, null, null, null, 
+//				null); 
 	}
 
 	
@@ -40,9 +46,11 @@ public class SmsReceiver  extends BroadcastReceiver{
 		}
 		SmsMessage msg[] = getMessagesFromIntent(intent);
 		
+		
 		for(int i=0; i < msg.length; i++)
 		{
 			String message = msg[i].getDisplayMessageBody();
+			
 			if(message != null && message.length() > 0)
 			{
 				Log.i("MessageListener:",  message);
