@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 //todo: dmyung
@@ -47,7 +48,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 		
 		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor", MONITOR);
 		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor/#",MONITOR_ID);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor/#/message",MONITOR_MESSAGE_ID);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "messagesbymonitor/#",MONITOR_MESSAGE_ID);
 				
 		/*
 		 * sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -77,18 +78,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 		// TODO Auto-generated constructor stub
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.content.ContentProvider#delete(android.net.Uri,
-	 * java.lang.String, java.lang.String[])
-	 */
-	@Override
-	public int delete(Uri arg0, String arg1, String[] arg2) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -105,6 +95,9 @@ public class RapidSmsContentProvider extends ContentProvider {
 			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
 		case MONITOR_ID:
 			return RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE;
+		case MONITOR_MESSAGE_ID:
+			//this is similar to Monitor, but is filtered
+			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 			//return sUriMatcher.match(uri)+"";
@@ -134,87 +127,172 @@ public class RapidSmsContentProvider extends ContentProvider {
         
         switch (sUriMatcher.match(uri)) {
 		case MESSAGE:
-			Long now = Long.valueOf(System.currentTimeMillis());
-
-			// Make sure that the fields are all set
-			if (values.containsKey(RapidSmsDataDefs.Message.TIME) == false) {
-				values.put(RapidSmsDataDefs.Message.TIME, now);
-			}
-
-			if (values.containsKey(RapidSmsDataDefs.Message.MESSAGE) == false) {
-				throw new SQLException("No message");
-			}
-
-			if (values.containsKey(RapidSmsDataDefs.Message.PHONE) == false) {
-				throw new SQLException("No message");
-			}
-
-			if (values.containsKey(RapidSmsDataDefs.Message.IS_OUTGOING) == false) {
-				throw new SQLException("No direction");
-			}
-
-			if (values.containsKey(RapidSmsDataDefs.Message.IS_VIRTUAL) == false) {
-				values.put(RapidSmsDataDefs.Message.IS_VIRTUAL, false);
-			}
-
-			SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-			
-			
-			long rowId = db.insert(RapidSmsDataDefs.Message.TABLE,
-					RapidSmsDataDefs.Message.MESSAGE, values);
-			if (rowId > 0) {
-				Uri noteUri = ContentUris.withAppendedId(
-						RapidSmsDataDefs.Message.CONTENT_URI, rowId);
-				getContext().getContentResolver().notifyChange(noteUri, null);
-				return noteUri;
-			}
-
-			throw new SQLException("Failed to insert row into " + uri);
-		case MONITOR:
-			
-			// Make sure that the fields are all set
-			if (values.containsKey(RapidSmsDataDefs.Monitor.PHONE) == false) {
-				throw new SQLException("No phone");
-			}
-			
-			if (values.containsKey(RapidSmsDataDefs.Monitor.ALIAS) == false) {
-				values.put(RapidSmsDataDefs.Monitor.ALIAS, values.getAsString(RapidSmsDataDefs.Monitor.PHONE));
-			}
-
-			if (values.containsKey(RapidSmsDataDefs.Monitor.EMAIL) == false) {
-				values.put(RapidSmsDataDefs.Monitor.EMAIL, "");
-			}
-			
-			if (values.containsKey(RapidSmsDataDefs.Monitor.FIRST_NAME) == false) {
-				values.put(RapidSmsDataDefs.Monitor.FIRST_NAME, "");
-			}
-			
-			if (values.containsKey(RapidSmsDataDefs.Monitor.LAST_NAME) == false) {
-				values.put(RapidSmsDataDefs.Monitor.LAST_NAME, "");
-			}
-			
-			if (values.containsKey(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES) == false) {
-				values.put(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES, 0);
-			}
-			
-			
-			SQLiteDatabase dbmon = mOpenHelper.getWritableDatabase();
-			long rowIdmon = dbmon.insert(RapidSmsDataDefs.Monitor.TABLE,
-					RapidSmsDataDefs.Monitor.EMAIL, values);
-			if (rowIdmon > 0) {
-				Uri monitorUri = ContentUris.withAppendedId(
-						RapidSmsDataDefs.Monitor.CONTENT_URI, rowIdmon);
-				getContext().getContentResolver().notifyChange(monitorUri, null);
-				return monitorUri;
-			}
-
-			throw new SQLException("Failed to insert row into " + uri);
+			return insertMessage(uri, values);
+		case MONITOR:			
+			return insertMonitor(uri, values);
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 
+		}        
+	}
+
+	/**
+	 * @param uri
+	 * @param values
+	 */
+	private Uri insertMessage(Uri uri, ContentValues values) {
+		Long now = Long.valueOf(System.currentTimeMillis());
+
+		// Make sure that the fields are all set
+		if (values.containsKey(RapidSmsDataDefs.Message.TIME) == false) {
+			values.put(RapidSmsDataDefs.Message.TIME, now);
 		}
-        
-        
+
+		if (values.containsKey(RapidSmsDataDefs.Message.MESSAGE) == false) {
+			throw new SQLException("No message");
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Message.PHONE) == false) {
+			throw new SQLException("No message");
+		} else {
+			ContentValues monitorValues = new ContentValues();
+			monitorValues.put(RapidSmsDataDefs.Monitor.PHONE,values.getAsString(RapidSmsDataDefs.Message.PHONE));
+			Uri monitorUri = insertMonitor(RapidSmsDataDefs.Monitor.CONTENT_URI,monitorValues);
+			//ok, so we insert the monitor into the monitor table.
+			//get the URI back and assign the foreign key into the values as part of the message insert
+			values.put(RapidSmsDataDefs.Message.MONITOR, monitorUri.getPathSegments().get(1));
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Message.IS_OUTGOING) == false) {
+			throw new SQLException("No direction");
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Message.IS_VIRTUAL) == false) {
+			values.put(RapidSmsDataDefs.Message.IS_VIRTUAL, false);
+		}
+
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		
+		
+		long rowId = db.insert(RapidSmsDataDefs.Message.TABLE,
+				RapidSmsDataDefs.Message.MESSAGE, values);
+		if (rowId > 0) {
+			Uri noteUri = ContentUris.withAppendedId(
+					RapidSmsDataDefs.Message.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(noteUri, null);
+			return noteUri;
+		}
+		else {
+			throw new SQLException("Failed to insert row into " + uri);
+		}
+		
+	}
+
+	/**
+	 * @param uri
+	 * @param values
+	 */
+	private Uri insertMonitor(Uri uri, ContentValues values) {
+		// Make sure that the fields are all set
+		if (values.containsKey(RapidSmsDataDefs.Monitor.PHONE) == false) {
+			throw new SQLException("No phone");
+		}
+		
+		if (values.containsKey(RapidSmsDataDefs.Monitor.ALIAS) == false) {
+			values.put(RapidSmsDataDefs.Monitor.ALIAS, values.getAsString(RapidSmsDataDefs.Monitor.PHONE));
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Monitor.EMAIL) == false) {
+			values.put(RapidSmsDataDefs.Monitor.EMAIL, "");
+		}
+		
+		if (values.containsKey(RapidSmsDataDefs.Monitor.FIRST_NAME) == false) {
+			values.put(RapidSmsDataDefs.Monitor.FIRST_NAME, "");
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Monitor.LAST_NAME) == false) {
+			values.put(RapidSmsDataDefs.Monitor.LAST_NAME, "");
+		}
+
+		if (values.containsKey(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES) == false) {
+			values.put(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES, 0);
+		}
+		
+		//ok, so parameters are kosher.  let's check to see if this monitor exists or not.
+		System.out.println("Attempting insert of monitor: " + uri + " :: phone=" + values.getAsString(RapidSmsDataDefs.Monitor.PHONE));
+		Cursor exists = query(uri,null,RapidSmsDataDefs.Monitor.PHONE + "='" + values.getAsString(RapidSmsDataDefs.Monitor.PHONE) + "'", null, null);
+		System.out.println("Insert monitor query result: " + exists.getCount());
+		
+		if(exists.getCount() == 1) {
+			//throw new SQLException("Monitor "  + values.getAsString(RapidSmsDataDefs.Monitor.PHONE) + " already exists");
+			exists.moveToFirst();
+//			String[] names = exists.getColumnNames();
+//			for(int q = 0; q < names.length; q++) {
+//				System.out.println("\tMonitorInsert: cols: " + q + "->" + names[q]);
+//			}
+			return ContentUris.withAppendedId(RapidSmsDataDefs.Monitor.CONTENT_URI, exists.getInt(0));
+			 
+		} 
+		exists.close();
+		
+
+		SQLiteDatabase dbmon = mOpenHelper.getWritableDatabase();
+		long rowIdmon = dbmon.insert(RapidSmsDataDefs.Monitor.TABLE,
+				RapidSmsDataDefs.Monitor.EMAIL, values);
+		if (rowIdmon > 0) {
+			Uri monitorUri = ContentUris.withAppendedId(
+					RapidSmsDataDefs.Monitor.CONTENT_URI, rowIdmon);
+			getContext().getContentResolver().notifyChange(monitorUri, null);
+			return monitorUri;
+		} else {
+			throw new SQLException("Failed to insert row into " + uri);
+		}
+	}
+	
+	@Override
+	public int delete(Uri uri, String where, String[] whereArgs) {
+		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+		String table;
+		String finalWhere = "";
+			
+		
+		switch (sUriMatcher.match(uri)) {
+		case MESSAGE:
+			table = RapidSmsDataDefs.Message.TABLE;
+			break;
+
+		case MESSAGE_ID:
+			table = RapidSmsDataDefs.Message.TABLE;
+			finalWhere = RapidSmsDataDefs.Message._ID + "=" + uri.getPathSegments().get(1) + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
+			break;
+		case MONITOR:
+			table = RapidSmsDataDefs.Monitor.TABLE;
+			break;
+
+		case MONITOR_ID:
+			table = RapidSmsDataDefs.Monitor.TABLE;
+			finalWhere = RapidSmsDataDefs.Message._ID + "=" + uri.getPathSegments().get(1) + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
+			break;
+		case MONITOR_MESSAGE_ID:
+			table = RapidSmsDataDefs.Message.TABLE;
+//			qb.appendWhere(RapidSmsDataDefs.Message.MONITOR + "="
+//					+ uri.getPathSegments().get(1));
+			
+			finalWhere = RapidSmsDataDefs.Message.MONITOR + "=" + uri.getPathSegments().get(1) + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI " + uri);
+		}
+		
+		if(finalWhere == "") {
+			finalWhere = where;
+		}
+		
+		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+        int result = db.delete(table, finalWhere, whereArgs);
+
+        return result;
 	}
 
 	/*
@@ -269,7 +347,6 @@ public class RapidSmsContentProvider extends ContentProvider {
         // Get the database and run the query
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-
         // Tell the cursor what uri to watch, so it knows when its source data changes
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;

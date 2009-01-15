@@ -57,6 +57,7 @@ public final class RapidSmsDataDefs {
     	public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.monitor";
     	
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/monitor");
+    	public static final Uri MESSAGE_BY_MONITOR_URI = Uri.parse("content://" + AUTHORITY + "/messagesbymonitor");
     	
     	public static final String LAST_NAME = "last_name";
     	public static final String FIRST_NAME = "first_name";
