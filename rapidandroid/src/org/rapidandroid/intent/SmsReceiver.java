@@ -16,7 +16,7 @@ import android.util.Log;
  * @author dmyung
  * @created Jan 12, 2009
  */
-public class SmsReceiver  extends BroadcastReceiver{
+public class SmsReceiver  extends BroadcastReceiver {
 
 	/* (non-Javadoc)
 	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
@@ -24,9 +24,9 @@ public class SmsReceiver  extends BroadcastReceiver{
 	
 	private void triggerAppLaunch(Context context, SmsMessage msg)
 	{
-		Intent broadcast = new Intent("org.rapidandroid.Dashboard");
-		broadcast.putExtra("from", msg.getOriginatingAddress());		
-		broadcast.putExtra("body", msg.getMessageBody());
+//		Intent broadcast = new Intent("org.rapidandroid.Dashboard");
+//		broadcast.putExtra("from", msg.getOriginatingAddress());		
+//		broadcast.putExtra("body", msg.getMessageBody());
 		//broadcast.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 	
 		//context.startActivity(new Intent(broadcast));
 		

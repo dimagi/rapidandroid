@@ -64,10 +64,7 @@ public class Dashboard extends Activity {
 			showDialog(160);
 		}
 		
-		this.GetForms();	
-		
-		
-				 
+		this.GetForms();				 
 				
 		//Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
@@ -197,16 +194,19 @@ public class Dashboard extends Activity {
 			int count = c.getCount();
 			c.moveToFirst();
 			String id = c.getString(0);
-			String thread_id = c.getString(1);
+			int thread_id = c.getInt(1);
 			String addr = c.getString(2);
 			String person = c.getString(3);
 			String date = c.getString(4);
 			String body = c.getString(11);
 			//showDialog(MENU_VIEW_ID);	//debug, we'll need to spawn the activities after this
 			//this.dialogMessage = "TODO:  Go to the reports activity";
-			getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null,null);
+			
+			//getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null,null);
 			//dmyung - oh baby this works.  a bit extreme blowing away the entire conversation.  but at least we know (as of this writing 1/12) that it works in the emulator.
 			
+			
+			getContentResolver().delete(Uri.parse("content://sms/all/" + id),null,null);
 			dialogMessage = "row count: " + count;
 			
 			
@@ -284,6 +284,7 @@ public class Dashboard extends Activity {
 
 			  //To get the id of the clicked item in the list use menuInfo.id 
 			  dialogMessage = "Context 1: List pos: " + menuInfo.position+ " id:" + menuInfo.id + " mMessageSelected: " + mMessageSelected;
+			 
 			  showDialog(55);
 		    break; 
 		  case CONTEXT_ITEM_TEST2:	
@@ -292,7 +293,12 @@ public class Dashboard extends Activity {
 			    // We can cast item.getMenuInfo() to AdapterContextMenuInfo
 				  //To get the id of the clicked item in the list use menuInfo.id 
 				  dialogMessage = "Context 2: List pos: " + menuInfo.position+ " id:" + menuInfo.id + " mMessageSelected: " + mMessageSelected;
+				  android.telephony.gsm.SmsManager smgr = android.telephony.gsm.SmsManager.getDefault();
+				  smgr.sendTextMessage("6176453236", null, "hello programmatic", null,null);
 				  showDialog(56);
+				  
+				  		
+				  
 			    break; 
 		  default: 
 		    return super.onContextItemSelected(item); 
