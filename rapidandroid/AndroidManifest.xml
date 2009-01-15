@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	android:versionCode="1" android:versionName="1.0.0" package="org.rapidandroid">
-    
-    
-   
 
-	<application android:icon="@drawable/icon" android:label="@string/app_name" android:name="RapidAndroidApplication">
+
+
+
+	<application android:icon="@drawable/icon" android:label="@string/app_name"
+		android:name="RapidAndroidApplication">
 
 		<activity android:label="@string/app_name" android:name=".activity.Dashboard">
 			<intent-filter>
@@ -13,47 +14,47 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.LAUNCHER" />
 
-			
 
-<action android:name="org.rapidandroid.Dashboard.WAKE_UP"></action>
-</intent-filter>
+
+				<action android:name="org.rapidandroid.Dashboard.WAKE_UP"></action>
+			</intent-filter>
 
 		</activity>
 		<receiver android:name=".intent.SmsReceiver">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
-            
+			<intent-filter>
+				<action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
 
-</intent-filter>
-        </receiver>
+
+			</intent-filter>
+		</receiver>
 
 		<activity android:name=".activity.FormEditor"></activity>
 		<activity android:name=".activity.FormReview"></activity>
 		<activity android:name=".activity.FormCreator"></activity>
 		<activity android:name=".activity.AddField"></activity>
-		
-
-	
-
-
- <uses-library android:name="android.test.runner" />
-
-
-</application>
-<instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="org.rapidandroid"
-                     android:label="Tests for Api Demos."/>
-
-
-	
 
 
 
 
-<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
-<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
-<uses-permission android:name="android.permission.WRITE_SMS"></uses-permission>
-<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
 
-<uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+		<uses-library android:name="android.test.runner" />
+
+
+		<provider android:name=".data.RapidSmsContentProvider" android:authorities="org.rapidandroid.provider.RapidSms"></provider>
+	</application>
+	<instrumentation android:name="android.test.InstrumentationTestRunner"
+		android:targetPackage="org.rapidandroid" android:label="Tests for Api Demos." />
+
+
+
+
+
+
+
+	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
+	<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
+	<uses-permission android:name="android.permission.WRITE_SMS"></uses-permission>
+	<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+
+	<uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
 </manifest> 

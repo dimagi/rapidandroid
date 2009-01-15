@@ -10,12 +10,9 @@ import android.provider.BaseColumns;
  * @author dmyung
  * @created Jan 14, 2009
  */
-public final class RapidAndroidData {
-	public static final String AUTHORITY = "org.rapidandroid.rapidandroiddata";
-	private RapidAndroidData() {}
-	
-	
-	
+public final class RapidSmsDataDefs {
+	public static final String AUTHORITY = "org.rapidandroid.provider.RapidSms";
+	private RapidSmsDataDefs() {}
 	/**
      * Message table
      */
@@ -31,9 +28,9 @@ public final class RapidAndroidData {
 
     	public static final String TABLE = "rapidandroid_message";
     	
-    	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/message");
-    	
-    	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.message";
+    	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/message");    	
+    	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.message";
+    	public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.message";
     	
     	public static final String PHONE = "phone";
     	public static final String MESSAGE = "message";
@@ -56,7 +53,9 @@ public final class RapidAndroidData {
 //		+ "\"incoming_messages\" integer unsigned NOT NULL);";
     	public static final String TABLE = "rapidandroid_monitor";
     	
-    	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.monitor";
+    	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.monitor";
+    	public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.monitor";
+    	
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/monitor");
     	
     	public static final String LAST_NAME = "last_name";

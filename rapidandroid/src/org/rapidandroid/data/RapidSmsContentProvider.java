@@ -1,13 +1,10 @@
 package org.rapidandroid.data;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,7 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 //todo: dmyung
@@ -29,35 +25,34 @@ public class RapidSmsContentProvider extends ContentProvider {
 	 * @param version
 	 */
 
-	public static final Uri CONTENT_URI = Uri
-			.parse("content://org.rapidandroid.rapidsmscontentprovider");
+	public static final Uri CONTENT_URI = Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY);
 
 	private static final String TAG = "RapidSmsContentProvider";
 
 	private SmsDbHelper mOpenHelper;
 
-	private static final int MESSAGES = 1; 
-	private static final int MESSAGES_ID = 2; 
-	private static final int MONITORS = 3;
-	private static final int MONITORS_ID = 4;
-	private static final int MONITORS_MESSAGES_ID = 5; 
+	private static final int MESSAGE = 1; 
+	private static final int MESSAGE_ID = 2; 
+	private static final int MONITOR = 3;
+	private static final int MONITOR_ID = 4;
+	private static final int MONITOR_MESSAGE_ID = 5; 
 	
 	
-	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+	private static final UriMatcher sUriMatcher;
 	
 	static {
-		//sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "message", MESSAGES);		
-		sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "message/#",MESSAGES_ID);
+		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "message", MESSAGE);		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "message/#",MESSAGE_ID);
 		
-		sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "monitor", MONITORS);
-		sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "monitor/#",MONITORS_ID);
-		sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "monitor/#/messages",MONITORS_MESSAGES_ID);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor", MONITOR);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor/#",MONITOR_ID);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor/#/message",MONITOR_MESSAGE_ID);
 				
 		/*
 		 * sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "rapid", NOTES);
-        sUriMatcher.addURI(RapidAndroidData.AUTHORITY, "notes/#", NOTE_ID);
+        sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "rapid", NOTES);
+        sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "notes/#", NOTE_ID);
 
         sNotesProjectionMap = new HashMap<String, String>();
         sNotesProjectionMap.put(Notes._ID, Notes._ID);
@@ -102,17 +97,18 @@ public class RapidSmsContentProvider extends ContentProvider {
 	@Override
 	public String getType(Uri uri) {
 		switch (sUriMatcher.match(uri)) {
-        case MESSAGES:
-            return RapidAndroidData.Message.CONTENT_TYPE;
-        case MESSAGES_ID:
-        	return RapidAndroidData.Message.CONTENT_TYPE;
-        case MONITORS_ID:
-        	return RapidAndroidData.Monitor.CONTENT_TYPE;
-        case MONITORS_MESSAGES_ID:
-        	return RapidAndroidData.Monitor.CONTENT_TYPE;
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+		case MESSAGE:
+			return RapidSmsDataDefs.Message.CONTENT_TYPE;
+		case MESSAGE_ID:
+			return RapidSmsDataDefs.Message.CONTENT_ITEM_TYPE;
+		case MONITOR:
+			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
+		case MONITOR_ID:
+			return RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE;
+		default:
+			throw new IllegalArgumentException("Unknown URI " + uri);
+			//return sUriMatcher.match(uri)+"";
+		}
 	}
 
 	/*
@@ -124,9 +120,9 @@ public class RapidSmsContentProvider extends ContentProvider {
 	@Override
 	 public Uri insert(Uri uri, ContentValues initialValues) {
 		// Validate the requested uri
-        if (sUriMatcher.match(uri) != MESSAGES || sUriMatcher.match(uri) != MONITORS) {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+//        if (sUriMatcher.match(uri) != MESSAGE || sUriMatcher.match(uri) != MONITOR) {
+//            throw new IllegalArgumentException("Unknown URI " + uri);
+//        }
 
         ContentValues values;
         if (initialValues != null) {
@@ -137,81 +133,87 @@ public class RapidSmsContentProvider extends ContentProvider {
 
         
         switch (sUriMatcher.match(uri)) {
-		case MESSAGES:
+		case MESSAGE:
 			Long now = Long.valueOf(System.currentTimeMillis());
 
 			// Make sure that the fields are all set
-			if (values.containsKey(RapidAndroidData.Message.TIME) == false) {
-				values.put(RapidAndroidData.Message.TIME, now);
+			if (values.containsKey(RapidSmsDataDefs.Message.TIME) == false) {
+				values.put(RapidSmsDataDefs.Message.TIME, now);
 			}
 
-			if (values.containsKey(RapidAndroidData.Message.MESSAGE) == false) {
+			if (values.containsKey(RapidSmsDataDefs.Message.MESSAGE) == false) {
 				throw new SQLException("No message");
 			}
 
-			if (values.containsKey(RapidAndroidData.Message.PHONE) == false) {
+			if (values.containsKey(RapidSmsDataDefs.Message.PHONE) == false) {
 				throw new SQLException("No message");
 			}
 
-			if (values.containsKey(RapidAndroidData.Message.IS_OUTGOING) == false) {
+			if (values.containsKey(RapidSmsDataDefs.Message.IS_OUTGOING) == false) {
 				throw new SQLException("No direction");
 			}
 
-			if (values.containsKey(RapidAndroidData.Message.IS_VIRTUAL) == false) {
-				values.put(RapidAndroidData.Message.IS_VIRTUAL, false);
+			if (values.containsKey(RapidSmsDataDefs.Message.IS_VIRTUAL) == false) {
+				values.put(RapidSmsDataDefs.Message.IS_VIRTUAL, false);
 			}
 
 			SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 			
 			
-			long rowId = db.insert(RapidAndroidData.Message.TABLE,
-					RapidAndroidData.Message.MESSAGE, values);
+			long rowId = db.insert(RapidSmsDataDefs.Message.TABLE,
+					RapidSmsDataDefs.Message.MESSAGE, values);
 			if (rowId > 0) {
 				Uri noteUri = ContentUris.withAppendedId(
-						RapidAndroidData.Message.CONTENT_URI, rowId);
+						RapidSmsDataDefs.Message.CONTENT_URI, rowId);
 				getContext().getContentResolver().notifyChange(noteUri, null);
 				return noteUri;
 			}
 
 			throw new SQLException("Failed to insert row into " + uri);
-		case MONITORS:
+		case MONITOR:
 			
 			// Make sure that the fields are all set
-			if (values.containsKey(RapidAndroidData.Monitor.PHONE) == false) {
+			if (values.containsKey(RapidSmsDataDefs.Monitor.PHONE) == false) {
 				throw new SQLException("No phone");
 			}
 			
-			if (values.containsKey(RapidAndroidData.Monitor.ALIAS) == false) {
-				values.put(RapidAndroidData.Monitor.ALIAS, values.getAsString(RapidAndroidData.Monitor.PHONE));
+			if (values.containsKey(RapidSmsDataDefs.Monitor.ALIAS) == false) {
+				values.put(RapidSmsDataDefs.Monitor.ALIAS, values.getAsString(RapidSmsDataDefs.Monitor.PHONE));
 			}
 
-			if (values.containsKey(RapidAndroidData.Monitor.EMAIL) == false) {
-				values.put(RapidAndroidData.Monitor.EMAIL, "");
+			if (values.containsKey(RapidSmsDataDefs.Monitor.EMAIL) == false) {
+				values.put(RapidSmsDataDefs.Monitor.EMAIL, "");
 			}
 			
-			if (values.containsKey(RapidAndroidData.Monitor.FIRST_NAME) == false) {
-				values.put(RapidAndroidData.Monitor.FIRST_NAME, "");
+			if (values.containsKey(RapidSmsDataDefs.Monitor.FIRST_NAME) == false) {
+				values.put(RapidSmsDataDefs.Monitor.FIRST_NAME, "");
 			}
 			
-			if (values.containsKey(RapidAndroidData.Monitor.LAST_NAME) == false) {
-				values.put(RapidAndroidData.Monitor.LAST_NAME, "");
+			if (values.containsKey(RapidSmsDataDefs.Monitor.LAST_NAME) == false) {
+				values.put(RapidSmsDataDefs.Monitor.LAST_NAME, "");
+			}
+			
+			if (values.containsKey(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES) == false) {
+				values.put(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES, 0);
 			}
 			
 			
 			SQLiteDatabase dbmon = mOpenHelper.getWritableDatabase();
-			long rowIdmon = dbmon.insert(RapidAndroidData.Monitor.TABLE,
-					RapidAndroidData.Message.MESSAGE, values);
+			long rowIdmon = dbmon.insert(RapidSmsDataDefs.Monitor.TABLE,
+					RapidSmsDataDefs.Monitor.EMAIL, values);
 			if (rowIdmon > 0) {
 				Uri monitorUri = ContentUris.withAppendedId(
-						RapidAndroidData.Monitor.CONTENT_URI, rowIdmon);
+						RapidSmsDataDefs.Monitor.CONTENT_URI, rowIdmon);
 				getContext().getContentResolver().notifyChange(monitorUri, null);
 				return monitorUri;
 			}
 
 			throw new SQLException("Failed to insert row into " + uri);
+		default:
+			throw new IllegalArgumentException("Unknown URI " + uri);
 
 		}
-        return null;
+        
         
 	}
 
@@ -228,27 +230,27 @@ public class RapidSmsContentProvider extends ContentProvider {
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
 		switch (sUriMatcher.match(uri)) {
-		case MESSAGES:
-			qb.setTables(RapidAndroidData.Message.TABLE);
+		case MESSAGE:
+			qb.setTables(RapidSmsDataDefs.Message.TABLE);
 			break;
 
-		case MESSAGES_ID:
-			qb.setTables(RapidAndroidData.Message.TABLE);
-			qb.appendWhere(RapidAndroidData.Message._ID + "="
+		case MESSAGE_ID:
+			qb.setTables(RapidSmsDataDefs.Message.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.Message._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
-		case MONITORS:
-			qb.setTables(RapidAndroidData.Monitor.TABLE);
+		case MONITOR:
+			qb.setTables(RapidSmsDataDefs.Monitor.TABLE);
 			break;
 
-		case MONITORS_ID:
-			qb.setTables(RapidAndroidData.Monitor.TABLE);
-			qb.appendWhere(RapidAndroidData.Monitor._ID + "="
+		case MONITOR_ID:
+			qb.setTables(RapidSmsDataDefs.Monitor.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.Monitor._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
-		case MONITORS_MESSAGES_ID:
-			qb.setTables(RapidAndroidData.Message.TABLE);
-			qb.appendWhere(RapidAndroidData.Message.MONITOR + "="
+		case MONITOR_MESSAGE_ID:
+			qb.setTables(RapidSmsDataDefs.Message.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.Message.MONITOR + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		default:
