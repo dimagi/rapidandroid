@@ -21,7 +21,5 @@ public class SmsParseReceiver extends BroadcastReceiver {
 		// TODO Auto-generated method stub
 		String body = intent.getStringExtra("body");
 		body.length();
-
 	}
-
 }

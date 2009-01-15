@@ -36,33 +36,47 @@ public class RapidSmsContentProvider extends ContentProvider {
 	private static final int MESSAGE_ID = 2; 
 	private static final int MONITOR = 3;
 	private static final int MONITOR_ID = 4;
-	private static final int MONITOR_MESSAGE_ID = 5; 
+	private static final int MONITOR_MESSAGE_ID = 5;
+	
+	private static final int FORM = 6;
+	private static final int FORM_ID = 7;
+	
+	private static final int FIELD = 8;
+	private static final int FIELD_ID = 9;
+	
+	private static final int FIELDTYPE = 10;
+	private static final int FIELDTYPE_ID = 11;
+	
+	private static final int FORMDATA_ID = 12;
+	//private static final int FORMDATA_ID = 13;
+	
+	
 	
 	
 	private static final UriMatcher sUriMatcher;
 	
 	static {
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "message", MESSAGE);		
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "message/#",MESSAGE_ID);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Message.URI_PART, MESSAGE);		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Message.URI_PART+ "/#",MESSAGE_ID);
 		
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor", MONITOR);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "monitor/#",MONITOR_ID);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Monitor.URI_PART, MONITOR);
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Monitor.URI_PART + "/#", MONITOR_ID);
 		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "messagesbymonitor/#",MONITOR_MESSAGE_ID);
-				
-		/*
-		 * sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "rapid", NOTES);
-        sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "notes/#", NOTE_ID);
-
-        sNotesProjectionMap = new HashMap<String, String>();
-        sNotesProjectionMap.put(Notes._ID, Notes._ID);
-        sNotesProjectionMap.put(Notes.TITLE, Notes.TITLE);
-        sNotesProjectionMap.put(Notes.NOTE, Notes.NOTE);
-        sNotesProjectionMap.put(Notes.CREATED_DATE, Notes.CREATED_DATE);
-        sNotesProjectionMap.put(Notes.MODIFIED_DATE, Notes.MODIFIED_DATE);
-		 * 
-		 */
+		
+		
+		//form field data stuffs
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Form.URI_PART, FORM);		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Form.URI_PART+ "/#",FORM_ID);
+		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Field.URI_PART, FIELD);		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.Field.URI_PART+ "/#", FIELD_ID);
+		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.FieldType.URI_PART, FIELDTYPE);		
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.FieldType.URI_PART+ "/#",FIELDTYPE_ID);
+						
+		//actual form data
+		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, RapidSmsDataDefs.FormData.URI_PART+ "/#",FORMDATA_ID);		
 	}
 
 	public RapidSmsContentProvider(Context context, String name,
@@ -98,6 +112,24 @@ public class RapidSmsContentProvider extends ContentProvider {
 		case MONITOR_MESSAGE_ID:
 			//this is similar to Monitor, but is filtered
 			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
+			
+		case FORM:
+			return RapidSmsDataDefs.Form.CONTENT_TYPE;
+		case FORM_ID:
+			return RapidSmsDataDefs.Form.CONTENT_ITEM_TYPE;
+		
+		case FIELD:
+			return RapidSmsDataDefs.Field.CONTENT_TYPE;
+		case FIELD_ID:
+			return RapidSmsDataDefs.Field.CONTENT_ITEM_TYPE;
+
+		case FIELDTYPE:
+			return RapidSmsDataDefs.FieldType.CONTENT_TYPE;
+		case FIELDTYPE_ID:
+			return RapidSmsDataDefs.FieldType.CONTENT_ITEM_TYPE;
+
+		case FORMDATA_ID:
+			return RapidSmsDataDefs.FormData.CONTENT_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 			//return sUriMatcher.match(uri)+"";
@@ -130,6 +162,11 @@ public class RapidSmsContentProvider extends ContentProvider {
 			return insertMessage(uri, values);
 		case MONITOR:			
 			return insertMonitor(uri, values);
+		case FORMDATA_ID:
+			throw new IllegalArgumentException("FORMDATA_ID handler not implmeneted!");
+		//other stuffs not implemented for insertion yet.
+			
+			
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 
@@ -331,6 +368,21 @@ public class RapidSmsContentProvider extends ContentProvider {
 			qb.appendWhere(RapidSmsDataDefs.Message.MONITOR + "="
 					+ uri.getPathSegments().get(1));
 			break;
+		case FORM:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FORM_ID:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FIELD:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FIELD_ID:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FIELDTYPE:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FIELDTYPE_ID:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+		case FORMDATA_ID:
+			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -360,7 +412,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 	 */
 	@Override
 	public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
-		throw new SQLException("Update not implemented");
+		throw new IllegalArgumentException("Update not implemented");
 	}
 
 	/*
@@ -376,59 +428,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 		return true;
 	}
 
-	/**
-	 * This class helps open, create, and upgrade the database file.
-	 */
-	private class SmsDbHelper extends SQLiteOpenHelper {
-		private static final String TAG = "SmsDbHelper";
-		private static final String DATABASE_NAME = "rapidandroid.db";
-		private static final int DATABASE_VERSION = 1;
-
-		public SmsDbHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			String mCreateTable_Message = "CREATE TABLE \"rapidandroid_message\" ("
-					+ "\"_id\" integer NOT NULL PRIMARY KEY,"
-					//+ "\"transaction_id\" integer NULL REFERENCES \"rapidandroid_transaction\" (\"id\"),"
-					+ "\"phone\" varchar(30) NULL,"
-					+ "\"monitor_id\" integer NULL REFERENCES \"rapidandroid_monitor\" (\"id\"),"
-					+ "\"time\" datetime NOT NULL,"
-					+ "\"message\" varchar(160) NOT NULL,"
-					+ "\"is_outgoing\" bool NOT NULL,"
-					+ "\"is_virtual\" bool NOT NULL);";
-
-			String mCreateTable_Monitor = "CREATE TABLE \"rapidandroid_monitor\" ("
-					+ "\"_id\" integer NOT NULL PRIMARY KEY,"
-					+ "\"first_name\" varchar(50) NOT NULL,"
-					+ "\"last_name\" varchar(50) NOT NULL,"
-					+ "\"alias\" varchar(16) NOT NULL UNIQUE,"
-					+ "\"phone\" varchar(30) NOT NULL,"
-					+ "\"email\" varchar(75) NOT NULL,"
-					+ "\"incoming_messages\" integer unsigned NOT NULL);";
-
-//			String mCreateTable_Transaction = "CREATE TABLE \"rapidandroid_transaction\" ("
-//					+ "\"_id\" integer NOT NULL PRIMARY KEY,"
-//					+ "\"identity\" integer unsigned NULL,"
-//					+ "\"phone\" varchar(30) NULL,"
-//					+ "\"monitor_id\" integer NULL REFERENCES \"rapidandroid_monitor\" (\"id\"));";
-
-			// first, create the db
-			db.execSQL(mCreateTable_Monitor);
-			//db.execSQL(mCreateTable_Transaction);
-			db.execSQL(mCreateTable_Message);
-		}
-
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-					+ newVersion + ", which will destroy all old data");
-			db.execSQL("DROP TABLE IF EXISTS notes");
-			onCreate(db);
-		}
-	}
+	
 	
 
 }
