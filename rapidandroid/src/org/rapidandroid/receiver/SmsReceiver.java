@@ -1,12 +1,18 @@
 /**
  * 
  */
-package org.rapidandroid.intent;
+package org.rapidandroid.receiver;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import org.rapidandroid.data.RapidSmsDataDefs;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.gsm.SmsMessage;
 import android.util.Log;
@@ -34,6 +40,19 @@ public class SmsReceiver  extends BroadcastReceiver {
 //				null, null, null, null);//.query(Sms.CONTENT_URI, null, null, null, 
 //				null); 
 	}
+	
+	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
+		Uri writeMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
+		
+		ContentValues messageValues = new ContentValues();
+		messageValues.put(RapidSmsDataDefs.Message.MESSAGE,mesg.getMessageBody());		
+		messageValues.put(RapidSmsDataDefs.Message.PHONE,mesg.getOriginatingAddress());
+		
+		Timestamp ts = new Timestamp(mesg.getTimestampMillis());		//convert the timestamp to a datetime string
+		messageValues.put(RapidSmsDataDefs.Message.TIME,ts.toString());
+		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
+		context.getContentResolver().insert(writeMessageUri, messageValues);		
+	}
 
 	
 	
@@ -44,23 +63,25 @@ public class SmsReceiver  extends BroadcastReceiver {
 			
 			return;
 		}
-		SmsMessage msg[] = getMessagesFromIntent(intent);
+		SmsMessage msgs[] = getMessagesFromIntent(intent);
 		
 		
-		for(int i=0; i < msg.length; i++)
+		for(int i=0; i < msgs.length; i++)
 		{
-			String message = msg[i].getDisplayMessageBody();
+			String message = msgs[i].getDisplayMessageBody();
 			
 			if(message != null && message.length() > 0)
 			{
 				Log.i("MessageListener:",  message);
 				
-				//Our trigger message must be generic and human redable because it will end up
-				//In the SMS inbox of the phone.
-				if(message.startsWith("dimagi"))
-				{
-					triggerAppLaunch(context, msg[i]);
-				}				
+//				//Our trigger message must be generic and human redable because it will end up
+//				//In the SMS inbox of the phone.
+//				if(message.startsWith("dimagi"))
+//				{
+//					triggerAppLaunch(context, msgs[i]);
+//				}		
+				
+				insertMessageToContentProvider(context, msgs[i]);
 			}
 		}
 

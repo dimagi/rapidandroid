@@ -5,6 +5,7 @@ package org.rapidandroid.activity;
 
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
+import org.rapidandroid.data.RapidSmsDataDefs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -187,7 +188,7 @@ public class Dashboard extends Activity {
     content://sms/inbox/<id>
      
     */
-			Uri uriSms = Uri.parse("content://sms/inbox");
+			Uri uriSms = Uri.parse("content://sms/conversations");
 			Cursor c = getContentResolver().query(uriSms, null,null,null,null); //Sms.Inbox.CONTENT_URI,
 			
 			String[] columnames = c.getColumnNames();
@@ -206,7 +207,7 @@ public class Dashboard extends Activity {
 			//dmyung - oh baby this works.  a bit extreme blowing away the entire conversation.  but at least we know (as of this writing 1/12) that it works in the emulator.
 			
 			
-			getContentResolver().delete(Uri.parse("content://sms/all/" + id),null,null);
+			getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null,null);
 			dialogMessage = "row count: " + count;
 			
 			
@@ -327,7 +328,15 @@ public class Dashboard extends Activity {
 		//in the current iteration, it's mForms
 		
 		//Bind that array to an adapter
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, mForms);	
+		Cursor c = getContentResolver().query(RapidSmsDataDefs.Monitor.CONTENT_URI, null, null, null, null);
+		String[] monitors = new String[c.getCount()];
+		c.moveToFirst();
+		int idx = c.getColumnIndex(RapidSmsDataDefs.Monitor.PHONE);
+		for(int i = 0; i < monitors.length; i++) {
+			monitors[i] = c.getString(idx);
+			c.moveToNext();
+		}
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, monitors);	
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		
 		//apply it to the spinner						

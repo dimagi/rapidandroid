@@ -29,8 +29,7 @@ public class ProviderTests extends
 	}
 
 	protected void setUp() throws Exception {
-		super.setUp();
-		mProv = getProvider();
+		super.setUp();mProv = getProvider();
 	}
 
 	/*

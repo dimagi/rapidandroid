@@ -15,20 +15,45 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<receiver android:name=".intent.SmsReceiver">
+		<receiver android:name=".receiver.SmsReceiver">
 			<intent-filter>
 				<action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
+			</intent-filter>
+			<intent-filter>
+        		<action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/org.rapidandroid.data.monitor"></data>
+			</intent-filter>
+			
+			<intent-filter>			
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/org.rapidandroid.data.monitor"></data>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/org.rapidandroid.data.message"></data>
+			</intent-filter>
+			<intent-filter>
+			    <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.item/org.rapidandroid.data.message"></data>
 			</intent-filter>
 		</receiver>
 		<activity android:name=".activity.FormEditor"></activity>
 		<activity android:name=".activity.FormReview"></activity>
 		<activity android:name=".activity.FormCreator"></activity>
 		<activity android:name=".activity.AddField"></activity>
-		
+
 		<uses-library android:name="android.test.runner" />
-		
+
 	</application>
-	
+
 	<instrumentation android:name="android.test.InstrumentationTestRunner"
 		android:targetPackage="org.rapidandroid" android:label="Tests for Api Demos.">
 	</instrumentation>
