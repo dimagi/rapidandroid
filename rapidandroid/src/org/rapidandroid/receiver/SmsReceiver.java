@@ -51,7 +51,13 @@ public class SmsReceiver  extends BroadcastReceiver {
 		Timestamp ts = new Timestamp(mesg.getTimestampMillis());		//convert the timestamp to a datetime string
 		messageValues.put(RapidSmsDataDefs.Message.TIME,ts.toString());
 		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
-		context.getContentResolver().insert(writeMessageUri, messageValues);		
+		Uri msgUri = context.getContentResolver().insert(writeMessageUri, messageValues);		
+		
+		Intent broadcast = new Intent("org.rapidandroid.intents.SMS_SAVED");
+		broadcast.putExtra("from", mesg.getOriginatingAddress());		
+		broadcast.putExtra("body", mesg.getMessageBody());
+		broadcast.putExtra("uri", msgUri);
+		context.sendBroadcast(broadcast);		
 	}
 
 	

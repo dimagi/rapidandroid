@@ -52,7 +52,10 @@
 
 		<uses-library android:name="android.test.runner" />
 
-	</application>
+	<receiver android:name=".receiver.SmsParseReceiver"><intent-filter><action android:name="org.rapidandroid.intents.SMS_SAVED"></action>
+</intent-filter>
+</receiver>
+</application>
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner"
 		android:targetPackage="org.rapidandroid" android:label="Tests for Api Demos.">
