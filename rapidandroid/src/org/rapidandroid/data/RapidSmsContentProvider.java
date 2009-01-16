@@ -370,6 +370,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			break;
 		case FORM:
 			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			//todo
 		case FORM_ID:
 			throw new IllegalArgumentException(uri + " query handler not implemented.");
 		case FIELD:
