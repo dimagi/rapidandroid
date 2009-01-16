@@ -66,6 +66,7 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 //					+ "\"monitor_id\" integer NULL REFERENCES \"rapidandroid_monitor\" (\"id\"));";
 
 		
+			db.execSQL(mCreateTable_Message);
 			db.execSQL(mCreateTable_Monitor);			
 			db.execSQL(mCreateTable_Form);
 			db.execSQL(mCreateTable_FieldType);

@@ -29,7 +29,8 @@ public class ProviderTests extends
 	}
 
 	protected void setUp() throws Exception {
-		super.setUp();mProv = getProvider();
+		super.setUp();
+		mProv = getProvider();
 	}
 
 	/*
@@ -51,11 +52,22 @@ public class ProviderTests extends
 	public void testProviderGetTypeBase() {
 		assertEquals(mProv.getType(RapidSmsDataDefs.Message.CONTENT_URI),RapidSmsDataDefs.Message.CONTENT_TYPE);
 		assertEquals(mProv.getType(RapidSmsDataDefs.Monitor.CONTENT_URI),RapidSmsDataDefs.Monitor.CONTENT_TYPE);		
+		
+		assertEquals(mProv.getType(RapidSmsDataDefs.Form.CONTENT_URI),RapidSmsDataDefs.Form.CONTENT_TYPE);
+		assertEquals(mProv.getType(RapidSmsDataDefs.Field.CONTENT_URI),RapidSmsDataDefs.Field.CONTENT_TYPE);		
+		assertEquals(mProv.getType(RapidSmsDataDefs.FieldType.CONTENT_URI),RapidSmsDataDefs.FieldType.CONTENT_TYPE);
+		
+		//assertEquals(mProv.getType(RapidSmsDataDefs.FormData.CONTENT_URI),RapidSmsDataDefs.FormData.CONTENT_TYPE);	//this doesn';t exist in this case				
 	}
 	
 	public void testProviderGetTypeID() {
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/message/1")),RapidSmsDataDefs.Message.CONTENT_ITEM_TYPE);
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/monitor/1")),RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE);		
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Message.URI_PART + "/1")),RapidSmsDataDefs.Message.CONTENT_ITEM_TYPE);
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Monitor.URI_PART + "/1")),RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE);		
+		
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Form.URI_PART + "/1")),RapidSmsDataDefs.Form.CONTENT_ITEM_TYPE);
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Field.URI_PART + "/1")),RapidSmsDataDefs.Field.CONTENT_ITEM_TYPE);
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.FieldType.URI_PART + "/1")),RapidSmsDataDefs.FieldType.CONTENT_ITEM_TYPE);
+		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.FormData.URI_PART + "/1")),RapidSmsDataDefs.FormData.CONTENT_TYPE);
 	}	
 	
 	public void testMonitorInsertAndQuerySingle() {
@@ -239,9 +251,92 @@ public class ProviderTests extends
 		int newcount = newcountc.getCount();
 		
 		assertEquals(newcount+delcount,oldcount);
-		//System.out.println("deleteMessagesByMonitor: " + monitor_id + " oldcount: " + oldcount + " delcount: " + delcount + " newcount: " + newcount);
-		 
+		//System.out.println("deleteMessagesByMonitor: " + monitor_id + " oldcount: " + oldcount + " delcount: " + delcount + " newcount: " + newcount);		 
 	}
+	
+	
+	
+	public void testGetForms() {
+		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+	}
+	
+	public void testGetFieldTypes() {
+		Uri query = RapidSmsDataDefs.FieldType.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+	}	
+	
+	public void testGetFields() {
+		Uri query = RapidSmsDataDefs.Field.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+	}
+
+	public void testRegenerateTablesForForms() {
+		//todo:  blow away the formdata tables
+		//recreate the tables from the form definition		
+		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+		
+		cr.moveToFirst();
+		do {
+			//iterate through all the forms and ... call a custom function in the mProv to spawn the tables?  no thing needing access to the content provider should need to call this function.
+		} while(cr.moveToNext());
+		
+		assertTrue(false);
+	}
+	
+	public void testInsertDummyDataForForm() {
+		//having a form definition, try to make a new insert
+		
+		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+		
+		cr.moveToFirst();
+		do {
+			
+			//loop 1, for each form
+			//generate a cadre of "messages", might not need to be messages per se, just data input inot the forms
+				//loop 2, for each "message", populate the data with
+				//ContentValues initialValues = new ContentValues();
+				//initialValues.put(RapidSmsDataDefs.Message.MESSAGE,msg);		
+				//initialValues.put(RapidSmsDataDefs.Message.PHONE,phone);
+				//initialValues.put(RapidSmsDataDefs.Message.TIME,date);
+				//initialValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
+				//etc, etc.
+				//currUri = mProv.insert(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + formId, initialValues);
+				
+			
+						
+		} while(cr.moveToNext());
+		
+		
+		
+		assertTrue(false);
+	}
+	
+	
+
+	public void testGetFormData() {
+		// objective:
+		// get all the forms from the database
+		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Cursor cr = mProv.query(query, null, null, null, null);
+		
+		cr.moveToFirst();
+		do {
+			// using all the ids from the form
+			//do queries off the tables in the database
+			int formId = cr.getInt(0);	//get the id
+			Uri formDataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + formId);
+			Cursor formDataCursor = mProv.query(formDataUri,null,null,null,null);
+			
+			formDataCursor.close();
+		} while(cr.moveToNext());
+		cr.close();		
+	}
+	
+	
+	
 	
 	
 }

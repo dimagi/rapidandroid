@@ -141,7 +141,7 @@ public final class RapidSmsDataDefs {
     	
     	public static final String URI_PART = "formdata";
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);//hrmm, this is tricky
-    	
+    	public static final String CONTENT_URI_PREFIX = "content://" + AUTHORITY + "/" + URI_PART + "/";	//needs to add the id
     	
     	//columns
     	public static final String MESSAGE = "message_id";
