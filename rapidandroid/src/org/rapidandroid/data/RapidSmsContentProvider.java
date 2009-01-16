@@ -162,6 +162,12 @@ public class RapidSmsContentProvider extends ContentProvider {
 			return insertMessage(uri, values);
 		case MONITOR:			
 			return insertMonitor(uri, values);
+		case FIELDTYPE:
+			return insertFieldType(uri, values);
+		case FIELD:
+			return insertField(uri, values);			
+		case FORM:
+			return insertForm(uri, values);			
 		case FORMDATA_ID:
 			throw new IllegalArgumentException("FORMDATA_ID handler not implmeneted!");
 		//other stuffs not implemented for insertion yet.
@@ -172,6 +178,79 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		}        
 	}
+	
+	private Uri insertForm(Uri uri, ContentValues values) {
+		if (values.containsKey(RapidSmsDataDefs.Form.FORMNAME) == false ||			
+			values.containsKey(RapidSmsDataDefs.Form.DESCRIPTION) == false ||
+			values.containsKey(RapidSmsDataDefs.Form.PARSEMETHOD) == false ||
+			values.containsKey(RapidSmsDataDefs.Form._ID) == false) {			
+			throw new SQLException("Insufficient arguments for Form insert " + uri);			
+		}
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		long rowId = db.insert(RapidSmsDataDefs.Form.TABLE,
+				RapidSmsDataDefs.Form.FORMNAME, values);
+		if (rowId > 0) {
+			Uri fieldUri = ContentUris.withAppendedId(RapidSmsDataDefs.Form.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(fieldUri, null);
+			return fieldUri;
+		} else {
+			throw new SQLException("Failed to insert row into " + uri);
+		}
+	}
+	
+	public void ClearDebug() {
+		
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		db.execSQL("delete from " + RapidSmsDataDefs.FieldType.TABLE);
+		db.execSQL("delete from " + RapidSmsDataDefs.Field.TABLE);
+		db.execSQL("delete from " + RapidSmsDataDefs.Form.TABLE);
+		
+		Log.v("dimagi", "wiped the form/field/fieldtype table for debug purposes");	
+	}
+	
+	private Uri insertField(Uri uri, ContentValues values) {
+		if (values.containsKey(RapidSmsDataDefs.Field.FORM) == false ||			
+			values.containsKey(RapidSmsDataDefs.Field.NAME) == false ||
+			values.containsKey(RapidSmsDataDefs.Field.FIELDTYPE) == false ||
+			values.containsKey(RapidSmsDataDefs.Field.PROMPT) == false ||
+			values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false ||
+			values.containsKey(RapidSmsDataDefs.Field._ID) == false) {			
+			throw new SQLException("Insufficient arguments for field insert " + uri);			
+		}
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		long rowId = db.insert(RapidSmsDataDefs.Field.TABLE,
+				RapidSmsDataDefs.Field.NAME, values);
+		if (rowId > 0) {
+			Uri fieldUri = ContentUris.withAppendedId(RapidSmsDataDefs.Field.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(fieldUri, null);
+			return fieldUri;
+		} else {
+			throw new SQLException("Failed to insert row into " + uri + " error: " + rowId + " ID: " + values.getAsInteger(RapidSmsDataDefs.Field._ID));
+		}
+	}
+	
+	
+	private Uri insertFieldType(Uri uri, ContentValues values) {
+		if (values.containsKey(RapidSmsDataDefs.FieldType._ID) == false ||
+			values.containsKey(RapidSmsDataDefs.FieldType.NAME) == false ||			
+			values.containsKey(RapidSmsDataDefs.FieldType.REGEX) == false ||
+			values.containsKey(RapidSmsDataDefs.FieldType.DATATYPE) == false) {
+			
+			throw new SQLException("Insufficient arguments for fieldtype insert " + uri);
+			
+		}
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		long rowId = db.insert(RapidSmsDataDefs.FieldType.TABLE,
+				RapidSmsDataDefs.FieldType.NAME, values);
+		if (rowId > 0) {
+			Uri fieldtypeUri = ContentUris.withAppendedId(RapidSmsDataDefs.FieldType.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(fieldtypeUri, null);
+			return fieldtypeUri;
+		} else {
+			throw new SQLException("Failed to insert row into " + uri);
+		}
+	}
+	
 
 	/**
 	 * @param uri
@@ -369,19 +448,35 @@ public class RapidSmsContentProvider extends ContentProvider {
 					+ uri.getPathSegments().get(1));
 			break;
 		case FORM:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
-			//todo
+			qb.setTables(RapidSmsDataDefs.Form.TABLE);			
+			break;						
 		case FORM_ID:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			qb.setTables(RapidSmsDataDefs.Form.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.Form._ID + "="
+					+ uri.getPathSegments().get(1));
+			break;
 		case FIELD:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			qb.setTables(RapidSmsDataDefs.Field.TABLE);			
+			break;			
 		case FIELD_ID:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			qb.setTables(RapidSmsDataDefs.Field.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.Field._ID + "="
+					+ uri.getPathSegments().get(1));
+			break;
 		case FIELDTYPE:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			qb.setTables(RapidSmsDataDefs.FieldType.TABLE);			
+			break;
 		case FIELDTYPE_ID:
-			throw new IllegalArgumentException(uri + " query handler not implemented.");
+			qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
+			qb.appendWhere(RapidSmsDataDefs.FieldType._ID + "="
+					+ uri.getPathSegments().get(1));
+			break;
 		case FORMDATA_ID:
+			//todo:  need to set the table to the FieldData + form_prefix
+			//this is possible via querying hte forms to get the formname/prefix from the form table definition
+			//and appending that to do the qb.setTables
+			//qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
+			//qb.appendWhere(RapidSmsDataDefs.FieldType._ID + "=" + uri.getPathSegments().get(1));
 			throw new IllegalArgumentException(uri + " query handler not implemented.");
 			
 		default:

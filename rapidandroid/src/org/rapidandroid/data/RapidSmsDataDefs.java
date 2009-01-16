@@ -86,6 +86,7 @@ public final class RapidSmsDataDefs {
     	
     	public static final String URI_PART = "form";
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+    	public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
     	
     	//columns
     	public static final String FORMNAME = "formname";
@@ -105,13 +106,14 @@ public final class RapidSmsDataDefs {
     	
     	public static final String URI_PART = "field";
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+    	public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
     	
     	//columns
-    	public static final String FORM = "form";
+    	public static final String FORM = "form_id";
     	public static final String SEQUENCE = "sequence";
     	public static final String NAME = "name";
     	public static final String PROMPT = "prompt";
-    	public static final String FIELDTYPE = "fieldtype";    	
+    	public static final String FIELDTYPE = "fieldtype_id";    	
     }
     
     public static final class FieldType implements BaseColumns {
@@ -124,6 +126,7 @@ public final class RapidSmsDataDefs {
     	
     	public static final String URI_PART = "fieldtype";
     	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+    	public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
     	
     	//columns
     	public static final String NAME = "name";

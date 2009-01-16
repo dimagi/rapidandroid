@@ -31,7 +31,7 @@ public class StandaloneTests extends AndroidTestCase {
 	}
 	
 	public void testSimple() {
-		System.out.println("Test HEllo");
+		System.out.println("Test Hello");
 		assertEquals(true, true);
 	}
 	
