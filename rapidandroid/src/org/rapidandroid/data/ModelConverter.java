@@ -31,6 +31,9 @@ public class ModelConverter {
 	private static HashMap<Uri,Form> formCache = new HashMap<Uri, Form>();;
 	
 	
+	//dmyung 1/19/2009
+	//this method will have the eventual parse results populate a contentvalues object 
+	//for eventual insertion of a parsed message into the DB for a given message for a form.
 	public static void SetContentValues(ContentValues cv, ParseResult results) {
 		throw new IllegalArgumentException("not implemented yet");
 	}
