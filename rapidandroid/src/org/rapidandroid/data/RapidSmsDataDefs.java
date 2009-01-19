@@ -148,7 +148,7 @@ public final class RapidSmsDataDefs {
     	
     	//columns
     	public static final String MESSAGE = "message_id";
-    	public static final String MONITOR = "monitor_id";
+    	//public static final String MONITOR = "monitor_id";
     	
     	public static final String COLUMN_PREFIX = "col_";
     	    	

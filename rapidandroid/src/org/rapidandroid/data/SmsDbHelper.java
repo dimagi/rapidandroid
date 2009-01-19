@@ -1,6 +1,10 @@
 package org.rapidandroid.data;
 
+import org.rapidsms.java.core.model.Field;
+import org.rapidsms.java.core.model.Form;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -11,14 +15,21 @@ import android.util.Log;
 public class SmsDbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "SmsDbHelper";
 	private static final String DATABASE_NAME = "rapidandroid.db";
+	//private static final String DATABASE_NAME = "rapidandroid.db";
 	private static final int DATABASE_VERSION = 1;
 
 	public SmsDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		
+		//super(context, null, null, 0)
+		//get sd card storage?
+		//SQLiteDatabase.openDatabase("/sdcard/my.db", null, 
+		//SQLiteDatabase.CREATE_IF_NECESSARY); 
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		
 		String mCreateTable_Message = "CREATE TABLE \"rapidandroid_message\" ("
 				+ "\"_id\" integer NOT NULL PRIMARY KEY,"
 				// +
@@ -75,6 +86,28 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 		db.execSQL(mCreateTable_Field);
 	}
 
+	/* (non-Javadoc)
+	 * @see android.database.sqlite.SQLiteOpenHelper#getReadableDatabase()
+	 */
+	@Override
+	public synchronized SQLiteDatabase getReadableDatabase() {
+		// TODO Auto-generated method stub
+		
+//		SQLiteDatabase.openDatabase("/sdcard/my.db", null,
+//				SQLiteDatabase.CREATE_IF_NECESSARY); 
+//		
+		return super.getReadableDatabase();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.database.sqlite.SQLiteOpenHelper#getWritableDatabase()
+	 */
+	@Override
+	public synchronized SQLiteDatabase getWritableDatabase() {
+		// TODO Auto-generated method stub
+		return super.getWritableDatabase();
+	}
+
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
@@ -82,4 +115,9 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 		// db.execSQL("DROP TABLE IF EXISTS notes");
 		onCreate(db);
 	}
+	
+	
+	
+	
+	
 }

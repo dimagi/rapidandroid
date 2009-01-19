@@ -1,5 +1,8 @@
 package org.rapidandroid.data;
 
+import org.rapidsms.java.core.model.Field;
+import org.rapidsms.java.core.model.Form;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -169,7 +172,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 		case FORM:
 			return insertForm(uri, values);			
 		case FORMDATA_ID:
-			throw new IllegalArgumentException("FORMDATA_ID handler not implmeneted!");
+			return insertFormData(uri,values);
 		//other stuffs not implemented for insertion yet.
 			
 			
@@ -179,6 +182,31 @@ public class RapidSmsContentProvider extends ContentProvider {
 		}        
 	}
 	
+	
+	private Uri insertFormData(Uri uri, ContentValues values) {
+		//sanity check, see if the table exists
+		String formid = uri.getPathSegments().get(1);
+		SQLiteDatabase dbr = mOpenHelper.getReadableDatabase();
+		Cursor table_exists = dbr.rawQuery("select count(*) from formdata_"
+				+ formid, null);
+		if (table_exists.getCount() != 1) {
+			throw new SQLException("Failed to insert row into " + uri
+					+ " :: table doesn't exist.");
+		}
+
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		long rowId = db.insert(RapidSmsDataDefs.FormData.TABLE_PREFIX + formid,
+				RapidSmsDataDefs.FormData.MESSAGE, values);
+		if (rowId > 0) {
+			Uri fieldUri = ContentUris.withAppendedId(
+					RapidSmsDataDefs.Form.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(fieldUri, null);
+			return Uri.parse(uri.toString() + "/" + rowId);
+		} else {
+			throw new SQLException("Failed to insert row into " + uri);
+		}
+	}
+
 	private Uri insertForm(Uri uri, ContentValues values) {
 		if (values.containsKey(RapidSmsDataDefs.Form.FORMNAME) == false ||			
 			values.containsKey(RapidSmsDataDefs.Form.DESCRIPTION) == false ||
@@ -201,11 +229,84 @@ public class RapidSmsContentProvider extends ContentProvider {
 	public void ClearDebug() {
 		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		
 		db.execSQL("delete from " + RapidSmsDataDefs.FieldType.TABLE);
 		db.execSQL("delete from " + RapidSmsDataDefs.Field.TABLE);
 		db.execSQL("delete from " + RapidSmsDataDefs.Form.TABLE);
 		
-		Log.v("dimagi", "wiped the form/field/fieldtype table for debug purposes");	
+		Log.v("dimagi", "wiped the form/field/fieldtype/formdata table for debug purposes");	
+	}
+	
+	public void ClearFormDataDebug() {
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		Cursor formsCursor = db.query("rapidandroid_form", new String[] {"_id"},null,null,null,null, null); 
+		//("select prefix from rapidandroid_form");
+		
+		//iterate and blow away
+		formsCursor.moveToFirst();
+		do {
+			String id = formsCursor.getString(0);
+			String dropstatement = "drop table formdata_" + id +";";
+			db.execSQL(dropstatement);
+		} while (formsCursor.moveToNext());
+		
+	}
+	
+	public void generateFormTable(Form form) {
+		//dmyung: 1/19/2009
+		//For the intial run through this is a bit hacky.
+		
+		//for each form, create a new sql table create table script
+		//do do that get the form prefix and get a foriegn key back to the message table
+		//after that, create all the columns
+		//do do this we make a switch statement and we will support the SQLite datatypes.
+		
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("create table formdata_");
+		sb.append(form.getFormId());
+		sb.append(" (");
+		sb.append(" \"_id\" integer not null PRIMARY KEY, ");		
+		sb.append(" \"message_id\" integer not null references \"message\", ");
+		
+		org.rapidsms.java.core.model.Field[] fields = form.getFields();
+		int fieldcount = fields.length;
+		
+		boolean last = false;
+		for(int i = 0; i < fieldcount; i++) {
+			if(i == fieldcount-1) {
+				last = true;
+			} 
+			getFieldDeclaration(fields[i],sb, last);
+		}
+		
+		sb.append(" );");
+		
+		db.execSQL(sb.toString());
+	}
+
+	private void getFieldDeclaration(Field field, StringBuilder sb, boolean last) {
+
+		sb.append(" \"");
+		sb.append("col_" + field.getName());
+		sb.append("\"");
+		if (field.getFieldType().getDataType().equals("integer")) {
+			sb.append(" integer NULL");
+		} else if (field.getFieldType().getDataType().equals("number")) {
+			sb.append(" integer NULL");
+		} else if (field.getFieldType().getDataType().equals("boolean")) {
+			sb.append(" bool NULL");
+		} else if (field.getFieldType().getDataType().equals("word")) {
+			sb.append(" varchar(36) NULL");
+		} else if (field.getFieldType().getDataType().equals("ratio")) {
+			sb.append(" varchar(36) NULL");
+		} else if (field.getFieldType().getDataType().equals("datetime")) {
+			sb.append(" datetime NULL");
+		}
+		if(!last) {
+			sb.append(", ");
+		}
 	}
 	
 	private Uri insertField(Uri uri, ContentValues values) {

@@ -3,22 +3,30 @@
  */
 package org.rapidandroid.tests;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Vector;
 
+import org.apache.http.impl.cookie.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rapidandroid.data.ModelConverter;
 import org.rapidandroid.data.RapidSmsContentProvider;
 import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.FieldType;
 import org.rapidsms.java.core.model.Form;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.test.mock.MockContentResolver;
 import android.util.Log;
 
 /**
@@ -48,8 +56,8 @@ public class ProviderTests extends
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		System.out.println("Teardown: Clear Message tables: " +	mProv.delete(RapidSmsDataDefs.Message.CONTENT_URI, null,null));
-		System.out.println("Teardown: Clear Message tables: " +	mProv.delete(RapidSmsDataDefs.Monitor.CONTENT_URI, null,null));
+		//System.out.println("Teardown: Clear Message tables: " +	mProv.delete(RapidSmsDataDefs.Message.CONTENT_URI, null,null));
+		//System.out.println("Teardown: Clear Message tables: " +	mProv.delete(RapidSmsDataDefs.Monitor.CONTENT_URI, null,null));
 		
 	}
 
@@ -57,100 +65,43 @@ public class ProviderTests extends
 		assertFalse(false);
 	}
 	
-	public void testBootstrapForms() {
-		mProv.ClearDebug();
-		
+	
+	//First level bootstrap of Form definitions into DB.
+	public void test000BootstrapFormsAndInsertIntoDB() {
+		mProv.ClearDebug();		
 		
 		String fields = "[{\"pk\": 1, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Location of distribution center\", \"name\": \"Location\", \"form\": 1, \"sequence\": 1}}, {\"pk\": 2, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets received\", \"name\": \"received\", \"form\": 1, \"sequence\": 2}}, {\"pk\": 3, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that have been handed out\", \"name\": \"given\", \"form\": 1, \"sequence\": 3}}, {\"pk\": 4, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that remain in balance\", \"name\": \"balance\", \"form\": 1, \"sequence\": 4}}, {\"pk\": 5, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Child Identifier (6 digits)\", \"name\": \"child_id\", \"form\": 2, \"sequence\": 1}}, {\"pk\": 6, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 3, \"prompt\": \"weight\", \"name\": \"weight\", \"form\": 2, \"sequence\": 2}}, {\"pk\": 7, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 4, \"prompt\": \"height\", \"name\": \"height\", \"form\": 2, \"sequence\": 3}}, {\"pk\": 8, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 5, \"prompt\": \"ratio\", \"name\": \"ratio\", \"form\": 2, \"sequence\": 4}}, {\"pk\": 9, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 6, \"prompt\": \"muac\", \"name\": \"muac\", \"form\": 2, \"sequence\": 5}}, {\"pk\": 10, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"Does child suffer from oedema\", \"name\": \"oedema\", \"form\": 2, \"sequence\": 6}}, {\"pk\": 11, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"does the child suffer from diarrhoea\", \"name\": \"diarrhoea\", \"form\": 2, \"sequence\": 7}}]";
 		String forms = "[{\"pk\": 1, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"bednets\", \"description\": \"Bednet Distribution(supply)\", \"formname\": \"bednets\"}}, {\"pk\": 2, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"nutrition\", \"description\": \"Nutrition Information (monitorin and evaluation)\", \"formname\": \"Nutrition\"}}]";
-		String types = "[{\"pk\": 1, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"word\", \"regex\": \"\\w+\", \"name\": \"word\"}}, {\"pk\": 2, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"number\", \"regex\": \"\\d+\", \"name\": \"number\"}}, {\"pk\": 3, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"weight\", \"regex\": \"(\\d+{1,3})(?c:\\s*(kg|kilo|kilos|lb|lbs|pounds))\", \"name\": \"weight\"}}, {\"pk\": 4, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"height\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|m|in))\", \"name\": \"height\"}}, {\"pk\": 5, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"ratio\", \"regex\": \"(\\d+\\:\\d+)|(\\d+\\/\\d+)\", \"name\": \"ratio\"}}, {\"pk\": 6, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"length\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|mm|m|in|ft|feet|meter|meters))\", \"name\": \"length\"}}, {\"pk\": 7, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"boolean\", \"regex\": \"(t|f|true|false|y|n|yes|no)\", \"name\": \"boolean\"}}]";
+		String types = "[{\"pk\": 1, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"word\", \"regex\": \"\\w+\", \"name\": \"word\"}}, {\"pk\": 2, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"number\", \"regex\": \"\\d+\", \"name\": \"number\"}}, {\"pk\": 3, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?c:\\s*(kg|kilo|kilos|lb|lbs|pounds))\", \"name\": \"weight\"}}, {\"pk\": 4, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|m|in))\", \"name\": \"height\"}}, {\"pk\": 5, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"ratio\", \"regex\": \"(\\d+\\:\\d+)|(\\d+\\/\\d+)\", \"name\": \"ratio\"}}, {\"pk\": 6, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|mm|m|in|ft|feet|meter|meters))\", \"name\": \"length\"}}, {\"pk\": 7, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"boolean\", \"regex\": \"(t|f|true|false|y|n|yes|no)\", \"name\": \"boolean\"}}]";
 		
-		String formdefs = "";
-		
+		String formdefs = "";		
 		
 		HashMap<Integer, FieldType> typeHash = new HashMap<Integer,FieldType>();
 		HashMap<Integer, Field> fieldHash = new HashMap<Integer,Field>();
 		HashMap<Integer, Form> formHash = new HashMap<Integer,Form>();
 		HashMap<Integer, Vector<Field>> fieldToFormHash = new HashMap<Integer,Vector<Field>> ();
+		Vector<Form> allforms = new Vector<Form>();
 		
 		boolean fail  = false;
 		
-		//ok, let's get the field types
-		try {
-			JSONArray typesarray = new JSONArray(types);
-			
-			int arrlength = typesarray.length();
-			for(int i = 0; i < arrlength; i++) {
-				try {
-					JSONObject obj = typesarray.getJSONObject(i);
-					Log.d("testBootstrapForms", "type loop: " + i + " model: " + obj.getString("model"));
-					if(!obj.getString("model").equals("rapidandroid.fieldtype")) {
-						//System.out.println(obj.get("model"));
-						Log.d("testBootstrapForms", "###" + obj.getString("model")+ "###");
-						assertTrue(false);
-					}
-					
-					int pk = obj.getInt("pk");
-					JSONObject jsonfields = obj.getJSONObject("fields");					
-					typeHash.put(new Integer(pk), new FieldType(pk, jsonfields.getString("datatype"),jsonfields.getString("regex"),jsonfields.getString("name")));
-					
-					
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					Log.d("testBootstrapForms.typesinner", e.getMessage());
-					assertTrue(false);
-				}	
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			
-			Log.d("testBootstrapForms.typesouter", e.getMessage());
-			assertTrue(false);
-		}
+		parseFieldTypes(types, typeHash);		
+		parseFields(fields, typeHash, fieldToFormHash);		
+		parseForms(forms, fieldToFormHash, allforms);
+						
+		assertEquals(2, allforms.size());
+		Log.d("dimagi","Test bootstrap success");
 		
-		//ok, let's get the fields
-		try {
-			JSONArray fieldsarray = new JSONArray(fields);
-			int arrlength = fieldsarray.length();
-			for(int i = 0; i < arrlength; i++) {
-				try {
-					JSONObject obj = fieldsarray.getJSONObject(i);
-					
-					if(!obj.getString("model").equals("rapidandroid.field")) {
-						assertTrue(false);
-					}
-					
-					int pk = obj.getInt("pk");
-					
-					JSONObject jsonfields = obj.getJSONObject("fields");		
-					//public Field(int id, int sequence, String name, String prompt, FieldType ftype) {
-					Field newfield = new Field(pk, 
-							jsonfields.getInt("sequence"),
-							jsonfields.getString("name"), 
-							jsonfields.getString("prompt"),
-							typeHash.get(new Integer(jsonfields.getInt("fieldtype"))));
-					
-					//fieldHash.put(new Integer(pk), newfield);
-					Integer pkInt = new Integer(pk);
-					if(!fieldToFormHash.containsKey(pkInt)) {
-						fieldToFormHash.put(pkInt,new Vector<Field>());
-					}
-					fieldToFormHash.get(pkInt).add(newfield);
-					
-					
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					Log.d("testBootstrapForms.fieldsinner", e.getMessage());
-					assertTrue(false);
-				}	
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			Log.d("testBootstrapForms.fieldsouter", e.getMessage());
-			assertTrue(false);
-		}
-		
-		Vector<Form> allforms = new Vector<Form>();
+		insertFormsIntoDb(allforms);
+	}	
+
+	/**
+	 * @param forms
+	 * @param fieldToFormHash
+	 * @param allforms
+	 */
+	private void parseForms(String forms,
+			HashMap<Integer, Vector<Field>> fieldToFormHash,
+			Vector<Form> allforms) {
 		//ok, let's get the forms
 		try {
 			JSONArray formarray = new JSONArray(forms);
@@ -193,18 +144,112 @@ public class ProviderTests extends
 			Log.d("testBootstrapForms.formsouter", e.getMessage());
 			assertTrue(false);
 		}
-						
-		assertEquals(2, allforms.size());
-		Log.d("dimagi","Test bootstrap success");
-		
-		insertFormsIntoDb(allforms);
+	}
+
+	/**
+	 * @param fields
+	 * @param typeHash
+	 * @param fieldToFormHash
+	 */
+	private void parseFields(String fields,
+			HashMap<Integer, FieldType> typeHash,
+			HashMap<Integer, Vector<Field>> fieldToFormHash) {
+		//ok, let's get the fields
+		try {
+			JSONArray fieldsarray = new JSONArray(fields);
+			int arrlength = fieldsarray.length();
+			for(int i = 0; i < arrlength; i++) {
+				try {
+					JSONObject obj = fieldsarray.getJSONObject(i);
+					
+					if(!obj.getString("model").equals("rapidandroid.field")) {
+						assertTrue(false);
+					}
+					
+					int pk = obj.getInt("pk");
+					
+					
+					JSONObject jsonfields = obj.getJSONObject("fields");
+					int form_id = jsonfields.getInt("form");
+					//public Field(int id, int sequence, String name, String prompt, FieldType ftype) {
+					Field newfield = new Field(pk, 
+							jsonfields.getInt("sequence"),
+							jsonfields.getString("name"), 
+							jsonfields.getString("prompt"),
+							typeHash.get(new Integer(jsonfields.getInt("fieldtype"))));
+					
+					//fieldHash.put(new Integer(pk), newfield);
+					Integer formInt = Integer.valueOf(form_id);
+					if(!fieldToFormHash.containsKey(formInt)) {
+						fieldToFormHash.put(formInt,new Vector<Field>());
+						Log.d("dimagi","### adding a key again?!" + formInt);
+					}
+					fieldToFormHash.get(formInt).add(newfield);
+					Log.d("dimagi", "#### Parsed field: " + newfield.getFieldId() + " [" + newfield.getName() + "] newlength: " + fieldToFormHash.get(formInt).size());
+					
+					
+					
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Log.d("dimagi", e.getMessage());
+					assertTrue(false);
+				}	
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			Log.d("dimagi", e.getMessage());
+			assertTrue(false);
+		}
+	}
+
+	/**
+	 * @param types
+	 * @param typeHash
+	 */
+	private void parseFieldTypes(String types,
+			HashMap<Integer, FieldType> typeHash) {
+		//ok, let's get the field types
+		try {
+			JSONArray typesarray = new JSONArray(types);
+			
+			int arrlength = typesarray.length();
+			for(int i = 0; i < arrlength; i++) {
+				try {
+					JSONObject obj = typesarray.getJSONObject(i);
+					Log.d("dimagi", "type loop: " + i + " model: " + obj.getString("model"));
+					if(!obj.getString("model").equals("rapidandroid.fieldtype")) {
+						//System.out.println(obj.get("model"));
+						Log.d("dimagi", "###" + obj.getString("model")+ "###");
+						assertTrue(false);
+					}
+					
+					int pk = obj.getInt("pk");
+					JSONObject jsonfields = obj.getJSONObject("fields");					
+					FieldType newtype = new FieldType(pk, jsonfields.getString("datatype"),jsonfields.getString("regex"),jsonfields.getString("name"));
+					typeHash.put(new Integer(pk), newtype);
+					//Log.d("dimagi", "#### Parsed FieldType: " + newtype.getId() + " [" + newtype.getName() + "]");
+					
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					//Log.d("testBootstrapForms.typesinner", e.getMessage());
+					assertTrue(false);
+				}	
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			
+			//Log.d("testBootstrapForms.typesouter", e.getMessage());
+			assertTrue(false);
+		}
 	}
 	
 	private void insertFormsIntoDb(Vector<Form> forms) {
 		//ok, now, let's create all the content types and such one by one.
+		Log.d("dimagi","** inserting forms into db");
 		for(int i = 0; i < forms.size(); i++) {
 			Form f = forms.get(i);
 			Field[] fields = f.getFields();
+			Log.d("dimagi","**** inserting form " + f.getFormName());
 			
 			//insert the form first
 			Uri formUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + f.getFormId());
@@ -218,18 +263,21 @@ public class ProviderTests extends
 				typecv.put(RapidSmsDataDefs.Form.PREFIX, f.getPrefix());
 				typecv.put(RapidSmsDataDefs.Form.DESCRIPTION, f.getDescription());							
 
-				Uri insertFieldResult = mProv.insert(RapidSmsDataDefs.Form.CONTENT_URI, typecv);
-				assertEquals(insertFieldResult.getPathSegments().get(1),f.getFormId()+"");					
+				Uri insertedFormUri = mProv.insert(RapidSmsDataDefs.Form.CONTENT_URI, typecv);
+				Log.d("dimagi","****** Inserted form into db: " + insertedFormUri);
+				assertEquals(insertedFormUri.getPathSegments().get(1),f.getFormId()+"");					
 			}				
 			
+			Log.d("dimagi","****** Begin fields loop: " + fields.length);
 			for(int j = 0; j < fields.length; j++) {
 				Field thefield = fields[j];
 				FieldType thetype = thefield.getFieldType();
 				//make the URI and insert for the Fieldtype
+				Log.d("dimagi","******** Iterating through fields: " + thefield.getName() + " id: " + thefield.getFieldId());
 
 				Uri fieldtypeUri = Uri.parse(RapidSmsDataDefs.FieldType.CONTENT_URI_STRING + thetype.getId());
-				Cursor cr = mProv.query(fieldtypeUri, null, null, null, null);
-				if (cr.getCount() == 0) {
+				Cursor typeCursor = mProv.query(fieldtypeUri, null, null, null, null);
+				if (typeCursor.getCount() == 0) {
 					ContentValues typecv = new ContentValues();
 
 					typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());
@@ -240,8 +288,9 @@ public class ProviderTests extends
 					typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype
 							.getRegex());
 
-					Uri insertTypeResult = mProv.insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
-					assertEquals(insertTypeResult.getPathSegments().get(1),thetype.getId()+"");					
+					Uri insertedTypeUri = mProv.insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
+					Log.d("dimagi","********** Inserted FieldType into db: " + insertedTypeUri);
+					assertEquals(insertedTypeUri.getPathSegments().get(1),thetype.getId()+"");					
 				}
 				
 				Uri fieldUri = Uri.parse(RapidSmsDataDefs.Field.CONTENT_URI_STRING + thefield.getFieldId());
@@ -256,25 +305,28 @@ public class ProviderTests extends
 					typecv.put(RapidSmsDataDefs.Field.SEQUENCE, thefield.getSequenceId());
 					typecv.put(RapidSmsDataDefs.Field.FIELDTYPE, thefield.getFieldType().getId());	
 					
-					Log.d("dimagi", "_ID: " + thefield.getFieldId());
-					Log.d("dimagi", "NAME: " + thefield.getName());
-					Log.d("dimagi", "FORM: " + f.getFormId());
-					Log.d("dimagi", "PROMPT: " + thefield.getPrompt());
-					Log.d("dimagi", "SEQUENCE: " + thefield.getSequenceId());
-					Log.d("dimagi", "FIELDTYPE: " + thefield.getFieldType().getId());
+//					Log.d("dimagi", "_ID: " + thefield.getFieldId());
+//					Log.d("dimagi", "NAME: " + thefield.getName());
+//					Log.d("dimagi", "FORM: " + f.getFormId());
+//					Log.d("dimagi", "PROMPT: " + thefield.getPrompt());
+//					Log.d("dimagi", "SEQUENCE: " + thefield.getSequenceId());
+//					Log.d("dimagi", "FIELDTYPE: " + thefield.getFieldType().getId());
 
-					Uri insertFieldResult = mProv.insert(RapidSmsDataDefs.Field.CONTENT_URI, typecv);
-					assertEquals(insertFieldResult.getPathSegments().get(1),thefield.getFieldId()+"");					
+					Uri insertedFieldUri = mProv.insert(RapidSmsDataDefs.Field.CONTENT_URI, typecv);
+					Log.d("dimagi","********** Inserted Field into db: " + insertedFieldUri);
+					assertEquals(insertedFieldUri.getPathSegments().get(1),thefield.getFieldId()+"");					
 				}				
 				//next, make the uri and insert for the field.
 			}
-		}
-		
+		}		
 		assertEquals(2, forms.size());
+		Log.d("dimagi","Test form insert success");
+		
+		
 	}
 	
 
-	public void testProviderGetTypeBase() {
+	public void test001ProviderGetTypeBase() {
 		assertEquals(mProv.getType(RapidSmsDataDefs.Message.CONTENT_URI),RapidSmsDataDefs.Message.CONTENT_TYPE);
 		assertEquals(mProv.getType(RapidSmsDataDefs.Monitor.CONTENT_URI),RapidSmsDataDefs.Monitor.CONTENT_TYPE);		
 		
@@ -285,7 +337,7 @@ public class ProviderTests extends
 		//assertEquals(mProv.getType(RapidSmsDataDefs.FormData.CONTENT_URI),RapidSmsDataDefs.FormData.CONTENT_TYPE);	//this doesn';t exist in this case				
 	}
 	
-	public void testProviderGetTypeID() {
+	public void test001ProviderGetTypeID() {
 		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Message.URI_PART + "/1")),RapidSmsDataDefs.Message.CONTENT_ITEM_TYPE);
 		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.Monitor.URI_PART + "/1")),RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE);		
 		
@@ -295,7 +347,7 @@ public class ProviderTests extends
 		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/" + RapidSmsDataDefs.FormData.URI_PART + "/1")),RapidSmsDataDefs.FormData.CONTENT_TYPE);
 	}	
 	
-	public void testMonitorInsertAndQuerySingle() {
+	public void test002MonitorInsertAndQuerySingle() {
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(RapidSmsDataDefs.Monitor.PHONE,"6176453236");		
 		currUri = mProv.insert(RapidSmsDataDefs.Monitor.CONTENT_URI, initialValues);
@@ -305,7 +357,7 @@ public class ProviderTests extends
 		cr.close();
 	}
 	
-	public void testMonitorInsertRepeat() {
+	public void test002MonitorInsertRepeat() {
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(RapidSmsDataDefs.Monitor.PHONE,"6176453236");		
 		currUri = mProv.insert(RapidSmsDataDefs.Monitor.CONTENT_URI, initialValues);
@@ -316,7 +368,7 @@ public class ProviderTests extends
 						
 	}
 	
-	public void testMonitorInsertAndVerifyCounts() {
+	public void test002MonitorInsertAndVerifyCounts() {
 		int count = 10;
 		int baseline = 0;
 		//Log.w("ProviderTests.testMonitorInsertAndVerifyCounts", "flasjdfklasdjf");
@@ -339,7 +391,7 @@ public class ProviderTests extends
 	
 	//add a bunch and confirm that the number of messages are ok
 	//add messages as well and see if the number of 
-	public void testMessageInsertMessage() {
+	public void test002MessageInsertMessage() {
 		String msg1 = "alert unlocked supply room at WSMA";
 		String date1 = "10/30/2008 19:51";
 		String phone1 = "251912149840";		
@@ -394,7 +446,7 @@ public class ProviderTests extends
 		currUri = mProv.insert(RapidSmsDataDefs.Message.CONTENT_URI, initialValues);
 	}
 	
-	public void testInsertMessagesAndCountPerMonitor() {
+	public void test003InsertMessagesAndCountPerMonitor() {
 		String msg1 = "alert unlocked supply room at WSMA";
 		String date1 = "10/30/2008 19:51";
 		String phone1 = "251912149840";		
@@ -481,9 +533,29 @@ public class ProviderTests extends
 	
 	
 	
-	public void testGetForms() {
+	public void test004GetFormsFromDBAndPutIntoModel() {
+		//Regenerate the form definitions
+		test000BootstrapFormsAndInsertIntoDB();
+		
+		Log.d("dimagi","************ getting forms from the db");
 		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
 		Cursor cr = mProv.query(query, null, null, null, null);
+		assertEquals(2, cr.getCount());
+		
+		//next get the ids
+		
+		
+		cr.moveToFirst();
+		
+		do {
+			int id = cr.getInt(0);	//presumably the id
+			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
+			Log.d("dimagi", "Querying for form: " + directUri);
+			Form f = ModelConverter.getFormFromUri(mProv, directUri);
+			
+			assertNotNull(f);
+			assertNotNull(f.getFields());
+		} while (cr.moveToNext());		
 	}
 	
 	public void testGetFieldTypes() {
@@ -496,50 +568,85 @@ public class ProviderTests extends
 		Cursor cr = mProv.query(query, null, null, null, null);
 	}
 
-	public void testRegenerateTablesForForms() {
+	public void test005RegenerateTablesForForms() {
 		//todo:  blow away the formdata tables
-		//recreate the tables from the form definition		
+		//recreate the tables from the form definition					
+		
+		test000BootstrapFormsAndInsertIntoDB();
+					
+		try {
+			mProv.ClearFormDataDebug();
+		} catch (Exception ex) {
+			//this is ok if they don't exist
+		}
+		
 		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
 		Cursor cr = mProv.query(query, null, null, null, null);
-		
 		cr.moveToFirst();
-		do {
-			//iterate through all the forms and ... call a custom function in the mProv to spawn the tables?  no thing needing access to the content provider should need to call this function.
-		} while(cr.moveToNext());
 		
-		assertTrue(false);
+		do {
+			int id = cr.getInt(0);	//presumably the id
+			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
+			
+			Form f = ModelConverter.getFormFromUri(mProv, directUri);
+			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
+			mProv.generateFormTable(f);			
+		} while (cr.moveToNext());		
+		//mProv.ClearFormDataDebug();	//see if this crashes		
 	}
 	
-	public void testInsertDummyDataForForm() {
-		//having a form definition, try to make a new insert
+	public void test006InsertDummyFormData() {
+		
+		test005RegenerateTablesForForms();
 		
 		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
 		Cursor cr = mProv.query(query, null, null, null, null);
-		
 		cr.moveToFirst();
+		
+		
 		do {
 			
-			//loop 1, for each form
-			//generate a cadre of "messages", might not need to be messages per se, just data input inot the forms
-				//loop 2, for each "message", populate the data with
-				//ContentValues initialValues = new ContentValues();
-				//initialValues.put(RapidSmsDataDefs.Message.MESSAGE,msg);		
-				//initialValues.put(RapidSmsDataDefs.Message.PHONE,phone);
-				//initialValues.put(RapidSmsDataDefs.Message.TIME,date);
-				//initialValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
-				//etc, etc.
-				//currUri = mProv.insert(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + formId, initialValues);
+			int id = cr.getInt(0);	//presumably the id			
+			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);			
+			Form f = ModelConverter.getFormFromUri(mProv, directUri);			
+			
+			for (int msgcount = 0; msgcount < 10; msgcount++) {
+				// first, let's make a new dummy message:
+
+				doSendMessage("test message " + msgcount, "10/31/2008 11:0"
+						+ msgcount, "6176453236");
+				String msgid = currUri.getPathSegments().get(1);
 				
+				ContentValues cv = new ContentValues();
+				cv.put(RapidSmsDataDefs.FormData.MESSAGE, msgid);
+				Field[] fields = f.getFields();
+				int len = fields.length;
+				Random r = new Random();
+				
+				for(int i = 0; i < len; i++) {
+					Field field = fields[i];
+					if (field.getFieldType().getDataType().equals("integer")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
+					} else if (field.getFieldType().getDataType().equals("number")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
+					} else if (field.getFieldType().getDataType().equals("boolean")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextBoolean());
+					} else if (field.getFieldType().getDataType().equals("word")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
+					} else if (field.getFieldType().getDataType().equals("ratio")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
+					} else if (field.getFieldType().getDataType().equals("datetime")) {
+						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),"10/31/2008 11:59");
+					}					
+				}	
+				Uri inserted = mProv.insert(Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + f.getFormId()), cv);
+				Log.d("dimagi", "inserted form data for: " + inserted);
+			}
+			
 			
 						
-		} while(cr.moveToNext());
-		
-		
-		
-		assertTrue(false);
-	}
-	
-	
+		} while (cr.moveToNext());
+	}	
 
 	public void testGetFormData() {
 		// objective:
