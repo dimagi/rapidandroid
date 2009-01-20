@@ -1,6 +1,9 @@
 from django.core import serializers
 from rapidandroid.models import *
 
+#author, daniel myung (dmyung@dimagi.com)
+#simple script to slurp through all the main objects in the db and json-ify it for eventual inclusion in the android code as part of the bootstrap method.
+
 def forms():
     all_objects = list(Form.objects.all())
     data = serializers.serialize('json', all_objects)
