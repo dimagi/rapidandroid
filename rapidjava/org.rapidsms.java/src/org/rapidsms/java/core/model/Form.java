@@ -8,8 +8,11 @@ import org.rapidsms.java.core.parser.IMessageParser;
 import org.rapidsms.java.core.parser.SimpleRegexParser;
 
 /**
- * @author dmyung
+ * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
+ * 
+ * Main class for form definition.
+ *  
  */
 public class Form {
 
@@ -30,6 +33,10 @@ public class Form {
 		this.prefix = prefix;
 		this.description = desc;
 		this.fields = fields;
+		
+		//A very hardcoded definition for how we handle alternative parsing methods
+		//For the intial implementation (Jan 2009), this is hardcoded to require a link of a RegexParser instance via the text of the parsemethod in the Form table in the database.
+		//in the future, it's altogether possible to have *all* definitions be defined by the Parsemethod and some file somewhere.
 		if(parsetype.equals("simpleregex")) {
 			this.parser = new SimpleRegexParser();
 		}

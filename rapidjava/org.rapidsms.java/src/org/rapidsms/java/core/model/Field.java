@@ -4,8 +4,11 @@
 package org.rapidsms.java.core.model;
 
 /**
- * @author dmyung
+ * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
+ * 
+ * Field model for the initial parsing flow for RapidAndroid
+ * 
  */
 public class Field {
 	private int fieldId;
