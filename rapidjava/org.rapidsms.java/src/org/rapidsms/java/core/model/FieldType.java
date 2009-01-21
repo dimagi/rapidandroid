@@ -4,26 +4,28 @@
 package org.rapidsms.java.core.model;
 
 /**
- * @author dmyung
+ * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
+ * 
+ *          Simple single regex based field type parser.
+ * 
  */
 
-//this is tightly coupled to the SimpleRegexParser
 public class FieldType {
 	private String datatype;
 	private int id;
 	private String regex;
 	private String name;
-	
+
 	public FieldType(int id, String datatype, String regex, String name) {
 		this.id = id;
 		this.datatype = datatype;
 		this.regex = regex;
 		this.name = name;
 	}
-	
+
 	public FieldType() {
-		
+
 	}
 
 	/**
@@ -32,13 +34,14 @@ public class FieldType {
 	public String getDataType() {
 		return datatype;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setDataType(String datatype) {
 		this.datatype = datatype;
@@ -52,7 +55,8 @@ public class FieldType {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -66,12 +70,11 @@ public class FieldType {
 	}
 
 	/**
-	 * @param regex the regex to set
+	 * @param regex
+	 *            the regex to set
 	 */
 	public void setRegex(String regex) {
 		this.regex = regex;
 	}
-	
-	
 
 }

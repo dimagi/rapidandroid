@@ -4,7 +4,7 @@
 package org.rapidsms.java.core.parser;
 
 /**
- * @author dmyung
+ * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
  * 
  *          The first instance of a message parser for RapidAndroid
