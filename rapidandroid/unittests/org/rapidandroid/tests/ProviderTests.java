@@ -28,11 +28,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.test.mock.MockContentResolver;
 import android.util.Log;
-
 /**
- * @author dmyung
+ *  
+ * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 14, 2009
+ * Description:  Main unit test to verify functionality of the RapidSmsContentProviders * 
+ *   
  */
+
 public class ProviderTests extends
 		android.test.ProviderTestCase<RapidSmsContentProvider> {
 

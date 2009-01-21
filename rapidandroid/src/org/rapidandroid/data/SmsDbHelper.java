@@ -10,26 +10,31 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * This class helps open, create, and upgrade the database file.
+ * 
+ * @author Daniel Myung dmyung@dimagi.com
+ * @created Jan 12, 2009
+ * 
+ *          This class helps open, create, and upgrade the database file.
+ * 
  */
+
 public class SmsDbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "SmsDbHelper";
 	private static final String DATABASE_NAME = "rapidandroid.db";
-	//private static final String DATABASE_NAME = "rapidandroid.db";
 	private static final int DATABASE_VERSION = 1;
 
 	public SmsDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		
-		//super(context, null, null, 0)
-		//get sd card storage?
-		//SQLiteDatabase.openDatabase("/sdcard/my.db", null, 
-		//SQLiteDatabase.CREATE_IF_NECESSARY); 
+
+		// super(context, null, null, 0)
+		// For eventual sd card storage:
+		// SQLiteDatabase.openDatabase("/sdcard/my.db", null,
+		// SQLiteDatabase.CREATE_IF_NECESSARY);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		
+
 		String mCreateTable_Message = "CREATE TABLE \"rapidandroid_message\" ("
 				+ "\"_id\" integer NOT NULL PRIMARY KEY,"
 				// +
@@ -86,20 +91,25 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 		db.execSQL(mCreateTable_Field);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.database.sqlite.SQLiteOpenHelper#getReadableDatabase()
 	 */
 	@Override
 	public synchronized SQLiteDatabase getReadableDatabase() {
 		// TODO Auto-generated method stub
-		
-//		SQLiteDatabase.openDatabase("/sdcard/my.db", null,
-//				SQLiteDatabase.CREATE_IF_NECESSARY); 
-//		
+
+		// for eventual usage on the SD card db storage.
+		// SQLiteDatabase.openDatabase("/sdcard/my.db", null,
+		// SQLiteDatabase.CREATE_IF_NECESSARY);
+		//		
 		return super.getReadableDatabase();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.database.sqlite.SQLiteOpenHelper#getWritableDatabase()
 	 */
 	@Override
@@ -115,9 +125,5 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 		// db.execSQL("DROP TABLE IF EXISTS notes");
 		onCreate(db);
 	}
-	
-	
-	
-	
-	
+
 }

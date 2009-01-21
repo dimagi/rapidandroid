@@ -12,6 +12,8 @@ import android.widget.LinearLayout.LayoutParams;
 /**
  * @author dmyung
  * @created Jan 9, 2009
+ * 
+ *          Pulled from the Android API Examples for custom defined views.
  */
 public class SpeechView extends LinearLayout {
 	/**
