@@ -1,19 +1,18 @@
-package org.rapidandroid.data;
+package org.rapidandroid.content;
 
-import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.Form;
+import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.SmsDbHelper;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
+
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -106,19 +105,6 @@ public class RapidSmsContentProvider extends ContentProvider {
 		// actual form data
 		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
 				RapidSmsDataDefs.FormData.URI_PART + "/#", FORMDATA_ID);
-	}
-
-	public RapidSmsContentProvider(Context context, String name,
-			CursorFactory factory, int version) {
-
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * 
-	 */
-	public RapidSmsContentProvider() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/*
@@ -217,6 +203,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 					+ " :: table doesn't exist.");
 		}
 
+		//doInsert doesn't apply well here.		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		long rowId = db.insert(RapidSmsDataDefs.FormData.TABLE_PREFIX + formid,
 				RapidSmsDataDefs.FormData.MESSAGE, values);
@@ -229,7 +216,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			throw new SQLException("Failed to insert row into " + uri);
 		}
 	}
-
+	
 	private Uri insertForm(Uri uri, ContentValues values) {
 		if (values.containsKey(RapidSmsDataDefs.Form.FORMNAME) == false
 				|| values.containsKey(RapidSmsDataDefs.Form.DESCRIPTION) == false
@@ -237,32 +224,62 @@ public class RapidSmsContentProvider extends ContentProvider {
 				|| values.containsKey(RapidSmsDataDefs.Form._ID) == false) {
 			throw new SQLException("Insufficient arguments for Form insert "
 					+ uri);
-		}
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(RapidSmsDataDefs.Form.TABLE,
-				RapidSmsDataDefs.Form.FORMNAME, values);
+		}		
+		return doInsert(uri, values, RapidSmsDataDefs.Form.TABLE,RapidSmsDataDefs.Form.FORMNAME);
+	}
+
+	/**
+	 * @param uri
+	 * @param values
+	 * @return
+	 */
+	private Uri doInsert(Uri uri, ContentValues values, String tablename, String nullvalue) {
+		
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();	
+		
+		long rowId = db.insert(tablename,
+				nullvalue, values);
 		if (rowId > 0) {
-			Uri fieldUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.Form.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(fieldUri, null);
-			return fieldUri;
+			Uri retUri = ContentUris.withAppendedId(
+					uri, rowId);
+			getContext().getContentResolver().notifyChange(retUri, null);
+			return retUri;
 		} else {
 			throw new SQLException("Failed to insert row into " + uri);
 		}
 	}
-
-	public void ClearDebug() {
-
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-
-		db.execSQL("delete from " + RapidSmsDataDefs.FieldType.TABLE);
-		db.execSQL("delete from " + RapidSmsDataDefs.Field.TABLE);
-		db.execSQL("delete from " + RapidSmsDataDefs.Form.TABLE);
-
-		Log
-				.v("dimagi",
-						"wiped the form/field/fieldtype/formdata table for debug purposes");
+	
+	//Insert Methods
+	private Uri insertField(Uri uri, ContentValues values) {
+		if (values.containsKey(RapidSmsDataDefs.Field.FORM) == false
+				|| values.containsKey(RapidSmsDataDefs.Field.NAME) == false
+				|| values.containsKey(RapidSmsDataDefs.Field.FIELDTYPE) == false
+				|| values.containsKey(RapidSmsDataDefs.Field.PROMPT) == false
+				|| values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false
+				|| values.containsKey(RapidSmsDataDefs.Field._ID) == false) {
+			throw new SQLException("Insufficient arguments for field insert "
+					+ uri);
+		}
+		
+		return doInsert(uri, values, RapidSmsDataDefs.Field.TABLE, RapidSmsDataDefs.Field.NAME);		
 	}
+
+	private Uri insertFieldType(Uri uri, ContentValues values) {
+		if (values.containsKey(RapidSmsDataDefs.FieldType._ID) == false
+				|| values.containsKey(RapidSmsDataDefs.FieldType.NAME) == false
+				|| values.containsKey(RapidSmsDataDefs.FieldType.REGEX) == false
+				|| values.containsKey(RapidSmsDataDefs.FieldType.DATATYPE) == false) {
+
+			throw new SQLException(
+					"Insufficient arguments for fieldtype insert " + uri);
+
+		}
+		
+		return doInsert(uri, values, RapidSmsDataDefs.FieldType.TABLE,RapidSmsDataDefs.FieldType.NAME);		
+	}
+	
+
+	
 
 	public void ClearFormDataDebug() {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -280,112 +297,9 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 	}
 
-	public void generateFormTable(Form form) {
-		// dmyung: 1/19/2009
-		// For the intial run through this is a bit hacky.
+	
 
-		// for each form, create a new sql table create table script
-		// do do that get the form prefix and get a foriegn key back to the
-		// message table
-		// after that, create all the columns
-		// do do this we make a switch statement and we will support the SQLite
-		// datatypes.
-
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("create table formdata_");
-		sb.append(form.getFormId());
-		sb.append(" (");
-		sb.append(" \"_id\" integer not null PRIMARY KEY, ");
-		sb.append(" \"message_id\" integer not null references \"message\", ");
-
-		org.rapidsms.java.core.model.Field[] fields = form.getFields();
-		int fieldcount = fields.length;
-
-		boolean last = false;
-		for (int i = 0; i < fieldcount; i++) {
-			if (i == fieldcount - 1) {
-				last = true;
-			}
-			getFieldDeclaration(fields[i], sb, last);
-		}
-
-		sb.append(" );");
-
-		db.execSQL(sb.toString());
-	}
-
-	private void getFieldDeclaration(Field field, StringBuilder sb, boolean last) {
-
-		sb.append(" \"");
-		sb.append("col_" + field.getName());
-		sb.append("\"");
-		if (field.getFieldType().getDataType().equals("integer")) {
-			sb.append(" integer NULL");
-		} else if (field.getFieldType().getDataType().equals("number")) {
-			sb.append(" integer NULL");
-		} else if (field.getFieldType().getDataType().equals("boolean")) {
-			sb.append(" bool NULL");
-		} else if (field.getFieldType().getDataType().equals("word")) {
-			sb.append(" varchar(36) NULL");
-		} else if (field.getFieldType().getDataType().equals("ratio")) {
-			sb.append(" varchar(36) NULL");
-		} else if (field.getFieldType().getDataType().equals("datetime")) {
-			sb.append(" datetime NULL");
-		}
-		if (!last) {
-			sb.append(", ");
-		}
-	}
-
-	private Uri insertField(Uri uri, ContentValues values) {
-		if (values.containsKey(RapidSmsDataDefs.Field.FORM) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.NAME) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.FIELDTYPE) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.PROMPT) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false
-				|| values.containsKey(RapidSmsDataDefs.Field._ID) == false) {
-			throw new SQLException("Insufficient arguments for field insert "
-					+ uri);
-		}
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(RapidSmsDataDefs.Field.TABLE,
-				RapidSmsDataDefs.Field.NAME, values);
-		if (rowId > 0) {
-			Uri fieldUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.Field.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(fieldUri, null);
-			return fieldUri;
-		} else {
-			throw new SQLException("Failed to insert row into " + uri
-					+ " error: " + rowId + " ID: "
-					+ values.getAsInteger(RapidSmsDataDefs.Field._ID));
-		}
-	}
-
-	private Uri insertFieldType(Uri uri, ContentValues values) {
-		if (values.containsKey(RapidSmsDataDefs.FieldType._ID) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.NAME) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.REGEX) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.DATATYPE) == false) {
-
-			throw new SQLException(
-					"Insufficient arguments for fieldtype insert " + uri);
-
-		}
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(RapidSmsDataDefs.FieldType.TABLE,
-				RapidSmsDataDefs.FieldType.NAME, values);
-		if (rowId > 0) {
-			Uri fieldtypeUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.FieldType.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(fieldtypeUri, null);
-			return fieldtypeUri;
-		} else {
-			throw new SQLException("Failed to insert row into " + uri);
-		}
-	}
+	
 
 	/**
 	 * @param uri
@@ -426,19 +340,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			values.put(RapidSmsDataDefs.Message.IS_VIRTUAL, false);
 		}
 
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-
-		long rowId = db.insert(RapidSmsDataDefs.Message.TABLE,
-				RapidSmsDataDefs.Message.MESSAGE, values);
-		if (rowId > 0) {
-			Uri noteUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.Message.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(noteUri, null);
-			return noteUri;
-		} else {
-			throw new SQLException("Failed to insert row into " + uri);
-		}
-
+		return doInsert(uri, values, RapidSmsDataDefs.Message.TABLE, RapidSmsDataDefs.Message.MESSAGE);
 	}
 
 	/**
@@ -471,44 +373,23 @@ public class RapidSmsContentProvider extends ContentProvider {
 		if (values.containsKey(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES) == false) {
 			values.put(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES, 0);
 		}
-
-		// ok, so parameters are kosher. let's check to see if this monitor
-		// exists or not.
-		System.out.println("Attempting insert of monitor: " + uri
-				+ " :: phone="
-				+ values.getAsString(RapidSmsDataDefs.Monitor.PHONE));
+		
+		
+		//Check if monitor exists, if it doesn't insert a new one, else return the old one.
 		Cursor exists = query(uri, null, RapidSmsDataDefs.Monitor.PHONE + "='"
 				+ values.getAsString(RapidSmsDataDefs.Monitor.PHONE) + "'",
-				null, null);
-		System.out.println("Insert monitor query result: " + exists.getCount());
+				null, null);		
 
-		if (exists.getCount() == 1) {
-			// throw new SQLException("Monitor " +
-			// values.getAsString(RapidSmsDataDefs.Monitor.PHONE) +
-			// " already exists");
+		if (exists.getCount() == 1) {	
 			exists.moveToFirst();
-			// String[] names = exists.getColumnNames();
-			// for(int q = 0; q < names.length; q++) {
-			// System.out.println("\tMonitorInsert: cols: " + q + "->" +
-			// names[q]);
-			// }
-			return ContentUris.withAppendedId(
-					RapidSmsDataDefs.Monitor.CONTENT_URI, exists.getInt(0));
-
-		}
-		exists.close();
-
-		SQLiteDatabase dbmon = mOpenHelper.getWritableDatabase();
-		long rowIdmon = dbmon.insert(RapidSmsDataDefs.Monitor.TABLE,
-				RapidSmsDataDefs.Monitor.EMAIL, values);
-		if (rowIdmon > 0) {
-			Uri monitorUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.Monitor.CONTENT_URI, rowIdmon);
-			getContext().getContentResolver().notifyChange(monitorUri, null);
-			return monitorUri;
+			int existingMonitorId = exists.getInt(0);
+			exists.close();
+			return ContentUris.withAppendedId(RapidSmsDataDefs.Monitor.CONTENT_URI,existingMonitorId);
 		} else {
-			throw new SQLException("Failed to insert row into " + uri);
+			exists.close();
 		}
+
+		return doInsert(uri, values, RapidSmsDataDefs.Monitor.TABLE, RapidSmsDataDefs.Monitor.PHONE);	
 	}
 
 	@Override
@@ -517,7 +398,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		String table;
 		String finalWhere = "";
-
+		
 		switch (sUriMatcher.match(uri)) {
 		case MESSAGE:
 			table = RapidSmsDataDefs.Message.TABLE;

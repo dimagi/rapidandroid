@@ -6,8 +6,7 @@
 
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name">
-		<provider android:name=".data.RapidSmsContentProvider"
-			android:authorities="org.rapidandroid.provider.RapidSms">
+		<provider android:authorities="org.rapidandroid.provider.RapidSms" android:name=".content.RapidSmsContentProvider">
 		</provider>
 		<activity android:label="@string/app_name" android:name=".activity.Dashboard">
 			<intent-filter>
