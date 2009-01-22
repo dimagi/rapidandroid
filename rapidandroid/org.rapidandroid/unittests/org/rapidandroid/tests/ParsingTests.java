@@ -68,14 +68,16 @@ public class ParsingTests extends AndroidTestCase {
 		cr.getColumnCount();
 		cr.getColumnNames();
 		Form[] forms = ModelWrapper.getAllForms(this.getContext());
+		
 		Log.d("ParsingTests","testParsingGoodMessages");
 		for(int i = 0; i < forms.length; i++) {			
-			Log.d("ParsingTests","******Form " + forms[i].getFormId());
+			Log.d("ParsingTests","******Form " + forms[i].getFormName() + " fields: " + forms[i].getFields().length);
+			
 			for(int j = 0; j < goodMessages.length; j++) {
 				Log.d("ParsingTests","*********** Message: " + j);
 				Vector<IParseResult> results = ParsingService.ParseMessage(forms[i],goodMessages[j]);
 				for(int q = 0; q < results.size(); q++) {
-					Log.d("ParsingTests", results.get(q).getSource()+ " :: " + results.get(q).getValue().toString());
+					Log.d("ParsingTests", results.get(q).getSource()+ " :: " + results.get(q).getValue());
 				}
 			}				
 			

@@ -91,7 +91,7 @@ public class ModelWrapper {
 			//Field[] fields = getFieldsForForm(provider, id); // hack way
 			Field[] fields = getFieldsForForm(context, id); //real way
 
-			Form theForm = new Form(id, name, prefix, description, fields);
+			Form theForm = new Form(id, name, prefix, description, fields,ParserType.SIMPLEREGEX);
 
 			formIdCache.put(idInt, theForm);
 			ret[i] = theForm; 
@@ -147,7 +147,7 @@ public class ModelWrapper {
 		//Field[] fields = getFieldsForForm(provider, id); // hack way
 		Field[] fields = getFieldsForForm(context, id); //real way
 
-		Form ret = new Form(formCursor.getInt(0), name, prefix, description, fields);
+		Form ret = new Form(formCursor.getInt(0), name, prefix, description, fields,ParserType.SIMPLEREGEX);
 		formCache.put(formUri, ret);
 		return ret;
 	}
@@ -254,17 +254,17 @@ public class ModelWrapper {
 		sb.append(" \"");
 		sb.append("col_" + field.getName());
 		sb.append("\"");
-		if (field.getFieldType().getType().equals("integer")) {
+		if (field.getFieldType().getItemType().equals("integer")) {
 			sb.append(" integer NULL");
-		} else if (field.getFieldType().getType().equals("number")) {
+		} else if (field.getFieldType().getItemType().equals("number")) {
 			sb.append(" integer NULL");
-		} else if (field.getFieldType().getType().equals("boolean")) {
+		} else if (field.getFieldType().getItemType().equals("boolean")) {
 			sb.append(" bool NULL");
-		} else if (field.getFieldType().getType().equals("word")) {
+		} else if (field.getFieldType().getItemType().equals("word")) {
 			sb.append(" varchar(36) NULL");
-		} else if (field.getFieldType().getType().equals("ratio")) {
+		} else if (field.getFieldType().getItemType().equals("ratio")) {
 			sb.append(" varchar(36) NULL");
-		} else if (field.getFieldType().getType().equals("datetime")) {
+		} else if (field.getFieldType().getItemType().equals("datetime")) {
 			sb.append(" datetime NULL");
 		}
 		if (!last) {

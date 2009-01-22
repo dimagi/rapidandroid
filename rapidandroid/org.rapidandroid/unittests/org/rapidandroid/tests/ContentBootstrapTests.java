@@ -17,6 +17,7 @@ import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
+import org.rapidsms.java.core.parser.ParsingService.ParserType;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -33,6 +34,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	//First level bootstrap of Form definitions into DB.
 	public void test000BootstrapFormsAndInsertIntoDB() {
 				
+		
 		
 		String fields = "[{\"pk\": 1, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Location of distribution center\", \"name\": \"Location\", \"form\": 1, \"sequence\": 1}}, {\"pk\": 2, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets received\", \"name\": \"received\", \"form\": 1, \"sequence\": 2}}, {\"pk\": 3, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that have been handed out\", \"name\": \"given\", \"form\": 1, \"sequence\": 3}}, {\"pk\": 4, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that remain in balance\", \"name\": \"balance\", \"form\": 1, \"sequence\": 4}}, {\"pk\": 5, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Child Identifier (6 digits)\", \"name\": \"child_id\", \"form\": 2, \"sequence\": 1}}, {\"pk\": 6, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 3, \"prompt\": \"weight\", \"name\": \"weight\", \"form\": 2, \"sequence\": 2}}, {\"pk\": 7, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 4, \"prompt\": \"height\", \"name\": \"height\", \"form\": 2, \"sequence\": 3}}, {\"pk\": 8, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 5, \"prompt\": \"ratio\", \"name\": \"ratio\", \"form\": 2, \"sequence\": 4}}, {\"pk\": 9, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 6, \"prompt\": \"muac\", \"name\": \"muac\", \"form\": 2, \"sequence\": 5}}, {\"pk\": 10, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"Does child suffer from oedema\", \"name\": \"oedema\", \"form\": 2, \"sequence\": 6}}, {\"pk\": 11, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"does the child suffer from diarrhoea\", \"name\": \"diarrhoea\", \"form\": 2, \"sequence\": 7}}]";
 		String forms = "[{\"pk\": 1, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"bednets\", \"description\": \"Bednet Distribution(supply)\", \"formname\": \"bednets\"}}, {\"pk\": 2, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"nutrition\", \"description\": \"Nutrition Information (monitorin and evaluation)\", \"formname\": \"Nutrition\"}}]";
@@ -93,7 +95,8 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					Form newform = new Form(pk, jsonfields.getString("formname"),
 												jsonfields.getString("prefix"),
 												jsonfields.getString("description"),												
-												fieldarr);
+												fieldarr,
+												ParserType.SIMPLEREGEX);
 					allforms.add(newform);
 					
 				} catch (JSONException e) {
@@ -172,6 +175,15 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	private void parseFieldTypes(String types,
 			HashMap<Integer, SimpleFieldType> typeHash) {
 		//ok, let's get the field types
+		HashMap <String, String> hackRegexHash = new HashMap<String, String>();
+		hackRegexHash.put("boolean","(t|f|true|false|y|n|yes|n)");
+		hackRegexHash.put("length","(\\d+)(\\s*(cm|mm|m|meter|meters))");
+		hackRegexHash.put("ratio","(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");
+		hackRegexHash.put("height","(\\d+)(\\s*(cm|m))");
+		hackRegexHash.put("weight","(\\d+)(\\s*(kg|kilo|kilos))");
+		hackRegexHash.put("number","(\\d+)");
+		hackRegexHash.put("word","(\\w+)");
+		
 		try {
 			JSONArray typesarray = new JSONArray(types);
 			
@@ -188,9 +200,10 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					
 					int pk = obj.getInt("pk");
 					JSONObject jsonfields = obj.getJSONObject("fields");					
-					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),jsonfields.getString("regex"),jsonfields.getString("name"));
+					Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + jsonfields.getString("regex") + "]");
+					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),hackRegexHash.get(jsonfields.getString("name")),jsonfields.getString("name"));
 					typeHash.put(new Integer(pk), newtype);
-					//Log.d("dimagi", "#### Parsed SimpleFieldType: " + newtype.getId() + " [" + newtype.getName() + "]");
+					
 					
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -208,6 +221,8 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	
 	private void insertFormsIntoDb(Vector<Form> forms) {
 		//ok, now, let's create all the content types and such one by one.
+		ModelWrapper.ClearFormTables();
+		
 		Log.d("dimagi","** inserting forms into db");
 		for(int i = 0; i < forms.size(); i++) {
 			Form f = forms.get(i);
@@ -248,7 +263,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype
 							.getDataType());
 					typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype
-							.getName());
+							.getItemName());
 					typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype
 							.getRegex());
 
@@ -368,17 +383,17 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				
 				for(int i = 0; i < len; i++) {
 					Field field = fields[i];
-					if (field.getFieldType().getType().equals("integer")) {
+					if (field.getFieldType().getItemType().equals("integer")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
-					} else if (field.getFieldType().getType().equals("number")) {
+					} else if (field.getFieldType().getItemType().equals("number")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
-					} else if (field.getFieldType().getType().equals("boolean")) {
+					} else if (field.getFieldType().getItemType().equals("boolean")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextBoolean());
-					} else if (field.getFieldType().getType().equals("word")) {
+					} else if (field.getFieldType().getItemType().equals("word")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
-					} else if (field.getFieldType().getType().equals("ratio")) {
+					} else if (field.getFieldType().getItemType().equals("ratio")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
-					} else if (field.getFieldType().getType().equals("datetime")) {
+					} else if (field.getFieldType().getItemType().equals("datetime")) {
 						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),"10/31/2008 11:59");
 					}					
 				}	
