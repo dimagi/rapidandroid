@@ -3,6 +3,13 @@
  */
 package org.rapidsms.java.core.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.rapidsms.java.core.parser.IParseItem;
+import org.rapidsms.java.core.parser.IParseResult;
+import org.rapidsms.java.core.parser.SimpleParseResult;
+
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
@@ -11,20 +18,24 @@ package org.rapidsms.java.core.model;
  * 
  */
 
-public class FieldType {
+public class SimpleFieldType implements IParseItem {
 	private String datatype;
 	private int id;
 	private String regex;
 	private String name;
+	
+	private Pattern mPattern;
 
-	public FieldType(int id, String datatype, String regex, String name) {
+	public SimpleFieldType(int id, String datatype, String regex, String name) {
 		this.id = id;
 		this.datatype = datatype;
 		this.regex = regex;
 		this.name = name;
+		mPattern = Pattern.compile(this.regex);
+		
 	}
 
-	public FieldType() {
+	public SimpleFieldType() {
 
 	}
 
@@ -35,9 +46,7 @@ public class FieldType {
 		return datatype;
 	}
 
-	public String getName() {
-		return name;
-	}
+	
 
 	/**
 	 * @param name
@@ -75,6 +84,34 @@ public class FieldType {
 	 */
 	public void setRegex(String regex) {
 		this.regex = regex;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rapidsms.java.core.parser.IParseItem#getType()
+	 */
+	@Override
+	public String getType() {
+		// TODO Auto-generated method stub
+		return datatype;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rapidsms.java.core.parser.IParseItem#Parse(java.lang.String)
+	 */
+	@Override
+	public Object Parse(String fragment) {
+		Matcher matcher = mPattern.matcher(fragment);				
+		if(matcher.matches()) {
+			
+			return matcher.group(0);
+		} else {
+			return null;
+		}
+		
 	}
 
 }

@@ -3,6 +3,10 @@
  */
 package org.rapidsms.java.core.parser;
 
+import java.util.Vector;
+
+import org.rapidsms.java.core.model.Form;
+
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
@@ -14,6 +18,6 @@ package org.rapidsms.java.core.parser;
 
 public interface IMessageParser {
 	boolean CanParse(String input);
-	ParseResult ParseMessage(String input);
-	String getName();
+	Vector<IParseResult> ParseMessage(Form form, String input);
+	String getName();	
 }

@@ -3,6 +3,11 @@
  */
 package org.rapidsms.java.core.parser;
 
+import java.util.Vector;
+
+import org.rapidsms.java.core.model.Field;
+import org.rapidsms.java.core.model.Form;
+
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 16, 2009
@@ -48,9 +53,16 @@ public class SimpleRegexParser implements IMessageParser {
 	 * )
 	 */
 	@Override
-	public ParseResult ParseMessage(String input) {
-		// TODO Auto-generated method stub
-		return null;
+	public Vector<IParseResult> ParseMessage(Form f, String input) {
+		Vector<IParseResult> results = new Vector<IParseResult>();
+		Field[] fields = f.getFields();
+		int length = fields.length;
+		for(int i = 0; i < length; i++) {
+			IParseItem parser = fields[i].getFieldType();
+			IParseResult res = new SimpleParseResult(fields[i], parser.Parse(input));
+			results.add(res);
+		}		
+		return results;
 	}
 
 	/*
@@ -62,6 +74,6 @@ public class SimpleRegexParser implements IMessageParser {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "simpleregex";
-	}
+	}	
 
 }

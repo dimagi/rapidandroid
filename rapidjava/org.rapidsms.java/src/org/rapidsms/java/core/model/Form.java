@@ -6,6 +6,7 @@ package org.rapidsms.java.core.model;
 
 import org.rapidsms.java.core.parser.IMessageParser;
 import org.rapidsms.java.core.parser.SimpleRegexParser;
+import org.rapidsms.java.core.parser.ParsingService.ParserType;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -20,26 +21,19 @@ public class Form {
 	private String formName;
 	private String prefix;
 	private String description;
-	private IMessageParser parser;
+	private ParserType parser;
 	private Field[] fields;
 	
 	public Form() {
 
 	}
 	
-	public Form(int id, String name, String prefix, String desc, String parsetype, Field[] fields) {
+	public Form(int id, String name, String prefix, String desc, Field[] fields) {
 		this.formId = id;
 		formName = name;
 		this.prefix = prefix;
 		this.description = desc;
 		this.fields = fields;
-		
-		//A very hardcoded definition for how we handle alternative parsing methods
-		//For the intial implementation (Jan 2009), this is hardcoded to require a link of a RegexParser instance via the text of the parsemethod in the Form table in the database.
-		//in the future, it's altogether possible to have *all* definitions be defined by the Parsemethod and some file somewhere.
-		if(parsetype.equals("simpleregex")) {
-			this.parser = new SimpleRegexParser();
-		}
 	}
 	
 	/**
@@ -94,17 +88,18 @@ public class Form {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	/**
-	 * @return the parser
-	 */
-	public IMessageParser getParser() {
-		return parser;
-	}
+
 	/**
 	 * @param parser the parser to set
 	 */
-	public void setParser(IMessageParser parser) {
+	public void setParserType(ParserType parser) {
 		this.parser = parser;
 	}
-	
+
+	/**
+	 * @return the parser
+	 */
+	public ParserType getParserType() {
+		return parser;
+	}	
 }
