@@ -34,18 +34,18 @@ public class SimpleParseResult  implements IParseResult {
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.IParseResult#getSource()
 	 */
-	@Override
+	
 	public String getSource() {
 		// TODO Auto-generated method stub
-		return null;
+		return field.getName();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.IParseResult#getValue()
 	 */
-	@Override
+	
 	public String getValue() {
 		// TODO Auto-generated method stub
-		return null;
+		return (String)value;
 	}
 }

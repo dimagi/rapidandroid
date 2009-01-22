@@ -28,12 +28,13 @@ public class Form {
 
 	}
 	
-	public Form(int id, String name, String prefix, String desc, Field[] fields) {
+	public Form(int id, String name, String prefix, String desc, Field[] fields, ParserType parse) {
 		this.formId = id;
 		formName = name;
 		this.prefix = prefix;
 		this.description = desc;
 		this.fields = fields;
+		this.parser = parse;
 	}
 	
 	/**

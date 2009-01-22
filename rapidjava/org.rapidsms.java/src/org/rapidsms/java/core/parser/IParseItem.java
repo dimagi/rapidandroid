@@ -11,6 +11,6 @@ package org.rapidsms.java.core.parser;
 public interface IParseItem {
 	
 	Object Parse(String fragment);
-	String getName();	
-	String getType();
+	String getItemName();	
+	String getItemType();
 }

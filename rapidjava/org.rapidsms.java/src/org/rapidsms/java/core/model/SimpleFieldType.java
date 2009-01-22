@@ -89,24 +89,23 @@ public class SimpleFieldType implements IParseItem {
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.IParseItem#getType()
 	 */
-	@Override
-	public String getType() {
+	
+	public String getItemType() {
 		// TODO Auto-generated method stub
 		return datatype;
 	}
 	
-	public String getName() {
+	public String getItemName() {
 		return name;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.IParseItem#Parse(java.lang.String)
 	 */
-	@Override
+	
 	public Object Parse(String fragment) {
 		Matcher matcher = mPattern.matcher(fragment);				
-		if(matcher.matches()) {
-			
+		if(matcher.matches()) {			
 			return matcher.group(0);
 		} else {
 			return null;

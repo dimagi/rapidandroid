@@ -39,7 +39,7 @@ public class SimpleRegexParser implements IMessageParser {
 	 * @see
 	 * org.rapidsms.java.core.parser.IMessageParser#CanParse(java.lang.String)
 	 */
-	@Override
+	
 	public boolean CanParse(String input) {
 		// TODO Auto-generated method stub
 		return false;
@@ -52,7 +52,7 @@ public class SimpleRegexParser implements IMessageParser {
 	 * org.rapidsms.java.core.parser.IMessageParser#ParseMessage(java.lang.String
 	 * )
 	 */
-	@Override
+	
 	public Vector<IParseResult> ParseMessage(Form f, String input) {
 		Vector<IParseResult> results = new Vector<IParseResult>();
 		Field[] fields = f.getFields();
@@ -70,7 +70,7 @@ public class SimpleRegexParser implements IMessageParser {
 	 * 
 	 * @see org.rapidsms.java.core.parser.IMessageParser#getName()
 	 */
-	@Override
+	
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "simpleregex";
