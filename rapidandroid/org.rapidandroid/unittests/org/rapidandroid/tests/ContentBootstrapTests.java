@@ -12,7 +12,7 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rapidandroid.content.wrapper.ModelWrapper;
+import org.rapidandroid.content.translation.ModelWrapper;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;

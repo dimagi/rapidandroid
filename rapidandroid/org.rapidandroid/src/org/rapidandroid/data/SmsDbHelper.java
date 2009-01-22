@@ -1,6 +1,6 @@
 package org.rapidandroid.data;
 
-import org.rapidandroid.content.wrapper.ModelWrapper;
+import org.rapidandroid.content.translation.ModelWrapper;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 

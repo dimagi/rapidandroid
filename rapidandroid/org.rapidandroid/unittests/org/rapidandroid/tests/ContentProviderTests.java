@@ -13,7 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.content.RapidSmsContentProvider;
-import org.rapidandroid.content.wrapper.ModelWrapper;
+import org.rapidandroid.content.translation.ModelWrapper;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
