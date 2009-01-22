@@ -13,4 +13,6 @@ public interface IParseItem {
 	Object Parse(String fragment);
 	String getItemName();	
 	String getItemType();
+	
+	//parseInterpreter to get the datatype!
 }

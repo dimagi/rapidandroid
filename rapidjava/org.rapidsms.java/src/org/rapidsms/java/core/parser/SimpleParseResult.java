@@ -25,10 +25,12 @@ import org.rapidsms.java.core.model.Form;
 public class SimpleParseResult  implements IParseResult {
 	Field field;
 	Object value;
+	String token;
 	
-	public SimpleParseResult(Field field, Object val) {
+	public SimpleParseResult(Field field, String token, Object val) {
 		this.field = field;
 		this.value = val;
+		this.token = token;
 	}
 
 	/* (non-Javadoc)
@@ -47,5 +49,13 @@ public class SimpleParseResult  implements IParseResult {
 	public String getValue() {
 		// TODO Auto-generated method stub
 		return (String)value;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rapidsms.java.core.parser.IParseResult#getParsedToken()
+	 */
+	public String getParsedToken() {
+		// TODO Auto-generated method stub
+		return token;
 	}
 }

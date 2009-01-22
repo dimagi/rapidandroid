@@ -59,7 +59,7 @@ public class SimpleRegexParser implements IMessageParser {
 		int length = fields.length;
 		for(int i = 0; i < length; i++) {
 			IParseItem parser = fields[i].getFieldType();
-			IParseResult res = new SimpleParseResult(fields[i], parser.Parse(input));
+			IParseResult res = new SimpleParseResult(fields[i], "",parser.Parse(input));
 			results.add(res);
 		}		
 		return results;
