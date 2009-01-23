@@ -3,7 +3,7 @@
  */
 package org.rapidsms.java.core.model;
 
-import org.rapidsms.java.core.parser.IParseItem;
+import org.rapidsms.java.core.parser.token.ITokenParser;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -17,9 +17,9 @@ public class Field {
 	private int sequenceId;
 	private String name;
 	private String prompt;
-	private IParseItem fieldType;
+	private ITokenParser fieldType;
 	
-	public Field(int id, int sequence, String name, String prompt, IParseItem ftype) {
+	public Field(int id, int sequence, String name, String prompt, ITokenParser ftype) {
 		this.fieldId = id;
 		this.sequenceId = sequence;
 		this.name = name;
@@ -82,13 +82,13 @@ public class Field {
 	/**
 	 * @return the fieldType
 	 */
-	public IParseItem getFieldType() {
+	public ITokenParser getFieldType() {
 		return fieldType;
 	}
 	/**
 	 * @param fieldType the fieldType to set
 	 */
-	public void setFieldType(IParseItem fieldType) {
+	public void setFieldType(ITokenParser fieldType) {
 		this.fieldType = fieldType;
 	}
 	

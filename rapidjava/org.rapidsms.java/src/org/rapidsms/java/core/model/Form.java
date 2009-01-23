@@ -4,9 +4,7 @@
 package org.rapidsms.java.core.model;
 
 
-import org.rapidsms.java.core.parser.IMessageParser;
-import org.rapidsms.java.core.parser.SimpleRegexParser;
-import org.rapidsms.java.core.parser.ParsingService.ParserType;
+import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -35,6 +33,8 @@ public class Form {
 		this.description = desc;
 		this.fields = fields;
 		this.parser = parse;
+		
+		System.out.println("Created new form: " + formName + " prefix: " + prefix);
 	}
 	
 	/**

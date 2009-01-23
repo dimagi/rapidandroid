@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.parser.token.ITokenParser;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -54,12 +55,51 @@ public class SimpleRegexParser implements IMessageParser {
 	 */
 	
 	public Vector<IParseResult> ParseMessage(Form f, String input) {
-		Vector<IParseResult> results = new Vector<IParseResult>();
+		System.out.println("");
+		System.out.println("");
+		System.out.println("********** begin ParseMessage ************");
+		
+		//ok, for this iteration, we're going to greedily determine if this is a message we can fracking parse.
+		
+		String prefix = f.getPrefix();
+		System.out.println("what's the fracking form prefix: " + prefix);
+		
+		if(input.startsWith(prefix + " ")) {
+			
+			input = input.substring(prefix.length()).trim();
+		} else {
+			return null;
+		}
+		
+		Vector<IParseResult> results = new Vector<IParseResult>();		
 		Field[] fields = f.getFields();
 		int length = fields.length;
+		
 		for(int i = 0; i < length; i++) {
-			IParseItem parser = fields[i].getFieldType();
-			IParseResult res = new SimpleParseResult(fields[i], "",parser.Parse(input));
+			ITokenParser parser = fields[i].getFieldType();
+			System.out.println("Begin field parse: [" + fields[i].getName() + "] on input: {" + input + "}");
+			IParseResult res = parser.Parse(input);
+			
+			//ok, so we got the res, so we need to subtract the parsed string if at all possible.
+			if(res != null) {
+				String justParsedToken = res.getParsedToken();
+				int tokLen = justParsedToken.length();
+				System.out.println("Parsed input:" + input);
+				System.out.println("Just parsed:" + justParsedToken + "##");
+				int tokStart = input.indexOf(justParsedToken);				
+				System.out.println("tokLen: " + tokLen);
+				
+				if(tokStart > 0) {
+					tokStart = tokStart -1; //need to shift over one for the shiftage
+				}
+				//int tokRest = tokStart+1;
+				
+				System.out.println("tokStart: " + tokStart);
+				System.out.println("inputLen: " + input.length());
+				String newInput = input.substring(0, tokStart) + input.substring(tokLen);
+				
+				input = newInput.trim();
+			}
 			results.add(res);
 		}		
 		return results;

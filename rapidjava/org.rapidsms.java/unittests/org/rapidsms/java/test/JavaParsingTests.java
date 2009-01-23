@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.rapidsms.java.core.parser.IParseResult;
-import org.rapidsms.java.core.parser.ParsingService;
+import org.rapidsms.java.core.parser.service.ParsingService;
 
 import junit.framework.TestCase;
 
@@ -75,13 +75,13 @@ public class JavaParsingTests extends TestCase {
 		super.setUp();
 		
 		regexes = new Vector<String>();
-		regexes.add("(^|\\s)(t|f|true|false|y|no|yes|n|n0)(\\s|$)");	//bool
-		regexes.add("(^|\\s)(\\d+)(\\s*(cm|mm|m|meter|meters))($|\\s)");	//height
-		regexes.add("(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");//ratio
-		regexes.add("(^|\\s)(\\d+)(\\s*(cm|m))($|\\s)");	//length
-		regexes.add("(^|\\s)(\\d+)(\\s*(kg|kilo|kilos))($|\\s)");	//weight
-		regexes.add("(^|\\s)(\\d+)($|\\s)");	//number	
-		regexes.add("(^|\\s)([A-Za-z]+)($|\\s)");//word
+		regexes.add("^(t|f|true|false|y|no|yes|n|n0)(\\s|$)");	//bool
+		regexes.add("^(\\d+)(\\s*(cm|mm|m|meter|meters))($|\\s)");	//height
+		regexes.add("^(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");//ratio
+		regexes.add("^(\\d+)(\\s*(cm|m))($|\\s)");	//length
+		regexes.add("^(\\d+)(\\s*(kg|kilo|kilos))($|\\s)");	//weight
+		regexes.add("^(\\d+)($|\\s)");	//number	
+		regexes.add("^([A-Za-z]+)($|\\s)");//word
 		//System.out.println("Setting up regexes " + regexes.size());
 	}
 
@@ -136,7 +136,7 @@ public class JavaParsingTests extends TestCase {
 		}
 	}
 
-	private String subtractiveParse(String fragmentToParse, String regex) {
+	public String subtractiveParse(String fragmentToParse, String regex) {
 		
 		Pattern mPattern;
 		mPattern = Pattern.compile(regex);

@@ -3,10 +3,10 @@
  */
 package org.rapidsms.java.core.parser;
 
-import java.util.HashMap;
 
 import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.SimpleFieldType;
+import org.rapidsms.java.core.parser.token.ITokenParser;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -23,12 +23,12 @@ import org.rapidsms.java.core.model.Form;
  */
 
 public class SimpleParseResult  implements IParseResult {
-	Field field;
+	ITokenParser fieldType;
 	Object value;
 	String token;
 	
-	public SimpleParseResult(Field field, String token, Object val) {
-		this.field = field;
+	public SimpleParseResult(ITokenParser fieldType, String token, Object val) {
+		this.fieldType = fieldType;
 		this.value = val;
 		this.token = token;
 	}
@@ -39,16 +39,16 @@ public class SimpleParseResult  implements IParseResult {
 	
 	public String getSource() {
 		// TODO Auto-generated method stub
-		return field.getName();
+		return fieldType.getTokenName();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.IParseResult#getValue()
 	 */
 	
-	public String getValue() {
+	public Object getValue() {
 		// TODO Auto-generated method stub
-		return (String)value;
+		return value;
 	}
 
 	/* (non-Javadoc)
