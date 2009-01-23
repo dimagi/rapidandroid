@@ -18,7 +18,7 @@ import android.net.Uri;
  * 
  */
 
-public class MessageWrapper {
+public class MessageTranslator {
 	
 
 	

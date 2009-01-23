@@ -12,12 +12,12 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rapidandroid.content.translation.ModelWrapper;
+import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
-import org.rapidsms.java.core.parser.ParsingService.ParserType;
+import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -34,11 +34,11 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	//First level bootstrap of Form definitions into DB.
 	public void test000BootstrapFormsAndInsertIntoDB() {
 				
-		
+		ModelTranslator.ClearFormTables();
 		
 		String fields = "[{\"pk\": 1, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Location of distribution center\", \"name\": \"Location\", \"form\": 1, \"sequence\": 1}}, {\"pk\": 2, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets received\", \"name\": \"received\", \"form\": 1, \"sequence\": 2}}, {\"pk\": 3, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that have been handed out\", \"name\": \"given\", \"form\": 1, \"sequence\": 3}}, {\"pk\": 4, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that remain in balance\", \"name\": \"balance\", \"form\": 1, \"sequence\": 4}}, {\"pk\": 5, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Child Identifier (6 digits)\", \"name\": \"child_id\", \"form\": 2, \"sequence\": 1}}, {\"pk\": 6, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 3, \"prompt\": \"weight\", \"name\": \"weight\", \"form\": 2, \"sequence\": 2}}, {\"pk\": 7, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 4, \"prompt\": \"height\", \"name\": \"height\", \"form\": 2, \"sequence\": 3}}, {\"pk\": 8, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 5, \"prompt\": \"ratio\", \"name\": \"ratio\", \"form\": 2, \"sequence\": 4}}, {\"pk\": 9, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 6, \"prompt\": \"muac\", \"name\": \"muac\", \"form\": 2, \"sequence\": 5}}, {\"pk\": 10, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"Does child suffer from oedema\", \"name\": \"oedema\", \"form\": 2, \"sequence\": 6}}, {\"pk\": 11, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"does the child suffer from diarrhoea\", \"name\": \"diarrhoea\", \"form\": 2, \"sequence\": 7}}]";
 		String forms = "[{\"pk\": 1, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"bednets\", \"description\": \"Bednet Distribution(supply)\", \"formname\": \"bednets\"}}, {\"pk\": 2, \"model\": \"rapidandroid.form\", \"fields\": {\"parsemethod\": \"simpleregex\", \"prefix\": \"nutrition\", \"description\": \"Nutrition Information (monitorin and evaluation)\", \"formname\": \"Nutrition\"}}]";
-		String types = "[{\"pk\": 1, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"word\", \"regex\": \"\\w+\", \"name\": \"word\"}}, {\"pk\": 2, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"number\", \"regex\": \"\\d+\", \"name\": \"number\"}}, {\"pk\": 3, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?c:\\s*(kg|kilo|kilos|lb|lbs|pounds))\", \"name\": \"weight\"}}, {\"pk\": 4, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|m|in))\", \"name\": \"height\"}}, {\"pk\": 5, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"ratio\", \"regex\": \"(\\d+\\:\\d+)|(\\d+\\/\\d+)\", \"name\": \"ratio\"}}, {\"pk\": 6, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|mm|m|in|ft|feet|meter|meters))\", \"name\": \"length\"}}, {\"pk\": 7, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"boolean\", \"regex\": \"(t|f|true|false|y|n|yes|no)\", \"name\": \"boolean\"}}]";
+		String types = "[{\"pk\": 1, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"word\", \"regex\": \"\\w+\", \"name\": \"word\"}}, {\"pk\": 2, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"number\", \"regex\": \"\\d+\", \"name\": \"number\"}}, {\"pk\": 3, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"float\", \"regex\": \"(\\d+{1,3})(?c:\\s*(kg|kilo|kilos|lb|lbs|pounds))\", \"name\": \"weight\"}}, {\"pk\": 4, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|m|in))\", \"name\": \"height\"}}, {\"pk\": 5, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"float\", \"regex\": \"(\\d+\\:\\d+)|(\\d+\\/\\d+)\", \"name\": \"ratio\"}}, {\"pk\": 6, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"integer\", \"regex\": \"(\\d+{1,3})(?:\\s*(cm|mm|m|in|ft|feet|meter|meters))\", \"name\": \"length\"}}, {\"pk\": 7, \"model\": \"rapidandroid.fieldtype\", \"fields\": {\"datatype\": \"boolean\", \"regex\": \"(t|f|true|false|y|n|yes|no)\", \"name\": \"boolean\"}}]";
 		
 		String formdefs = "";		
 		
@@ -176,13 +176,14 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			HashMap<Integer, SimpleFieldType> typeHash) {
 		//ok, let's get the field types
 		HashMap <String, String> hackRegexHash = new HashMap<String, String>();
-		hackRegexHash.put("boolean","(t|f|true|false|y|n|yes|n)");
-		hackRegexHash.put("length","(\\d+)(\\s*(cm|mm|m|meter|meters))");
-		hackRegexHash.put("ratio","(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");
-		hackRegexHash.put("height","(\\d+)(\\s*(cm|m))");
-		hackRegexHash.put("weight","(\\d+)(\\s*(kg|kilo|kilos))");
-		hackRegexHash.put("number","(\\d+)");
-		hackRegexHash.put("word","(\\w+)");
+		
+		hackRegexHash.put("boolean","^(t|f|true|false|y|no|yes|n|n0)(\\s|$)");
+		hackRegexHash.put("length","^(\\d+)(\\s*(cm|m))($|\\s)");
+		hackRegexHash.put("ratio","^(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");
+		hackRegexHash.put("height","^(\\d+)(\\s*(cm|mm|meter|meters))($|\\s)");
+		hackRegexHash.put("weight","^(\\d+)(\\s*(kg|kilo|kilos))");
+		hackRegexHash.put("number","^(\\d+)($|\\s)");
+		hackRegexHash.put("word","^([A-Za-z]+)($|\\s)");
 		
 		try {
 			JSONArray typesarray = new JSONArray(types);
@@ -200,7 +201,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					
 					int pk = obj.getInt("pk");
 					JSONObject jsonfields = obj.getJSONObject("fields");					
-					Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + jsonfields.getString("regex") + "]");
+					Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + hackRegexHash.get(jsonfields.getString("name")) + "]");
 					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),hackRegexHash.get(jsonfields.getString("name")),jsonfields.getString("name"));
 					typeHash.put(new Integer(pk), newtype);
 					
@@ -221,7 +222,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	
 	private void insertFormsIntoDb(Vector<Form> forms) {
 		//ok, now, let's create all the content types and such one by one.
-		ModelWrapper.ClearFormTables();
+		ModelTranslator.ClearFormTables();
 		
 		Log.d("dimagi","** inserting forms into db");
 		for(int i = 0; i < forms.size(); i++) {
@@ -259,13 +260,15 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				if (typeCursor.getCount() == 0) {
 					ContentValues typecv = new ContentValues();
 
-					typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());
-					typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype
-							.getDataType());
-					typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype
-							.getItemName());
-					typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype
-							.getRegex());
+					typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());					
+					typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype.getDataType());
+					typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype.getTokenName());
+					typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype.getRegex());
+					
+					Log.d("dimagi", "InsertFieldType: " + thetype.getId());
+					Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
+					Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
+					Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
 
 					Uri insertedTypeUri = getContext().getContentResolver().insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
 					Log.d("dimagi","********** Inserted SimpleFieldType into db: " + insertedTypeUri);
@@ -324,7 +327,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			int id = cr.getInt(0);	//presumably the id
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
 			Log.d("dimagi", "Querying for form: " + directUri);
-			Form f = ModelWrapper.getFormFromUri(getContext(), directUri);
+			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);
 			
 			assertNotNull(f);
 			assertNotNull(f.getFields());
@@ -345,14 +348,15 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			int id = cr.getInt(0);	//presumably the id
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
 			
-			Form f = ModelWrapper.getFormFromUri(getContext(), directUri);
+			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);
 			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
-			ModelWrapper.generateFormTable(f);			
+			ModelTranslator.generateFormTable(f);			
 		} while (cr.moveToNext());		
 		//mProv.ClearFormDataDebug();	//see if this crashes		
 	}
 	
-	public void test006InsertDummyFormData() {
+	
+	private void test006InsertDummyFormData() {
 		
 		test005RegenerateTablesForForms();
 		
@@ -365,7 +369,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			
 			int id = cr.getInt(0);	//presumably the id			
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);			
-			Form f = ModelWrapper.getFormFromUri(getContext(), directUri);			
+			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);			
 			
 			for (int msgcount = 0; msgcount < 10; msgcount++) {
 				// first, let's make a new dummy message:

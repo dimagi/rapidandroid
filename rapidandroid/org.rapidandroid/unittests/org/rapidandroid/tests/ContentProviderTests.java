@@ -9,18 +9,15 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.apache.http.impl.cookie.DateUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rapidandroid.content.RapidSmsContentProvider;
-import org.rapidandroid.content.translation.ModelWrapper;
+import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.model.Form;
-import org.rapidsms.java.core.parser.ParsingService;
-import org.rapidsms.java.core.parser.ParsingService.ParserType;
+import org.rapidsms.java.core.parser.service.ParsingService;
+import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -117,7 +114,7 @@ public class ContentProviderTests extends
 	}
 	
 	public void test002MonitorInsertAndVerifyCounts() {
-		int count = 10;
+		int count = 1;
 		int baseline = 0;
 		//Log.w("ContentProviderTests.testMonitorInsertAndVerifyCounts", "flasjdfklasdjf");
 		Uri monitorquery = Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/monitor");
@@ -139,7 +136,8 @@ public class ContentProviderTests extends
 	
 	//add a bunch and confirm that the number of messages are ok
 	//add messages as well and see if the number of 
-	public void test002MessageInsertMessage() {
+	private void test002MessageInsertMessage() {
+		
 		String msg1 = "alert unlocked supply room at WSMA";
 		String date1 = "10/30/2008 19:51";
 		String phone1 = "251912149840";		
@@ -194,7 +192,7 @@ public class ContentProviderTests extends
 		currUri = mProv.insert(RapidSmsDataDefs.Message.CONTENT_URI, initialValues);
 	}
 	
-	public void test003InsertMessagesAndCountPerMonitor() {
+	private void test003InsertMessagesAndCountPerMonitor() {
 		String msg1 = "alert unlocked supply room at WSMA";
 		String date1 = "10/30/2008 19:51";
 		String phone1 = "251912149840";		
@@ -295,7 +293,7 @@ public class ContentProviderTests extends
 
 	
 
-	public void testGetFormData() {
+	private void testGetFormData() {
 		// objective:
 		// get all the forms from the database
 		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;

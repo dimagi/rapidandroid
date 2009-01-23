@@ -272,15 +272,10 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 			throw new SQLException(
 					"Insufficient arguments for fieldtype insert " + uri);
-
 		}
-		
 		return doInsert(uri, values, RapidSmsDataDefs.FieldType.TABLE,RapidSmsDataDefs.FieldType.NAME);		
 	}
 	
-
-	
-
 	public void ClearFormDataDebug() {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Cursor formsCursor = db.query("rapidandroid_form",
@@ -294,12 +289,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			String dropstatement = "drop table formdata_" + id + ";";
 			db.execSQL(dropstatement);
 		} while (formsCursor.moveToNext());
-
 	}
-
-	
-
-	
 
 	/**
 	 * @param uri

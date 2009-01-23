@@ -1,11 +1,7 @@
 package org.rapidandroid.data;
 
-import org.rapidandroid.content.translation.ModelWrapper;
-import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.Form;
-
+import org.rapidandroid.content.translation.*;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -31,7 +27,7 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 		// For eventual sd card storage:
 		// SQLiteDatabase.openDatabase("/sdcard/my.db", null,
 		// SQLiteDatabase.CREATE_IF_NECESSARY);
-		ModelWrapper.setDbHelper(this);
+		ModelTranslator.setDbHelper(this);
 	}
 
 	@Override

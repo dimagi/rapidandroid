@@ -9,6 +9,6 @@ package org.rapidandroid.content.translation;
  */
 
 
-public class ParsedDataWrapper {
+public class ParsedDataTranslator {
 
 }

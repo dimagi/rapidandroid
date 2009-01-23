@@ -5,19 +5,15 @@ import java.util.HashMap;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.parser.IParseResult;
-import org.rapidsms.java.core.parser.ParsingService;
-import org.rapidsms.java.core.parser.ParsingService.ParserType;
-
-import android.content.ContentProvider;
+import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
@@ -32,7 +28,7 @@ import android.util.Log;
  *          and returns the actual coremodel objects.
  */
 
-public class ModelWrapper {
+public class ModelTranslator {
 
 	private static HashMap<String, Integer> formColumnNamesToIndex;
 	private static HashMap<String, Integer> fieldColumnNamesToIndex;
@@ -95,7 +91,9 @@ public class ModelWrapper {
 
 			formIdCache.put(idInt, theForm);
 			ret[i] = theForm; 
+			allformsCursor.moveToNext();
 		}		
+		allformsCursor.close();
 		return ret;		
 	}
 	
