@@ -1,1 +1,1 @@
-adb shell am instrument -w org.rapidandroid/android.test.InstrumentationTestRunner
+adb shell am instrument -w -e debug true org.rapidandroid/android.test.InstrumentationTestRunner

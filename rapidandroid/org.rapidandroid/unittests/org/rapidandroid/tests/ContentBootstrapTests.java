@@ -179,7 +179,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 		hackRegexHash.put("boolean","^(t|f|true|false|y|no|yes|n|n0)(\\s|$)");
 		hackRegexHash.put("length","^(\\d+)(\\s*(cm|m))($|\\s)");
-		hackRegexHash.put("ratio","^(\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)");
+		hackRegexHash.put("ratio","^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct))");
 		hackRegexHash.put("height","^(\\d+)(\\s*(cm|mm|meter|meters))($|\\s)");
 		hackRegexHash.put("weight","^(\\d+)(\\s*(kg|kilo|kilos))");
 		hackRegexHash.put("number","^(\\d+)($|\\s)");
@@ -246,7 +246,8 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				Uri insertedFormUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Form.CONTENT_URI, typecv);
 				Log.d("dimagi","****** Inserted form into db: " + insertedFormUri);
 				assertEquals(insertedFormUri.getPathSegments().get(1),f.getFormId()+"");					
-			}				
+			}		
+			crform.close();
 			
 			Log.d("dimagi","****** Begin fields loop: " + fields.length);
 			for(int j = 0; j < fields.length; j++) {
@@ -274,6 +275,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					Log.d("dimagi","********** Inserted SimpleFieldType into db: " + insertedTypeUri);
 					assertEquals(insertedTypeUri.getPathSegments().get(1),thetype.getId()+"");					
 				}
+				typeCursor.close();
 				
 				Uri fieldUri = Uri.parse(RapidSmsDataDefs.Field.CONTENT_URI_STRING + thefield.getFieldId());
 				Cursor crfield = getContext().getContentResolver().query(fieldUri, null, null, null, null);
@@ -299,7 +301,8 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					Uri insertedFieldUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Field.CONTENT_URI, typecv);
 					Log.d("dimagi","********** Inserted Field into db: " + insertedFieldUri);
 					assertEquals(insertedFieldUri.getPathSegments().get(1),thefield.getFieldId()+"");					
-				}				
+				}			
+				crfield.close();
 				//next, make the uri and insert for the field.
 			}
 		}		
@@ -332,6 +335,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			assertNotNull(f);
 			assertNotNull(f.getFields());
 		} while (cr.moveToNext());		
+		cr.close();
 	}
 	
 	public void test005RegenerateTablesForForms() {
@@ -352,7 +356,8 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
 			ModelTranslator.generateFormTable(f);			
 		} while (cr.moveToNext());		
-		//mProv.ClearFormDataDebug();	//see if this crashes		
+		//mProv.ClearFormDataDebug();	//see if this crashes
+		cr.close();
 	}
 	
 	
@@ -408,5 +413,6 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			
 						
 		} while (cr.moveToNext());
+		cr.close();
 	}	
 }

@@ -202,6 +202,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			throw new SQLException("Failed to insert row into " + uri
 					+ " :: table doesn't exist.");
 		}
+		table_exists.close();
 
 		//doInsert doesn't apply well here.		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -289,6 +290,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			String dropstatement = "drop table formdata_" + id + ";";
 			db.execSQL(dropstatement);
 		} while (formsCursor.moveToNext());
+		formsCursor.close();
 	}
 
 	/**
@@ -498,11 +500,10 @@ public class RapidSmsContentProvider extends ContentProvider {
 			// this is possible via querying hte forms to get the
 			// formname/prefix from the form table definition
 			// and appending that to do the qb.setTables
-			// qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
-			// qb.appendWhere(RapidSmsDataDefs.FieldType._ID + "=" +
-			// uri.getPathSegments().get(1));
-			throw new IllegalArgumentException(uri
-					+ " query handler not implemented.");
+			String formid = uri.getPathSegments().get(1); 
+			 qb.setTables(RapidSmsDataDefs.FormData.TABLE_PREFIX + formid);
+			 break;
+			//throw new IllegalArgumentException(uri	+ " query handler not implemented.");
 
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

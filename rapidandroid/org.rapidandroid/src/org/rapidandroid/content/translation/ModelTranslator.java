@@ -147,6 +147,7 @@ public class ModelTranslator {
 
 		Form ret = new Form(formCursor.getInt(0), name, prefix, description, fields,ParserType.SIMPLEREGEX);
 		formCache.put(formUri, ret);
+		formCursor.close();
 		return ret;
 	}
 
@@ -197,6 +198,7 @@ public class ModelTranslator {
 
 		} while (fieldsCursor.moveToNext());
 
+		fieldsCursor.close();
 		return newfields;
 	}
 
@@ -243,6 +245,7 @@ public class ModelTranslator {
 		// SimpleFieldType ftype) {
 		SimpleFieldType newType = new SimpleFieldType(id, dataType, regex, name);
 		fieldTypeCache.put(typeInt, newType);
+		typeCursor.close();
 		return newType;
 
 	}

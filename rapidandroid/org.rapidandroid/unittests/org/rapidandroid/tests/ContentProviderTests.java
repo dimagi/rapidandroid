@@ -120,6 +120,7 @@ public class ContentProviderTests extends
 		Uri monitorquery = Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/monitor");
 		Cursor cr = mProv.query(monitorquery, null, null, null, null);
 		baseline = cr.getCount();
+		cr.close();
 		
 		for(int i = 0; i < count; i++) {
 			ContentValues initialValues = new ContentValues();
@@ -128,7 +129,8 @@ public class ContentProviderTests extends
 		}
 		
 		Cursor cr2 =mProv.query(monitorquery, null, null, null, null);
-		assertEquals(baseline+count, cr2.getCount());		
+		assertEquals(baseline+count, cr2.getCount());
+		cr2.close();
         
 	}
 	
@@ -177,10 +179,11 @@ public class ContentProviderTests extends
 		//confirm the numbers
 		Cursor msgcount = mProv.query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, null);
 		assertEquals(7,msgcount.getCount());
+		msgcount.close();
 		
 		Cursor monitorcount = mProv.query(RapidSmsDataDefs.Monitor.CONTENT_URI, null, null, null, null);
 		assertEquals(3,monitorcount.getCount());
-				
+		monitorcount.close();
 	}
 	
 	private void doSendMessage(String msg, String date, String phone) {
@@ -272,6 +275,7 @@ public class ContentProviderTests extends
 		
 		Cursor newcountc = mProv.query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, null);
 		int newcount = newcountc.getCount();
+		newcountc.close();
 		
 		assertEquals(newcount+delcount,oldcount);
 		//System.out.println("deleteMessagesByMonitor: " + monitor_id + " oldcount: " + oldcount + " delcount: " + delcount + " newcount: " + newcount);		 
@@ -284,11 +288,13 @@ public class ContentProviderTests extends
 	public void testGetFieldTypes() {
 		Uri query = RapidSmsDataDefs.FieldType.CONTENT_URI;
 		Cursor cr = mProv.query(query, null, null, null, null);
+		cr.close();
 	}	
 	
 	public void testGetFields() {
 		Uri query = RapidSmsDataDefs.Field.CONTENT_URI;
 		Cursor cr = mProv.query(query, null, null, null, null);
+		cr.close();
 	}
 
 	
