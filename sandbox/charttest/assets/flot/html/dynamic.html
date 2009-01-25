@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Flot Examples</title>
+    <link href="layout.css" rel="stylesheet" type="text/css"></link>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="../excanvas.pack.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="../jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="../jquery.flot.js"></script>
+    
+    <script id="source" language="javascript" type="text/javascript">
+function load(){
+	document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle();
+	window.graphdata.loadGraph();
+}
+
+function GotGraph(gdata) {
+	$.plot($("#placeholder"), gdata);
+
+}
+</script>
+    
+ </head>
+    <body onload="load()">
+    <h1 id="graphtitle">Bar Graph</h1>
+
+    <div id="placeholder" style="width:600px;height:300px"></div>   
+ </body>
+</html>
