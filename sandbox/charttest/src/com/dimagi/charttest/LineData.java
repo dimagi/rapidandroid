@@ -92,9 +92,13 @@ public class LineData {
 		return ret;
 	}
 
-
 	public String getGraphTitle() {
-		return "my line baby!";
+		return "my line baby";
+	}
+
+	//THIS ALSO WORKS!!
+	public String getGraphTitle(String arg, int intarg) {
+		return "my line baby: " + arg.length() * intarg;
 	}
 
 }
