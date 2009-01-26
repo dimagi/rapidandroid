@@ -40,6 +40,6 @@ android:layout_width="fill_parent"
 android:text="@string/lbl_dashboardmessages"
 style="?android:attr/listSeparatorTextViewStyle"
 ></TextView>
-<ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="wrap_content"></ListView>
+<ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="fill_parent"></ListView>
 </LinearLayout>
 </LinearLayout>

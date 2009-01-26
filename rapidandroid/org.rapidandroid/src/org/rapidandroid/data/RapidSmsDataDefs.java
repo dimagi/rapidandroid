@@ -27,6 +27,8 @@ public final class RapidSmsDataDefs {
 		public static final String URI_PART = "message";
 		public static final Uri CONTENT_URI = Uri.parse("content://"
 				+ AUTHORITY + "/" + URI_PART);
+		public static final String CONTENT_URI_STRING = "content://"
+			+ AUTHORITY + "/" + URI_PART + "/";
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.message";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.message";
@@ -50,7 +52,7 @@ public final class RapidSmsDataDefs {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.monitor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.monitor";
 
-		public static final String URI_PART = "monitor";
+		public static final String URI_PART = "mMonitorString";
 		public static final Uri CONTENT_URI = Uri.parse("content://"
 				+ AUTHORITY + "/" + URI_PART);
 

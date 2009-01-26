@@ -28,7 +28,7 @@ import android.util.Log;
  *          Gets triggered on Android SMS receive event, gets a handle to the
  *          message and does the following: - verify that it's what the app
  *          wants to process - save message to rapidandroid's db via the content
- *          provider - save a new monitor if necessary (that's handled by the
+ *          provider - save a new mMonitorString if necessary (that's handled by the
  *          content provider save) - delete message from inbox because we don't
  *          want it to be in duplicate - upon successful save, trigger a
  *          separate event to tell the next process that a save was done.
@@ -58,6 +58,8 @@ public class SmsReceiver extends BroadcastReceiver {
 		// to a
 		// datetime
 		// string
+		
+		
 		messageValues.put(RapidSmsDataDefs.Message.TIME, ts.toString());
 		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
 		Uri msgUri = context.getContentResolver().insert(writeMessageUri,
@@ -66,7 +68,7 @@ public class SmsReceiver extends BroadcastReceiver {
 		Intent broadcast = new Intent("org.rapidandroid.intents.SMS_SAVED");
 		broadcast.putExtra("from", mesg.getOriginatingAddress());
 		broadcast.putExtra("body", mesg.getMessageBody());
-		broadcast.putExtra("uri", msgUri);
+		broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
 		context.sendBroadcast(broadcast);
 	}
 

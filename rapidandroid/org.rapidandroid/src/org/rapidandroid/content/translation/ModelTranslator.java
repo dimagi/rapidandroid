@@ -43,6 +43,7 @@ public class ModelTranslator {
 	
 	public static void setDbHelper(SmsDbHelper helper) {
 		mDbHelper = helper;
+		
 	}	
 	
 	// dmyung 1/19/2009
@@ -60,6 +61,15 @@ public class ModelTranslator {
 		Cursor allformsCursor = context.getContentResolver().query(getFormsUri,null,null,null,null); //real way
 		//Cursor allformsCursor = provider.query(getFormsUri,null,null,null,null);	//hack way
 		
+		if (formColumnNamesToIndex == null) {
+			formColumnNamesToIndex = new HashMap<String, Integer>();
+			String[] colnames = allformsCursor.getColumnNames();
+			int colcount = colnames.length;
+			for (int i = 0; i < colcount; i++) {
+				formColumnNamesToIndex.put(colnames[i], new Integer(allformsCursor
+						.getColumnIndex(colnames[i])));
+			}
+		}
 		int formcount = allformsCursor.getCount();
 		
 		Form[] ret = new Form[formcount];
@@ -113,6 +123,7 @@ public class ModelTranslator {
 
 		//Cursor formCursor = provider.query(formUri, null, null, null, null); // hack
 																				// way
+		
 		Cursor formCursor = context.getContentResolver().query(formUri,null,null,null,null); //real way
 		if (formCursor.getCount() != 1) {
 			throw new IllegalArgumentException(formUri
@@ -127,7 +138,6 @@ public class ModelTranslator {
 				formColumnNamesToIndex.put(colnames[i], new Integer(formCursor
 						.getColumnIndex(colnames[i])));
 			}
-
 		}
 
 		formCursor.moveToFirst();

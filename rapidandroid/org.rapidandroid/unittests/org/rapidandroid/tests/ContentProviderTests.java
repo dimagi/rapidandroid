@@ -117,7 +117,7 @@ public class ContentProviderTests extends
 		int count = 1;
 		int baseline = 0;
 		//Log.w("ContentProviderTests.testMonitorInsertAndVerifyCounts", "flasjdfklasdjf");
-		Uri monitorquery = Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/monitor");
+		Uri monitorquery = Uri.parse("content://" + RapidSmsDataDefs.AUTHORITY + "/mMonitorString");
 		Cursor cr = mProv.query(monitorquery, null, null, null, null);
 		baseline = cr.getCount();
 		cr.close();
@@ -249,6 +249,10 @@ public class ContentProviderTests extends
 		confirmMessageCountForMonitor(getMonitorIdForPhoneNumber("251911877430"),0);		
 	}
 	
+	public void test004GetMesssages() {
+		
+	}
+	
 	private int getMonitorIdForPhoneNumber(String phonenumber) {
 		Cursor monitor = mProv.query(RapidSmsDataDefs.Monitor.CONTENT_URI, null, "phone='" + phonenumber + "'", null,null);
 		monitor.moveToFirst();
@@ -321,9 +325,5 @@ public class ContentProviderTests extends
 		}
 		cr.close();
 	}
-	
-	
-	
-	
 	
 }

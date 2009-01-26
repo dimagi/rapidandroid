@@ -53,9 +53,9 @@ public class FormReview extends ListActivity { // this could totally be a list
 		// from an xml file at the moment.
 		// setContentView(R.layout.form_review);
 		// ListView lsv = (ListView) findViewById(R.id.lsv_messages);
-		// MessageViewAdapter msgAdapter = new
-		// MessageViewAdapter(lsv.getContext(), R.layout.message_view);
-		// MessageViewAdapter msgAdapter = new MessageViewAdapter(this,
+		// ParsedMessageViewAdapter msgAdapter = new
+		// ParsedMessageViewAdapter(lsv.getContext(), R.layout.message_view);
+		// ParsedMessageViewAdapter msgAdapter = new ParsedMessageViewAdapter(this,
 		// R.layout.message_view);
 		// lsv.setAdapter(msgAdapter);
 		// lsv.setAdapter(spc);

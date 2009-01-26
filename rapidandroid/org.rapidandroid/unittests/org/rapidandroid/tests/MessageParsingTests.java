@@ -9,6 +9,7 @@ import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.service.ParsingService;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.AndroidTestCase;
@@ -22,7 +23,8 @@ import android.util.Log;
 public class MessageParsingTests extends AndroidTestCase {
 	String[] goodMessages = {
 			"bednets nyc 100 30 80",
-			"bednets lax 1,500, 750 1000",
+			"bednets lax 1500, 750 1000",
+			"bednets lun 1214, 444 677",
 			"nutrition afsdf 20 100 0.6 5 y n",
 			"nutrition asdfwer 20kg 100cm 60% 5cm yes no",
 			"nutrition asdfwqer 21 kg 100cm 60% 5cm yes no",
@@ -104,9 +106,15 @@ public class MessageParsingTests extends AndroidTestCase {
 			Log.d("testFactoryAndTypes", "\n\n\n******* Parsing for form : " + q + "/" + forms.length + "**************");
 			
 			Log.d("testFactoryAndTypes", "Prefix: " + form.getPrefix());
-			String[] messages = problematic;
+			String[] messages = goodMessages;
 			int msgcount =0;
 			for (int i = 0; i < messages.length; i++) {
+				ContentValues initialValues = new ContentValues();
+				initialValues.put(RapidSmsDataDefs.Message.MESSAGE,messages[i]);		
+				initialValues.put(RapidSmsDataDefs.Message.PHONE,"617645323" + i);
+				initialValues.put(RapidSmsDataDefs.Message.TIME,"10/31/2008 12:5" + i);
+				initialValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
+				Uri msgUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Message.CONTENT_URI, initialValues);				
 				
 				Log.d("testFactoryAndTypes", "\tMessage " + i + " ## " + messages[i] + " ##");
 				Vector<IParseResult> results = ParsingService.ParseMessage(form, messages[i]);
@@ -114,7 +122,7 @@ public class MessageParsingTests extends AndroidTestCase {
 					Log.d("TestFactoryAndTypes", "\tNULL Parse, invalid message");
 					continue;
 				}				
-				ParsedDataTranslator.InsertFormData(getContext(), form, allcount++, results);
+				ParsedDataTranslator.InsertFormData(getContext(), form, Integer.valueOf(msgUri.getPathSegments().get(1)), results);
 				msgcount++;
 				Cursor crinsert = getContext().getContentResolver().query(Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + form.getFormId()),null,null,null,null);
 				assertEquals(msgcount,crinsert.getCount());

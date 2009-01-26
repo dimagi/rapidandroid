@@ -317,7 +317,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 					.getAsString(RapidSmsDataDefs.Message.PHONE));
 			Uri monitorUri = insertMonitor(
 					RapidSmsDataDefs.Monitor.CONTENT_URI, monitorValues);
-			// ok, so we insert the monitor into the monitor table.
+			// ok, so we insert the mMonitorString into the mMonitorString table.
 			// get the URI back and assign the foreign key into the values as
 			// part of the message insert
 			values.put(RapidSmsDataDefs.Message.MONITOR, monitorUri
@@ -367,7 +367,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 		}
 		
 		
-		//Check if monitor exists, if it doesn't insert a new one, else return the old one.
+		//Check if mMonitorString exists, if it doesn't insert a new one, else return the old one.
 		Cursor exists = query(uri, null, RapidSmsDataDefs.Monitor.PHONE + "='"
 				+ values.getAsString(RapidSmsDataDefs.Monitor.PHONE) + "'",
 				null, null);		

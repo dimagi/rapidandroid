@@ -237,7 +237,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				ContentValues typecv = new ContentValues();
 
 				typecv.put(RapidSmsDataDefs.Form._ID, f.getFormId());
-				typecv.put(RapidSmsDataDefs.Form.FORMNAME, f.getFormId());
+				typecv.put(RapidSmsDataDefs.Form.FORMNAME, f.getFormName());
 				//typecv.put(RapidSmsDataDefs.Form.PARSEMETHOD, f.getParser().getName());	
 				typecv.put(RapidSmsDataDefs.Form.PARSEMETHOD, "simpleregex");
 				typecv.put(RapidSmsDataDefs.Form.PREFIX, f.getPrefix());
