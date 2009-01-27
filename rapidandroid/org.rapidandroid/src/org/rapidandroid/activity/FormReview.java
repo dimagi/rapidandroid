@@ -4,7 +4,6 @@
 package org.rapidandroid.activity;
 
 import org.rapidandroid.R;
-import org.rapidandroid.view.SpeechView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -156,18 +155,19 @@ public class FormReview extends ListActivity { // this could totally be a list
 		 *      android.view.ViewGroup)
 		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
-			SpeechView sv;
-			if (convertView == null) {
-				sv = new SpeechView(mContext, mTitles[position],
-						mDialogue[position], mExpanded[position]);
-			} else {
-				sv = (SpeechView) convertView;
-				sv.setTitle(mTitles[position]);
-				sv.setDialogue(mDialogue[position]);
-				sv.setExpanded(mExpanded[position]);
-			}
-
-			return sv;
+//			SpeechView sv;
+//			if (convertView == null) {
+//				sv = new SpeechView(mContext, mTitles[position],
+//						mDialogue[position], mExpanded[position]);
+//			} else {
+//				sv = (SpeechView) convertView;
+//				sv.setTitle(mTitles[position]);
+//				sv.setDialogue(mDialogue[position]);
+//				sv.setExpanded(mExpanded[position]);
+//			}
+//
+//			return sv;
+			return null;
 		}
 
 		public void toggle(int position) {

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.rapidandroid.R;
 import org.rapidandroid.view.ParsedMessageView;
-import org.rapidandroid.view.SpeechView;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.parser.IParseResult;

@@ -10,6 +10,8 @@ import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.view.SingleRowHeaderView;
+import org.rapidandroid.view.adapter.FormDataCursorAdapter;
 import org.rapidandroid.view.adapter.ParsedMessageViewAdapter;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -47,9 +49,14 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class Dashboard extends Activity {
 	private String dialogMessage = "";
-
-	private boolean mFormSelected = false;
-	private int mSelectedFormId = -1;
+	
+	private SingleRowHeaderView headerView;
+	private ParsedMessageViewAdapter summaryView; 
+	private FormDataCursorAdapter rowView;
+	private ArrayAdapter<String> emptyView;
+	
+	private Form mChosenForm = null;
+		
 	private int mMessageSelected = -1;
 
 	private static final int ACTIVITY_CREATE = 0;
@@ -66,11 +73,19 @@ public class Dashboard extends Activity {
 	// private static final int MENU_EXIT = Menu.FIRST + 3; //waitaminute, we
 	// don't want to exit this thing, do we?
 
-	private static final int CONTEXT_ITEM_TEST1 = ContextMenu.FIRST;
-	private static final int CONTEXT_ITEM_TEST2 = ContextMenu.FIRST + 1;
-	private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
-	private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
+	
+	
+	private static final int CONTEXT_ITEM_SUMMARY_VIEW = ContextMenu.FIRST;
+	private static final int CONTEXT_ITEM_TABLE_VIEW = ContextMenu.FIRST + 1;
+//	private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
+//	private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
 
+	private static final int LISTVIEW_MODE_SUMMARY_VIEW = 0;
+	private static final int LISTVIEW_MODE_TABLE_VIEW = 1;
+	//private static final int LISTVIEW_MODE_SUMMARY_VIEW = 0;
+	
+	private int formViewMode = 0;
+	
 	
 	private Form[] mAllForms;
 	
@@ -98,32 +113,30 @@ public class Dashboard extends Activity {
 					}
 
 					public void onNothingSelected(AdapterView<?> parent) {
-						// blow away the listview's items
-						mFormSelected = false;
-						mSelectedFormId = -1;
-						loadMessagesForForm(null);
+						// blow away the listview's items		
+						mChosenForm = null;
+						populateListView();
 					}
 				});
 
 		// add some events to the listview
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 
-		
+		lsv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		
 		// bind a context menu
-		lsv
-				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-					public void onCreateContextMenu(ContextMenu menu, View v,
-							ContextMenuInfo menuInfo) {
-						menu.add(0, CONTEXT_ITEM_TEST1, 0, "Context 1");
-						menu.add(0, CONTEXT_ITEM_TEST2, 0, "Context 2");
-					}
-				});
+		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+				menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
+				menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
+			}
+		});
 		lsv.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> adapter, View view, int position,
-					long row) {
-				((ParsedMessageViewAdapter)adapter.getAdapter()).toggle(position);
-				
+			public void onItemClick(AdapterView<?> adapter, View view, int position, long row) {
+				if(summaryView != null) {
+					((ParsedMessageViewAdapter) adapter.getAdapter()).toggle(position);
+				}
+
 			}
 
 		});
@@ -188,8 +201,8 @@ public class Dashboard extends Activity {
 		case MENU_VIEW_ID:
 			// showDialog(MENU_VIEW_ID); //debug, we'll need to spawn the
 			// activities after this
-			if (mSelectedFormId != -1) {
-				StartFormViewerActivity(this.mAllForms[mSelectedFormId].getFormId());
+			if (mChosenForm != null) {
+				StartFormViewerActivity(mChosenForm.getFormId());
 			} else {
 				showDialog(9999);
 			}
@@ -262,14 +275,19 @@ public class Dashboard extends Activity {
 		// form
 		super.onPrepareOptionsMenu(menu);
 
+		boolean formOptionsEnabled = false;
+		if(this.mChosenForm != null) {
+			formOptionsEnabled = true;
+		}
+		
 		MenuItem editMenu = menu.findItem(MENU_EDIT_ID);
-		editMenu.setEnabled(mFormSelected);
+		editMenu.setEnabled(formOptionsEnabled);
 
 		MenuItem viewMenu = menu.findItem(MENU_VIEW_ID);
-		viewMenu.setEnabled(mFormSelected);
+		viewMenu.setEnabled(formOptionsEnabled);
 
 		MenuItem reportsMenu = menu.findItem(MENU_SHOW_REPORTS);
-		reportsMenu.setEnabled(mFormSelected);
+		reportsMenu.setEnabled(formOptionsEnabled);
 
 		return true;
 	}
@@ -308,31 +326,22 @@ public class Dashboard extends Activity {
 		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item
 				.getMenuInfo();
 		switch (item.getItemId()) {
-		case CONTEXT_ITEM_TEST1:
-			// This is actually where the magic happens.
-			// As we use an adapter view (which the ListView is)
-			// We can cast item.getMenuInfo() to AdapterContextMenuInfo
-
-			// To get the id of the clicked item in the list use menuInfo.id
-			dialogMessage = "Context 1: List pos: " + menuInfo.position
-					+ " id:" + menuInfo.id + " mMessageSelected: "
-					+ mMessageSelected;
-
-			showDialog(55);
+		case CONTEXT_ITEM_SUMMARY_VIEW:
+			formViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
+			populateListView();
 			break;
-		case CONTEXT_ITEM_TEST2:
+		case CONTEXT_ITEM_TABLE_VIEW:
 			// This is actually where the magic happens.
-			// As we use an adapter view (which the ListView is)
-			// We can cast item.getMenuInfo() to AdapterContextMenuInfo
-			// To get the id of the clicked item in the list use menuInfo.id
-			dialogMessage = "Context 2: List pos: " + menuInfo.position
-					+ " id:" + menuInfo.id + " mMessageSelected: "
-					+ mMessageSelected;
-			android.telephony.gsm.SmsManager smgr = android.telephony.gsm.SmsManager
-					.getDefault();
-			smgr.sendTextMessage("6176453236", null, "hello programmatic",
-					null, null);
-			showDialog(56);
+				// As we use an adapter view (which the ListView is)
+				// We can cast item.getMenuInfo() to AdapterContextMenuInfo
+				// To get the id of the clicked item in the list use menuInfo.id
+			
+				//SMS SENDING!!!!
+				// android.telephony.gsm.SmsManager smgr =
+				// android.telephony.gsm.SmsManager.getDefault();
+				// smgr.sendTextMessage("6176453236", null,"hello programmatic", null, null);
+			formViewMode = LISTVIEW_MODE_TABLE_VIEW;
+			populateListView();
 
 			break;
 		default:
@@ -384,25 +393,20 @@ public class Dashboard extends Activity {
 	}
 
 	private void spinnerItemSelected(int position) {
-		
 
 		if (position == mAllForms.length) {
-			// if it's forms+1, then it's ALL messages
-			mFormSelected = false;
-			mSelectedFormId = -1;
+			// if it's forms+1, then it's ALL messages			
+			mChosenForm = null;
 
 		} else if (position == mAllForms.length + 1) {
-			// then it's show all monitors
-			mFormSelected = false;
-			mSelectedFormId = -1;
-			
+			// then it's show all monitors			
+			mChosenForm = null;
 			
 		} else {
 
-			// get the position, then reset the
-			mFormSelected = true;
-			mSelectedFormId = position;
-			loadMessagesForForm(mAllForms[position]);
+			mChosenForm = mAllForms[position];
+			// get the position, then reset the			
+			populateListView();
 		}
 		
 	}
@@ -423,21 +427,41 @@ public class Dashboard extends Activity {
 	
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
-	private void loadMessagesForForm(Form chosenForm) {
+	private void populateListView() {
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-		if (chosenForm == null) {
+		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this,
 					android.R.layout.simple_list_item_1,
-					new String[] { "Select a form" }));
+					new String[] { "Select an item" }));
 		} 
 		else {
-			HashMap<Message,IParseResult[]> parsedHash = ParsedDataTranslator.getParsedMessagesForForm(this, chosenForm);
+			HashMap<Message,IParseResult[]> parsedHash = ParsedDataTranslator.getParsedMessagesForForm(this, mChosenForm);
 			if(parsedHash == null) {
-				lsv.setAdapter(new ArrayAdapter<String>(this,
-						android.R.layout.simple_list_item_1,
-						new String[] { "No messages" }));
+				emptyView = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,new String[] { "No Data" });
+				lsv.setAdapter(emptyView);
 			} else {
-				lsv.setAdapter(new ParsedMessageViewAdapter(this,chosenForm, parsedHash));
+				
+				if(this.formViewMode == this.LISTVIEW_MODE_SUMMARY_VIEW) {
+					if(headerView != null) {
+						lsv.removeHeaderView(headerView);
+					}
+					
+					this.summaryView = new ParsedMessageViewAdapter(this,mChosenForm, parsedHash);						
+					
+					rowView = null;
+					lsv.setAdapter(summaryView);
+				} else if(this.formViewMode == this.LISTVIEW_MODE_TABLE_VIEW) {
+					Uri dataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId());
+					Cursor cr = getContentResolver().query(dataUri, null,null,null,null);
+//					if(headerView == null) {
+//						new SingleRowHeaderView(this,mChosenForm);
+//					}
+//					lsv.addHeaderView(headerView);
+					
+					rowView = new FormDataCursorAdapter(this, mChosenForm, cr);
+					lsv.setAdapter(rowView);
+					summaryView = null;
+				}
 			}
 		}
 	}
