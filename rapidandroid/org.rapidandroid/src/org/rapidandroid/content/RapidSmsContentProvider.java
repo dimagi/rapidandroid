@@ -1,7 +1,9 @@
 package org.rapidandroid.content;
 
+import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
+import org.rapidsms.java.core.model.Form;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -195,9 +197,10 @@ public class RapidSmsContentProvider extends ContentProvider {
 	private Uri insertFormData(Uri uri, ContentValues values) {
 		// sanity check, see if the table exists
 		String formid = uri.getPathSegments().get(1);
+		String formprefix = ModelTranslator.getFormById(Integer.valueOf(formid).intValue()).getPrefix();
 		SQLiteDatabase dbr = mOpenHelper.getReadableDatabase();
 		Cursor table_exists = dbr.rawQuery("select count(*) from formdata_"
-				+ formid, null);
+				+ formprefix, null);
 		if (table_exists.getCount() != 1) {
 			throw new SQLException("Failed to insert row into " + uri
 					+ " :: table doesn't exist.");
@@ -206,7 +209,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		//doInsert doesn't apply well here.		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(RapidSmsDataDefs.FormData.TABLE_PREFIX + formid,
+		long rowId = db.insert(RapidSmsDataDefs.FormData.TABLE_PREFIX + formprefix,
 				RapidSmsDataDefs.FormData.MESSAGE, values);
 		if (rowId > 0) {
 			Uri fieldUri = ContentUris.withAppendedId(
@@ -221,8 +224,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 	private Uri insertForm(Uri uri, ContentValues values) {
 		if (values.containsKey(RapidSmsDataDefs.Form.FORMNAME) == false
 				|| values.containsKey(RapidSmsDataDefs.Form.DESCRIPTION) == false
-				|| values.containsKey(RapidSmsDataDefs.Form.PARSEMETHOD) == false
-				|| values.containsKey(RapidSmsDataDefs.Form._ID) == false) {
+				|| values.containsKey(RapidSmsDataDefs.Form.PARSEMETHOD) == false) {
 			throw new SQLException("Insufficient arguments for Form insert "
 					+ uri);
 		}		
@@ -256,8 +258,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 				|| values.containsKey(RapidSmsDataDefs.Field.NAME) == false
 				|| values.containsKey(RapidSmsDataDefs.Field.FIELDTYPE) == false
 				|| values.containsKey(RapidSmsDataDefs.Field.PROMPT) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false
-				|| values.containsKey(RapidSmsDataDefs.Field._ID) == false) {
+				|| values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false) {
 			throw new SQLException("Insufficient arguments for field insert "
 					+ uri);
 		}
@@ -280,14 +281,14 @@ public class RapidSmsContentProvider extends ContentProvider {
 	public void ClearFormDataDebug() {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Cursor formsCursor = db.query("rapidandroid_form",
-				new String[] { "_id" }, null, null, null, null, null);
+				new String[] { "prefix" }, null, null, null, null, null);
 		// ("select prefix from rapidandroid_form");
 
 		// iterate and blow away
 		formsCursor.moveToFirst();
 		do {
-			String id = formsCursor.getString(0);
-			String dropstatement = "drop table formdata_" + id + ";";
+			String prefix = formsCursor.getString(0);
+			String dropstatement = "drop table formdata_" + prefix + ";";
 			db.execSQL(dropstatement);
 		} while (formsCursor.moveToNext());
 		formsCursor.close();
@@ -495,14 +496,15 @@ public class RapidSmsContentProvider extends ContentProvider {
 			qb.appendWhere(RapidSmsDataDefs.FieldType._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
-		case FORMDATA_ID:
-			// todo: need to set the table to the FieldData + form_prefix
-			// this is possible via querying hte forms to get the
-			// formname/prefix from the form table definition
-			// and appending that to do the qb.setTables
-			String formid = uri.getPathSegments().get(1); 
-			 qb.setTables(RapidSmsDataDefs.FormData.TABLE_PREFIX + formid);
-			 break;
+			case FORMDATA_ID:
+				// todo: need to set the table to the FieldData + form_prefix
+				// this is possible via querying hte forms to get the
+				// formname/prefix from the form table definition
+				// and appending that to do the qb.setTables
+				String formid = uri.getPathSegments().get(1);
+				Form f = ModelTranslator.getFormById(Integer.valueOf(formid).intValue());
+				qb.setTables(RapidSmsDataDefs.FormData.TABLE_PREFIX + f.getPrefix());
+				break;
 			//throw new IllegalArgumentException(uri	+ " query handler not implemented.");
 
 		default:

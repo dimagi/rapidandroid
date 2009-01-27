@@ -38,7 +38,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	private Context mContext = null;
 	
 	private void initLists() {		
-		forms = ModelTranslator.getAllForms(mContext);
+		forms = ModelTranslator.getAllForms();
 		prefixes = new String[forms.length];
 		for(int i = 0; i < forms.length; i++) {
 			prefixes[i] = forms[i].getPrefix();

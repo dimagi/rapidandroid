@@ -60,7 +60,7 @@ public class MessageParsingTests extends AndroidTestCase {
 	
 	public void testGoodMessages() {
 		
-		Form[] forms = ModelTranslator.getAllForms(getContext());
+		Form[] forms = ModelTranslator.getAllForms();
 
 		for (int q = 0; q < forms.length; q++) {
 			
@@ -96,7 +96,7 @@ public class MessageParsingTests extends AndroidTestCase {
 	
 	public void testWriteMessagesToDB() {
 		
-		Form[] forms = ModelTranslator.getAllForms(getContext());
+		Form[] forms = ModelTranslator.getAllForms();
 		
 		int allcount = 0;
 		for (int q = 0; q < forms.length; q++) {

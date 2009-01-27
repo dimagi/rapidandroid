@@ -5,7 +5,7 @@
 
 
 
-	<application android:icon="@drawable/icon" android:label="@string/app_name">
+	<application android:icon="@drawable/icon" android:label="@string/app_name" android:name="RapidAndroidApplication">
 		<provider android:authorities="org.rapidandroid.provider.RapidSms" android:name=".content.RapidSmsContentProvider">
 		</provider>
 		<activity android:label="@string/app_name" android:name=".activity.Dashboard">

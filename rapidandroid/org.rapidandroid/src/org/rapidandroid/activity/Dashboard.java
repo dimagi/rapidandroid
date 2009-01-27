@@ -360,8 +360,7 @@ public class Dashboard extends Activity {
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 		// Get an array of forms from the DB
 		// in the current iteration, it's mForms
-		this.mAllForms = ModelTranslator.getAllForms(this
-				.getApplicationContext());
+		this.mAllForms = ModelTranslator.getAllForms();
 
 		String[] monitors = new String[mAllForms.length + 2];
 		

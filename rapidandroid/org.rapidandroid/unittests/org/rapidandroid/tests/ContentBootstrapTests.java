@@ -357,7 +357,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			int id = cr.getInt(0);	//presumably the id
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
 			Log.d("dimagi", "Querying for form: " + directUri);
-			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);
+			Form f = ModelTranslator.getFormFromUri(directUri);
 			
 			assertNotNull(f);
 			assertNotNull(f.getFields());
@@ -379,7 +379,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			int id = cr.getInt(0);	//presumably the id
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
 			
-			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);
+			Form f = ModelTranslator.getFormFromUri(directUri);
 			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
 			ModelTranslator.generateFormTable(f);			
 		} while (cr.moveToNext());		
@@ -401,7 +401,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			
 			int id = cr.getInt(0);	//presumably the id			
 			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);			
-			Form f = ModelTranslator.getFormFromUri(getContext(), directUri);			
+			Form f = ModelTranslator.getFormFromUri(directUri);			
 			
 			for (int msgcount = 0; msgcount < 10; msgcount++) {
 				// first, let's make a new dummy message:
