@@ -1,7 +1,15 @@
 package org.rapidandroid.content.translation;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
@@ -30,16 +38,271 @@ import android.util.Log;
 
 public class ModelTranslator {
 
+	private static Context mContext;
+	
 	private static HashMap<String, Integer> formColumnNamesToIndex;
 	private static HashMap<String, Integer> fieldColumnNamesToIndex;
 	private static HashMap<String, Integer> typeColumnNamesToIndex;
-
-	private static HashMap<Integer, SimpleFieldType> fieldTypeCache = new HashMap<Integer, SimpleFieldType>();
-	private static HashMap<Uri, Form> formCache = new HashMap<Uri, Form>();;
+	
 	private static HashMap<Integer, Form> formIdCache = new HashMap<Integer, Form>();
+	private static HashMap<Integer, Vector<Field>> fieldToFormHash = new HashMap<Integer,Vector<Field>> ();
+	private static HashMap<Integer, SimpleFieldType> fieldTypeHash = new HashMap<Integer, SimpleFieldType>();
 	
 	private static SmsDbHelper mDbHelper;
 
+	private static String loadAssetFile(String filename){
+        try {
+            InputStream is = mContext.getAssets().open(filename);
+                      
+            int size = is.available();
+            
+            // Read the entire asset into a local byte buffer.
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            
+            // Convert the buffer into a Java string.
+            String text = new String(buffer);
+            
+            return text;
+            
+        } catch (IOException e) {
+            // Should never happen!
+            throw new RuntimeException(e);
+        }        
+    }
+	
+	/**
+	 * Initial app startup, ONLY SHOULD BE RUN ONCE!!!
+	 * called when the existence of some data in the fieldtypes table is missing.
+	 */
+	private static void applicationInitialFormFieldTypesBootstrap() {
+		loadFieldTypesFromAssets();
+		loadInitialFormsFromAssets();		
+		insertFieldTypesIntoDBIfNecessary();
+		checkIfFormTablesExistCreateIfNecessary();
+	}
+	
+	private static void insertFieldTypesIntoDBIfNecessary() {
+		
+		Iterator<?> it = fieldTypeHash.entrySet().iterator();
+		
+		//for(int i = 0; i < forms.size(); i++) {
+		while (it.hasNext()) {
+			Map.Entry<Integer, SimpleFieldType> pairs = (Map.Entry<Integer, SimpleFieldType>)it.next();	
+			SimpleFieldType thetype = pairs.getValue();
+			//make the URI and insert for the Fieldtype			
+
+			Uri fieldtypeUri = Uri.parse(RapidSmsDataDefs.FieldType.CONTENT_URI_STRING + thetype.getId());
+			Cursor typeCursor = mContext.getContentResolver().query(fieldtypeUri, null, null, null, null);
+			if (typeCursor.getCount() == 0) {
+				ContentValues typecv = new ContentValues();
+
+				typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());					
+				typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype.getDataType());
+				typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype.getTokenName());
+				typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype.getRegex());
+				
+				Log.d("dimagi", "InsertFieldType: " + thetype.getId());
+				Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
+				Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
+				Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
+
+				Uri insertedTypeUri = mContext.getContentResolver().insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
+				Log.d("dimagi","********** Inserted SimpleFieldType into db: " + insertedTypeUri);										
+			}
+			typeCursor.close();
+		}
+		
+		
+		
+		
+	}
+	
+	private static void loadFieldTypesFromAssets(){
+		String types = loadAssetFile("definitions/fieldtypes.json");
+		try {
+			JSONArray typesarray = new JSONArray(types);
+			
+			int arrlength = typesarray.length();
+			for(int i = 0; i < arrlength; i++) {
+				try {
+					JSONObject obj = typesarray.getJSONObject(i);
+					Log.d("dimagi", "type loop: " + i + " model: " + obj.getString("model"));
+					if(!obj.getString("model").equals("rapidandroid.fieldtype")) {
+						Log.d("dimagi", "###" + obj.getString("model")+ "###");
+						throw new IllegalArgumentException("Error in parsing fieldtypes.json");
+					}
+					
+					int pk = obj.getInt("pk");
+					JSONObject jsonfields = obj.getJSONObject("fields");					
+					//Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + hackRegexHash.get(jsonfields.getString("name")) + "]");
+					Log.d("dimagi", "#### Regex from file: " + jsonfields.getString("name") + " [" + jsonfields.getString("regex") + "]");
+					//SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),hackRegexHash.get(jsonfields.getString("name")),jsonfields.getString("name"));
+					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),jsonfields.getString("regex"),jsonfields.getString("name"));
+					fieldTypeHash.put(new Integer(pk), newtype);					
+				} catch (JSONException e) {					
+				}	
+			}
+		} catch (JSONException e) {			
+		}
+	}
+	
+	private static void loadInitialFormsFromAssets(){
+		parseFields();
+		parseForms();
+		
+	}
+	
+	private static void parseFields() {
+		String fields = loadAssetFile("definitions/fields.json");
+		try {
+			JSONArray fieldsarray = new JSONArray(fields);
+			int arrlength = fieldsarray.length();
+			for(int i = 0; i < arrlength; i++) {
+				try {
+					JSONObject obj = fieldsarray.getJSONObject(i);
+					
+					if(!obj.getString("model").equals("rapidandroid.field")) {
+						
+					}
+					
+					int pk = obj.getInt("pk");
+					
+					
+					JSONObject jsonfields = obj.getJSONObject("fields");
+					int form_id = jsonfields.getInt("form");
+					//public Field(int id, int sequence, String name, String prompt, SimpleFieldType ftype) {
+					Field newfield = new Field(pk, 
+							jsonfields.getInt("sequence"),
+							jsonfields.getString("name"), 
+							jsonfields.getString("prompt"),
+							fieldTypeHash.get(new Integer(jsonfields.getInt("fieldtype"))));
+					
+					//fieldHash.put(new Integer(pk), newfield);
+					Integer formInt = Integer.valueOf(form_id);
+					if(!fieldToFormHash.containsKey(formInt)) {
+						fieldToFormHash.put(formInt,new Vector<Field>());
+						Log.d("dimagi","### adding a key again?!" + formInt);
+					}
+					fieldToFormHash.get(formInt).add(newfield);
+					Log.d("dimagi", "#### Parsed field: " + newfield.getFieldId() + " [" + newfield.getName() + "] newlength: " + fieldToFormHash.get(formInt).size());
+					
+					
+					
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Log.d("dimagi", e.getMessage());
+					
+				}	
+			}
+		} catch (JSONException e) {						
+		}
+	}
+	
+	private static void parseForms() {
+		String forms = loadAssetFile("definitions/forms.json");
+		
+		try {
+			JSONArray formarray = new JSONArray(forms);
+			int arrlength = formarray.length();
+			for(int i = 0; i < arrlength; i++) {
+				try {
+					JSONObject obj = formarray.getJSONObject(i);
+					
+					if(!obj.getString("model").equals("rapidandroid.form")) {						
+					}
+					
+					int pk = obj.getInt("pk");
+					Integer pkInt = new Integer(pk);
+					JSONObject jsonfields = obj.getJSONObject("fields");		
+					
+					Field[] fieldarr = new Field[fieldToFormHash.get(pkInt).size()];
+					for (int q = 0; q < fieldarr.length; q++) {
+						fieldarr[q] = fieldToFormHash.get(pkInt).get(q);
+					}
+					Form newform = new Form(pk, jsonfields.getString("formname"),
+												jsonfields.getString("prefix"),
+												jsonfields.getString("description"),												
+												fieldarr,
+												ParserType.SIMPLEREGEX);
+					//allforms.add(newform);
+					formIdCache.put(pkInt, newform);
+					
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Log.d("dimagi", e.getMessage());					
+				}	
+			}
+		} catch (JSONException e) {			
+		}
+	}
+	
+	private static void checkIfFormTablesExistCreateIfNecessary() {
+		//so, todo:
+		//check if tables exist
+		//else
+		
+		 Iterator<?> it = formIdCache.entrySet().iterator();
+		
+		//for(int i = 0; i < forms.size(); i++) {
+		while (it.hasNext()) {
+			Map.Entry<Integer, Form> pairs = (Map.Entry<Integer, Form>)it.next();
+			Form f = pairs.getValue();
+			Field[] fields = f.getFields();
+			Log.d("dimagi","**** inserting form " + f.getFormName());
+			
+			//insert the form first
+			Uri formUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + f.getFormId());
+			Cursor crform = mContext.getContentResolver().query(formUri, null, null, null, null);
+			if (crform.getCount() == 0) {
+				ContentValues typecv = new ContentValues();
+
+				typecv.put(RapidSmsDataDefs.Form._ID, f.getFormId());
+				typecv.put(RapidSmsDataDefs.Form.FORMNAME, f.getFormName());
+				typecv.put(RapidSmsDataDefs.Form.PARSEMETHOD, "simpleregex");	//eww, hacky magic string
+				typecv.put(RapidSmsDataDefs.Form.PREFIX, f.getPrefix());
+				typecv.put(RapidSmsDataDefs.Form.DESCRIPTION, f.getDescription());							
+
+				Uri insertedFormUri = mContext.getContentResolver().insert(RapidSmsDataDefs.Form.CONTENT_URI, typecv);
+				Log.d("dimagi","****** Inserted form into db: " + insertedFormUri);									
+			}		
+			crform.close();
+			
+			Log.d("dimagi","****** Begin fields loop: " + fields.length);
+			for(int j = 0; j < fields.length; j++) {
+				Field thefield = fields[j];
+				Log.d("dimagi","******** Iterating through fields: " + thefield.getName() + " id: " + thefield.getFieldId());
+				Uri fieldUri = Uri.parse(RapidSmsDataDefs.Field.CONTENT_URI_STRING + thefield.getFieldId());
+				Cursor crfield = mContext.getContentResolver().query(fieldUri, null, null, null, null);
+				if (crfield.getCount() == 0) {
+					ContentValues typecv = new ContentValues();
+
+					typecv.put(RapidSmsDataDefs.Field._ID, thefield.getFieldId());
+					typecv.put(RapidSmsDataDefs.Field.NAME, thefield.getName());
+					typecv.put(RapidSmsDataDefs.Field.FORM, f.getFormId());
+					typecv.put(RapidSmsDataDefs.Field.PROMPT, thefield.getPrompt());
+					typecv.put(RapidSmsDataDefs.Field.SEQUENCE, thefield.getSequenceId());
+					
+					typecv.put(RapidSmsDataDefs.Field.FIELDTYPE, ((SimpleFieldType) (thefield.getFieldType())).getId());
+					//typecv.put(RapidSmsDataDefs.Field.FIELDTYPE, thefield.getFieldType().getId());	
+					
+//					Log.d("dimagi", "_ID: " + thefield.getFieldId());
+//					Log.d("dimagi", "NAME: " + thefield.getName());
+//					Log.d("dimagi", "FORM: " + f.getFormId());
+//					Log.d("dimagi", "PROMPT: " + thefield.getPrompt());
+//					Log.d("dimagi", "SEQUENCE: " + thefield.getSequenceId());
+//					Log.d("dimagi", "FIELDTYPE: " + thefield.getFieldType().getId());
+
+					Uri insertedFieldUri = mContext.getContentResolver().insert(RapidSmsDataDefs.Field.CONTENT_URI, typecv);
+					Log.d("dimagi","********** Inserted Field into db: " + insertedFieldUri);
+				}			
+				crfield.close();
+				//next, make the uri and insert for the field.
+			}
+		}
+	}
+	
 	
 	public static void setDbHelper(SmsDbHelper helper) {
 		mDbHelper = helper;
@@ -117,8 +380,9 @@ public class ModelTranslator {
 	public static Form getFormFromUri(Context context, Uri formUri) {
 	//public static Form getFormFromUri(ContentProvider provider, Uri formUri) {
 
-		if (formCache.containsKey(formUri)) {
-			return formCache.get(formUri);
+		Integer formid = Integer.valueOf(formUri.getPathSegments().get(1));
+		if (formIdCache.containsKey(formid)) {
+			return formIdCache.get(formid);
 		}
 
 		//Cursor formCursor = provider.query(formUri, null, null, null, null); // hack
@@ -156,7 +420,7 @@ public class ModelTranslator {
 		Field[] fields = getFieldsForForm(context, id); //real way
 
 		Form ret = new Form(formCursor.getInt(0), name, prefix, description, fields,ParserType.SIMPLEREGEX);
-		formCache.put(formUri, ret);
+		formIdCache.put(Integer.valueOf(id), ret);
 		formCursor.close();
 		return ret;
 	}
@@ -218,8 +482,8 @@ public class ModelTranslator {
 																					// way
 
 		Integer typeInt = new Integer(type_id);
-		if (fieldTypeCache.containsKey(typeInt)) {
-			return fieldTypeCache.get(typeInt);
+		if (fieldTypeHash.containsKey(typeInt)) {
+			return fieldTypeHash.get(typeInt);
 		}
 		Uri typeUri = Uri.parse(RapidSmsDataDefs.FieldType.CONTENT_URI_STRING
 				+ type_id);
@@ -254,7 +518,7 @@ public class ModelTranslator {
 
 		// SimpleFieldType ftype) {
 		SimpleFieldType newType = new SimpleFieldType(id, dataType, regex, name);
-		fieldTypeCache.put(typeInt, newType);
+		fieldTypeHash.put(typeInt, newType);
 		typeCursor.close();
 		return newType;
 

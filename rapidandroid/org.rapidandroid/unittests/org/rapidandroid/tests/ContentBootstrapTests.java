@@ -200,15 +200,15 @@ public class ContentBootstrapTests extends AndroidTestCase {
 	private void parseFieldTypes(String types,
 			HashMap<Integer, SimpleFieldType> typeHash) {
 		//ok, let's get the field types
-		HashMap <String, String> hackRegexHash = new HashMap<String, String>();
-		
-		hackRegexHash.put("boolean","^(t|f|true|false|y|no|yes|n|n0)(\\s|$)");
-		hackRegexHash.put("length","^(\\d+)(\\s*(cm|m))($|\\s)");
-		hackRegexHash.put("ratio","^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct))");
-		hackRegexHash.put("height","^(\\d+)(\\s*(cm|mm|meter|meters))($|\\s)");
-		hackRegexHash.put("weight","^(\\d+)(\\s*(kg|kilo|kilos))");
-		hackRegexHash.put("number","^(\\d+)($|\\s)");
-		hackRegexHash.put("word","^([A-Za-z]+)($|\\s)");
+//		HashMap <String, String> hackRegexHash = new HashMap<String, String>();
+//		
+//		hackRegexHash.put("boolean","^(t|f|true|false|y|no|yes|n|n0)(\\s|$)");
+//		hackRegexHash.put("length","^(\\d+)(\\s*(cm|m))($|\\s)");
+//		hackRegexHash.put("ratio","^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct))");
+//		hackRegexHash.put("height","^(\\d+)(\\s*(cm|mm|meter|meters))($|\\s)");
+//		hackRegexHash.put("weight","^(\\d+)(\\s*(kg|kilo|kilos))");
+//		hackRegexHash.put("number","^(\\d+)($|\\s)");
+//		hackRegexHash.put("word","^([A-Za-z]+)($|\\s)");
 		
 		try {
 			JSONArray typesarray = new JSONArray(types);
@@ -226,9 +226,10 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					
 					int pk = obj.getInt("pk");
 					JSONObject jsonfields = obj.getJSONObject("fields");					
-					Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + hackRegexHash.get(jsonfields.getString("name")) + "]");
+					//Log.d("dimagi", "#### Parsing SimpleFieldType: " + jsonfields.getString("name") + " [" + hackRegexHash.get(jsonfields.getString("name")) + "]");
 					Log.d("dimagi", "#### Regex from file: " + jsonfields.getString("name") + " [" + jsonfields.getString("regex") + "]");
-					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),hackRegexHash.get(jsonfields.getString("name")),jsonfields.getString("name"));
+					//SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),hackRegexHash.get(jsonfields.getString("name")),jsonfields.getString("name"));
+					SimpleFieldType newtype = new SimpleFieldType(pk, jsonfields.getString("datatype"),jsonfields.getString("regex"),jsonfields.getString("name"));
 					typeHash.put(new Integer(pk), newtype);
 					
 					
