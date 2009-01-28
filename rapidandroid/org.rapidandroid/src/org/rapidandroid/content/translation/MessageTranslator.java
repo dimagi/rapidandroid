@@ -24,7 +24,7 @@ import android.text.method.DateTimeKeyListener;
 
 public class MessageTranslator {
 	
-	private static HashMap<Integer,Monitor> mMonitorHash;
+	private static HashMap<Integer,Monitor> mMonitorHash = null;
 	
 	public static void updateMonitorHash(Context context) {
 		mMonitorHash = new HashMap<Integer,Monitor>();
@@ -50,9 +50,20 @@ public class MessageTranslator {
 		monitorCursor.close();
 	}
 	
+	public static Monitor GetMonitor(Context context, int monitorID) {
+		Integer monID = Integer.valueOf(monitorID);
+		if(mMonitorHash.containsKey(monID)) {
+			return mMonitorHash.get(monID);
+		} else {
+			throw new IllegalArgumentException("Error in application state.  The monitor hash should always be up to date when querying");	
+		}
+	}
+	
 	
 	public static Message GetMessage(Context context, int messageID) {
-		updateMonitorHash(context);
+		if(mMonitorHash == null) {
+			updateMonitorHash(context);
+		}
 		
 		Uri getMessageUri = Uri.parse(RapidSmsDataDefs.Message.CONTENT_URI_STRING + messageID);
 		
@@ -81,7 +92,9 @@ public class MessageTranslator {
 	
 	public static Message[] GetMessages(Context context, int[] messages) {
 		
-		updateMonitorHash(context);
+		if(mMonitorHash == null) {
+			updateMonitorHash(context);
+		}
 		
 		
 		Uri getMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;

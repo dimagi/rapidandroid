@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.gsm.SmsMessage;
@@ -44,6 +45,8 @@ public class SmsReceiver extends BroadcastReceiver {
 	 * android.content.Intent)
 	 */
 
+	Uri uriSms = Uri.parse("content://sms/conversations");
+	
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
 		Uri writeMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
 
@@ -58,25 +61,51 @@ public class SmsReceiver extends BroadcastReceiver {
 		// to a
 		// datetime
 		// string
-		
-		
+
 		messageValues.put(RapidSmsDataDefs.Message.TIME, ts.toString());
 		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
-		Uri msgUri = context.getContentResolver().insert(writeMessageUri,
-				messageValues);
-
-		Intent broadcast = new Intent("org.rapidandroid.intents.SMS_SAVED");
-		broadcast.putExtra("from", mesg.getOriginatingAddress());
-		broadcast.putExtra("body", mesg.getMessageBody());
-		broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-		context.sendBroadcast(broadcast);
+		boolean successfulSave = false;
+		Uri msgUri = null;
+		try {
+			msgUri = context.getContentResolver().insert(writeMessageUri,messageValues);
+			successfulSave = true;
+		}
+		catch (Exception ex) {
+			
+		}
+		
+		if(successfulSave) {		
+			Intent broadcast = new Intent("org.rapidandroid.intents.SMS_SAVED");
+			broadcast.putExtra("from", mesg.getOriginatingAddress());
+			broadcast.putExtra("body", mesg.getMessageBody());
+			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
+			DeleteSMSFromInbox(context,mesg);
+			context.sendBroadcast(broadcast);
+		}
+	}
+	
+	private void DeleteSMSFromInbox(Context context, SmsMessage mesg) {		
+		try {
+		
+			StringBuilder sb= new StringBuilder();
+			sb.append("address='" + mesg.getOriginatingAddress() + "',");
+			sb.append("body='" + mesg.getMessageBody()+ "'");
+			//sb.append("time='" + mesg.getTimestamp() + "'");	//doesn't seem to be supported
+		Cursor c = context.getContentResolver().query(uriSms, null, sb.toString(), null,null);			
+		c.moveToFirst();
+		//String id = c.getString(0);
+		int thread_id = c.getInt(1);
+		context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null, null);
+		c.close();
+		} catch(Exception ex) {
+			Log.d("SmsReceiver", "Error deleting sms from inbox: " + ex.getMessage());
+		}
 	}
 
 	@Override
 	// source: http://www.devx.com/wireless/Article/39495/1954
 	public void onReceive(Context context, Intent intent) {
-		if (!intent.getAction().equals(
-				"android.provider.Telephony.SMS_RECEIVED")) {// {
+		if (!intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {// {
 
 			return;
 		}

@@ -35,13 +35,15 @@ private int mColCount;
 		mRow = new TableRow(context);		
 		mMessageIDCol = new TextView(context);
 		mMessageIDCol.setText("ID |");
+		mMessageIDCol.setGravity(1);
 		mRow.addView(mMessageIDCol, itemCounter++);
 		
 		mMonitorCol = new TextView(context);
 		mMonitorCol.setText(" Mon | ");
+		mMonitorCol.setGravity(1);
 		mRow.addView(mMonitorCol, itemCounter++);
 		
-		
+		mRow.setWeightSum(itemCounter);
 		mDataCols = new Vector<TextView>();
 		mColCount =  f.getFields().length;
 		Field[] fields = f.getFields();
@@ -52,6 +54,7 @@ private int mColCount;
 			}
 			TextView coldata = new TextView(getContext());
 			coldata.setText(fields[i].getName() + suffix);
+			coldata.setGravity(1);
 			
 			mDataCols.add(coldata);
 			mRow.addView(coldata, itemCounter++);

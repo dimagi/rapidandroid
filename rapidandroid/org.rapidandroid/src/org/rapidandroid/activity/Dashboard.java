@@ -12,6 +12,7 @@ import org.rapidandroid.content.translation.ParsedDataTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.view.SingleRowHeaderView;
 import org.rapidandroid.view.adapter.FormDataCursorAdapter;
+import org.rapidandroid.view.adapter.MessageCursorAdapter;
 import org.rapidandroid.view.adapter.ParsedMessageViewAdapter;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -54,6 +55,8 @@ public class Dashboard extends Activity {
 	private ParsedMessageViewAdapter summaryView; 
 	private FormDataCursorAdapter rowView;
 	private ArrayAdapter<String> emptyView;
+	private MessageCursorAdapter messageCursorAdapter;
+	
 	
 	private Form mChosenForm = null;
 		
@@ -133,7 +136,7 @@ public class Dashboard extends Activity {
 		});
 		lsv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long row) {
-				if(summaryView != null) {
+				if(adapter.getAdapter().getClass().equals(ParsedMessageViewAdapter.class) ) {
 					((ParsedMessageViewAdapter) adapter.getAdapter()).toggle(position);
 				}
 
@@ -207,62 +210,7 @@ public class Dashboard extends Activity {
 				showDialog(9999);
 			}
 			return true;
-		case MENU_SHOW_REPORTS:
-
-			// "content://sms/undelivered"
-			// 01-12 20:57:20.783: DEBUG/SmsProvider(85): insert
-			// url=content://sms/inbox, match=2
-			// Uri uriSms = Uri.parse("content://sms/undelivered");
-			/*
-			 * public String strUriInbox = "content://sms/inbox";//SMS_INBOX:1
-			 * public String strUriFailed =
-			 * "content://sms/failed";//SMS_FAILED:2 public String strUriQueued
-			 * = "content://sms/queued";//SMS_QUEUED:3 public String strUriSent
-			 * = "content://sms/sent";//SMS_SENT:4 public String strUriDraft =
-			 * "content://sms/draft";//SMS_DRAFT:5 public String strUriOutbox =
-			 * "content://sms/outbox";//SMS_OUTBOX:6 public String
-			 * strUriUndelivered = "content://sms/undelivered";//SMS_UNDELIVERED
-			 * public String strUriAll = "content://sms/all";//SMS_ALL
-			 * 
-			 * public String strUriConversations =
-			 * "content://sms/conversations";//you
-			 * 
-			 * content://sms/inbox/<id>
-			 */
-			Uri uriSms = Uri.parse("content://sms/conversations");
-			Cursor c = getContentResolver().query(uriSms, null, null, null,
-					null); // Sms.Inbox.CONTENT_URI,
-
-			String[] columnames = c.getColumnNames();
-			int count = c.getCount();
-			c.moveToFirst();
-			String id = c.getString(0);
-			int thread_id = c.getInt(1);
-			String addr = c.getString(2);
-			String person = c.getString(3);
-			String date = c.getString(4);
-			String body = c.getString(11);
-			// showDialog(MENU_VIEW_ID); //debug, we'll need to spawn the
-			// activities after this
-			// this.dialogMessage = "TODO:  Go to the reports activity";
-
-			// getContentResolver().delete(Uri.parse("content://sms/conversations/"
-			// + thread_id),null,null);
-			// dmyung - oh baby this works. a bit extreme blowing away the
-			// entire conversation. but at least we know (as of this writing
-			// 1/12) that it works in the emulator.
-
-			getContentResolver().delete(
-					Uri.parse("content://sms/conversations/" + thread_id),
-					null, null);
-			dialogMessage = "row count: " + count;
-
-			showDialog(9999);
-
-			ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-			lsv.setAdapter(new ArrayAdapter<String>(this,
-					android.R.layout.simple_list_item_1, columnames));
-
+		case MENU_SHOW_REPORTS:			
 			return true;
 		}
 
@@ -397,6 +345,7 @@ public class Dashboard extends Activity {
 		if (position == mAllForms.length) {
 			// if it's forms+1, then it's ALL messages			
 			mChosenForm = null;
+			loadAllMessagesIntoList();
 
 		} else if (position == mAllForms.length + 1) {
 			// then it's show all monitors			
@@ -415,8 +364,17 @@ public class Dashboard extends Activity {
 	// selected form
 	private void loadAllMessagesIntoList() {		
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
+		//lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
+		if(rowView != null) {
+			rowView.getCursor().close();
+		}
+		rowView = null;
+		
+		Cursor cursor = getContentResolver().query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, null);		
+		this.messageCursorAdapter = new MessageCursorAdapter(this, cursor);
+		lsv.setAdapter(messageCursorAdapter);
 	}
+	
 	
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
@@ -440,24 +398,40 @@ public class Dashboard extends Activity {
 				emptyView = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,new String[] { "No Data" });
 				lsv.setAdapter(emptyView);
 			} else {
+//				if (headerView == null) {
+//					this.headerView = new SingleRowHeaderView(this, mChosenForm);
+//					lsv.addHeaderView(headerView);
+//				}
 				
 				if(this.formViewMode == this.LISTVIEW_MODE_SUMMARY_VIEW) {
-					if(headerView != null) {
-						lsv.removeHeaderView(headerView);
+										
+//					headerView.setVisibility(View.INVISIBLE);
+					this.summaryView = new ParsedMessageViewAdapter(this,mChosenForm, parsedHash);						
+					if(rowView != null) {
+						rowView.getCursor().close();
+						rowView = null;
 					}
 					
-					this.summaryView = new ParsedMessageViewAdapter(this,mChosenForm, parsedHash);						
+					if(messageCursorAdapter != null) {
+						messageCursorAdapter.getCursor().close();
+						messageCursorAdapter = null;
+					}
 					
-					rowView = null;
+					
+					
 					lsv.setAdapter(summaryView);
 				} else if(this.formViewMode == this.LISTVIEW_MODE_TABLE_VIEW) {
+					
 					Uri dataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId());
 					Cursor cr = getContentResolver().query(dataUri, null,null,null,null);
-//					if(headerView == null) {
-//						new SingleRowHeaderView(this,mChosenForm);
-//					}
-//					lsv.addHeaderView(headerView);
 					
+					if(messageCursorAdapter != null) {
+						messageCursorAdapter.getCursor().close();
+						messageCursorAdapter = null;
+					}
+					
+					
+//					headerView.setVisibility(View.VISIBLE);
 					rowView = new FormDataCursorAdapter(this, mChosenForm, cr);
 					lsv.setAdapter(rowView);
 					summaryView = null;

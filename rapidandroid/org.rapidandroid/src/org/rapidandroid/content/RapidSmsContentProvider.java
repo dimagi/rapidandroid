@@ -1,5 +1,6 @@
 package org.rapidandroid.content;
 
+import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidandroid.data.SmsDbHelper;
@@ -382,7 +383,9 @@ public class RapidSmsContentProvider extends ContentProvider {
 			exists.close();
 		}
 
-		return doInsert(uri, values, RapidSmsDataDefs.Monitor.TABLE, RapidSmsDataDefs.Monitor.PHONE);	
+		Uri ret = doInsert(uri, values, RapidSmsDataDefs.Monitor.TABLE, RapidSmsDataDefs.Monitor.PHONE);
+		MessageTranslator.updateMonitorHash(getContext());
+		return ret;
 	}
 
 	@Override
