@@ -4,8 +4,6 @@
 package org.rapidsms.java.core.parser;
 
 
-import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.parser.token.ITokenParser;
 
 /**

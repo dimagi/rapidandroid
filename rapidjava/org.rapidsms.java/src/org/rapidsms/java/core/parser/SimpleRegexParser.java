@@ -63,7 +63,7 @@ public class SimpleRegexParser implements IMessageParser {
 		
 		String prefix = f.getPrefix();
 		System.out.println("what's the fracking form prefix: " + prefix);
-		
+		input = input.toLowerCase().trim();
 		if(input.startsWith(prefix + " ")) {
 			
 			input = input.substring(prefix.length()).trim();

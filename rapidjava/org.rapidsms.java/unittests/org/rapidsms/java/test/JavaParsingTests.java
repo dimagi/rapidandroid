@@ -3,13 +3,9 @@
  */
 package org.rapidsms.java.test;
 
-import java.util.HashMap;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.rapidsms.java.core.parser.IParseResult;
-import org.rapidsms.java.core.parser.service.ParsingService;
 
 import junit.framework.TestCase;
 
@@ -191,8 +187,7 @@ public class JavaParsingTests extends TestCase {
 		}
 	}
 
-	private void doParse(String testname, String[] messages,
-			String regex) {
+	private void doParse(String testname, String[] messages, String regex) {
 		System.out.println("###############  Do Parse: " + testname
 				+ " ###################\n\n");
 

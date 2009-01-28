@@ -1,9 +1,6 @@
 
 package org.rapidsms.java.core.parser.interpreter;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 23, 2009

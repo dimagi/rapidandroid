@@ -28,7 +28,10 @@ public class Field {
 	}
 	
 	public Field() {
-		
+		fieldId = -1;
+		prompt = "";
+		sequenceId = -1;
+		fieldType = null;
 	}
 	
 	/**

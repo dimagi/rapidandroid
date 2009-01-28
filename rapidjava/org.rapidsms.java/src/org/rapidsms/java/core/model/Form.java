@@ -23,7 +23,7 @@ public class Form {
 	private Field[] fields;
 	
 	public Form() {
-
+		formId = -1;
 	}
 	
 	public Form(int id, String name, String prefix, String desc, Field[] fields, ParserType parse) {
@@ -102,5 +102,19 @@ public class Form {
 	 */
 	public ParserType getParserType() {
 		return parser;
+	}
+
+	/**
+	 * @param formId the formId to set
+	 */
+	public void setFormId(int formId) {
+		this.formId = formId;
+	}
+
+	/**
+	 * @param fields the fields to set
+	 */
+	public void setFields(Field[] fields) {
+		this.fields = fields;
 	}	
 }
