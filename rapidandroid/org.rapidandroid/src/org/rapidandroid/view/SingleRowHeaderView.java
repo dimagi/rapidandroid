@@ -6,8 +6,6 @@ import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;

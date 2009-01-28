@@ -25,13 +25,14 @@ import android.widget.TextView;
  */
 
 
-public class FormEditor extends Activity {
+public class FormReviewer extends Activity {
 	private static final int MENU_SAVE = Menu.FIRST;
 	private static final int MENU_CANCEL = Menu.FIRST + 1;
 	private static final int MENU_ADD_FIELD = Menu.FIRST + 2;
 
 	private String mScratchDescription = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
@@ -39,7 +40,7 @@ public class FormEditor extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			String formname = extras.getString(ActivityConstants.EDIT_FORM);
+			String formname = extras.getString(ActivityConstants.REVIEW_FORM);
 			TextView txv_formname = (TextView) findViewById(R.id.txv_formname);
 			TextView txv_prefix = (TextView) findViewById(R.id.txv_formprefix);
 			TextView txv_description = (TextView) findViewById(R.id.txv_description);

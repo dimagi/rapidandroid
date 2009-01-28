@@ -3,30 +3,16 @@
  */
 package org.rapidandroid.tests;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Vector;
 
-import org.apache.http.impl.cookie.DateUtils;
 import org.rapidandroid.content.RapidSmsContentProvider;
-import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
-import org.rapidandroid.data.SmsDbHelper;
-import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.SimpleFieldType;
-import org.rapidsms.java.core.model.Form;
-import org.rapidsms.java.core.parser.service.ParsingService;
-import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
+
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+
 import android.net.Uri;
-import android.test.mock.MockContentResolver;
-import android.util.Log;
 /**
  *  
  * @author Daniel Myung dmyung@dimagi.com
@@ -46,6 +32,7 @@ public class ContentProviderTests extends
 				"org.rapidandroid.rapidandroiddata");
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		mProv = getProvider();
@@ -56,6 +43,7 @@ public class ContentProviderTests extends
 	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//System.out.println("Teardown: Clear Message tables: " +	mProv.delete(RapidSmsDataDefs.Message.CONTENT_URI, null,null));

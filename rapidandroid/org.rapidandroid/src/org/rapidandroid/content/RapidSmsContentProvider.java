@@ -17,8 +17,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * 
@@ -268,7 +268,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 	}
 
 	private Uri insertFieldType(Uri uri, ContentValues values) {
-		if (values.containsKey(RapidSmsDataDefs.FieldType._ID) == false
+		if (values.containsKey(BaseColumns._ID) == false
 				|| values.containsKey(RapidSmsDataDefs.FieldType.NAME) == false
 				|| values.containsKey(RapidSmsDataDefs.FieldType.REGEX) == false
 				|| values.containsKey(RapidSmsDataDefs.FieldType.DATATYPE) == false) {
@@ -402,7 +402,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		case MESSAGE_ID:
 			table = RapidSmsDataDefs.Message.TABLE;
-			finalWhere = RapidSmsDataDefs.Message._ID + "="
+			finalWhere = BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
@@ -412,7 +412,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		case MONITOR_ID:
 			table = RapidSmsDataDefs.Monitor.TABLE;
-			finalWhere = RapidSmsDataDefs.Message._ID + "="
+			finalWhere = BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
@@ -458,7 +458,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		case MESSAGE_ID:
 			qb.setTables(RapidSmsDataDefs.Message.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.Message._ID + "="
+			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case MONITOR:
@@ -467,7 +467,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		case MONITOR_ID:
 			qb.setTables(RapidSmsDataDefs.Monitor.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.Monitor._ID + "="
+			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case MONITOR_MESSAGE_ID:
@@ -480,7 +480,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			break;
 		case FORM_ID:
 			qb.setTables(RapidSmsDataDefs.Form.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.Form._ID + "="
+			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case FIELD:
@@ -488,7 +488,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			break;
 		case FIELD_ID:
 			qb.setTables(RapidSmsDataDefs.Field.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.Field._ID + "="
+			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case FIELDTYPE:
@@ -496,7 +496,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			break;
 		case FIELDTYPE_ID:
 			qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.FieldType._ID + "="
+			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 			case FORMDATA_ID:

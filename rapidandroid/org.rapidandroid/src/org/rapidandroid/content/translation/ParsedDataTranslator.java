@@ -8,7 +8,6 @@ import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
-import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.SimpleParseResult;
 import org.rapidsms.java.core.parser.token.ITokenParser;

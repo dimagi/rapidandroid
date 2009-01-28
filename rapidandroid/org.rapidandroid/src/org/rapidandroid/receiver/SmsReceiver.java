@@ -4,8 +4,6 @@
 package org.rapidandroid.receiver;
 
 import java.sql.Timestamp;
-import java.util.Date;
-
 import org.rapidandroid.data.RapidSmsDataDefs;
 
 import android.content.BroadcastReceiver;

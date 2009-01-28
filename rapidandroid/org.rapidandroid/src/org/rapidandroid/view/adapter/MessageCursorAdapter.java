@@ -3,8 +3,6 @@ package org.rapidandroid.view.adapter;
 import java.util.Date;
 
 import org.rapidandroid.content.translation.MessageTranslator;
-import org.rapidandroid.view.SingleRowView;
-import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Monitor;
 
 import android.content.Context;
@@ -65,7 +63,7 @@ public class MessageCursorAdapter extends CursorAdapter {
 		public SimpleMessageView(Context context, String message, Date timestamp, int monitorID, boolean isOutgoing) {
 			super(context);
 			txvHeader = new TextView(context);
-			txvHeader.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			txvHeader.setLayoutParams(new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 			//this.addView(txvHeader, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 			this.addView(txvHeader);
 			

@@ -1,11 +1,8 @@
 package org.rapidandroid.view.adapter;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CursorAdapter;
 
 public class MonitorCursorAdapter extends BaseAdapter {
 	

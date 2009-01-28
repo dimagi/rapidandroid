@@ -1,32 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:id="@+id/widget74"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	>
-	<TextView android:layout_width="fill_parent"
-		android:layout_height="wrap_content" style="?android:attr/listSeparatorTextViewStyle"
-		android:text="@string/lbl_fieldname" android:id="@string/lbl_fieldname">
-	</TextView>
-	<EditText android:id="@+id/etx_fieldname"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:textSize="14sp"></EditText>
-	<TextView android:layout_width="fill_parent"
-		android:layout_height="wrap_content" style="?android:attr/listSeparatorTextViewStyle"
-		android:text="@string/lbl_fieldprompt" android:id="@string/lbl_fieldprompt">
-	</TextView>
-	<EditText android:id="@+id/etx_fieldprompt"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:textSize="14sp"></EditText>
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:layout_width="fill_parent">
+<TableLayout android:id="@+id/TableLayout02"
+    android:layout_height="wrap_content" android:layout_width="fill_parent">
+    <TableRow android:id="@+id/TableRow02" android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    <TextView android:layout_height="wrap_content" style="?android:attr/listSeparatorTextViewStyle"
+        android:text="@string/lbl_fieldname" android:id="@+id/lbl_fieldname" android:layout_width="wrap_content">
+    </TextView>
+    
+    
+    
+    </TableRow>
+    <EditText android:id="@+id/etx_fieldname"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:textSize="14sp"></EditText>
 
-	<TextView android:id="@+id/lbl_fieldtypechoose"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/lbl_fieldtypechoose" style="?android:attr/listSeparatorTextViewStyle">
-	</TextView>
-	<Spinner android:id="@+id/cbx_fieldtype" android:layout_width="fill_parent"
+	<TableRow android:id="@+id/TableRow03" android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
-	</Spinner>
+		<TextView android:layout_height="wrap_content"
+			style="?android:attr/listSeparatorTextViewStyle" android:text="@string/lbl_fieldprompt"
+			android:id="@+id/lbl_fieldprompt" android:layout_width="wrap_content">
+		</TextView>
 
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn_finishaddfield" android:text="@string/btn_finishaddfield"></Button>
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn_canceladdfield" android:text="@string/btn_canceladdfield"></Button>
+	</TableRow>
+        <EditText android:id="@+id/etx_fieldprompt"
+        android:layout_width="fill_parent" android:layout_height="wrap_content"
+        android:textSize="14sp"></EditText>
+        <TextView android:id="@+id/lbl_fieldtypechoose"
+        android:layout_width="fill_parent" android:layout_height="wrap_content"
+        android:text="@string/lbl_fieldtypechoose" style="?android:attr/listSeparatorTextViewStyle">
+    </TextView>
+    <Spinner android:id="@+id/cbx_fieldtype" android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+    </Spinner>
+</TableLayout>
+
+
+	
+	
+	
+	
+
+	
+
+
+<TableLayout android:id="@+id/TableLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent"><TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="3"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add" android:layout_weight="1" android:id="@+id/btnAddField_add"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cancel" android:layout_weight="1" android:id="@+id/btnAddField_Cancel"></Button>
+</TableRow>
+</TableLayout>
+
 </LinearLayout>

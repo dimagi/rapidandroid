@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -108,7 +109,7 @@ public class ModelBootstrap {
 			if (typeCursor.getCount() == 0) {
 				ContentValues typecv = new ContentValues();
 
-				typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());					
+				typecv.put(BaseColumns._ID, thetype.getId());					
 				typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype.getDataType());
 				typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype.getTokenName());
 				typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype.getRegex());

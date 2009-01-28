@@ -4,20 +4,15 @@
 package org.rapidandroid.view.adapter;
 
 import java.util.HashMap;
-import java.util.Set;
-
-import org.rapidandroid.R;
 import org.rapidandroid.view.ParsedMessageView;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.parser.IParseResult;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -45,7 +40,7 @@ public class ParsedMessageViewAdapter extends BaseAdapter {
 		mContext = context;
 		mForm = form;		
 		
-		messages = (Message[])parsedMessages.keySet().toArray(new Message[parsedMessages.keySet().size()]);		
+		messages = parsedMessages.keySet().toArray(new Message[parsedMessages.keySet().size()]);		
 		mExpanded = new boolean[messages.length];
 		int len = messages.length;		
 		for(int i = 0; i < len; i++) {

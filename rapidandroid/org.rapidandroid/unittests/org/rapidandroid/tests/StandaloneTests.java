@@ -3,7 +3,6 @@
  */
 package org.rapidandroid.tests;
 
-import android.content.Context;
 import android.test.AndroidTestCase;
 
 /**
@@ -36,9 +35,9 @@ public class StandaloneTests extends AndroidTestCase {
 	}
 	
 	public void testContext() {
-		System.out.println("Test Context");
-		Context c = getContext();
-		assertTrue(true);
+//		System.out.println("Test Context");
+//		Context c = getContext();
+//		assertTrue(true);
 	}
 
 }

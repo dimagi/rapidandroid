@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -34,19 +33,23 @@ public class SingleRowView extends TableLayout {
 		
 		mMessageIDCol = new TextView(context);
 		mMessageIDCol.setGravity(1);
+		mMessageIDCol.setPadding(3, 3, 3, 3);
 		mRow.addView(mMessageIDCol, itemCounter++);
 		
 		mMonitorCol = new TextView(context);
 		mMonitorCol.setGravity(1);
+		mMonitorCol.setPadding(3, 3, 3, 3);
 		mRow.addView(mMonitorCol, itemCounter++);
 		
 		mDataCols = new Vector<TextView>();
 		mColCount =  c.getColumnCount();
 		for(int i = 0; i < mColCount -2; i++) {
 			TextView coldata = new TextView(getContext());
+			coldata.setPadding(3, 3, 3, 3);
 			coldata.setGravity(1);
 			//coldata.setText("null");
 			mDataCols.add(coldata);
+			
 			mRow.addView(coldata, itemCounter++);
 		}
 		

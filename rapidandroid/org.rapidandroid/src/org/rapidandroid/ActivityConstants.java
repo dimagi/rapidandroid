@@ -10,7 +10,8 @@ package org.rapidandroid;
 
 
 public class ActivityConstants {
-	public static final String EDIT_FORM = "editform";
-	public static final String ADD_FIELD = "addfield";
-	public static final String GRAPH_FORM = "graphform";
+	public static final String CREATE_FORM = "create_form";
+	public static final String ADD_FIELD = "add_field";
+	public static final String REVIEW_FORM = "review_form";	
+	public static final String CHART_FORM = "graph_form";
 }

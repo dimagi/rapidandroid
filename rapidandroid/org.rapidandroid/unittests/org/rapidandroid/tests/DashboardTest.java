@@ -3,9 +3,6 @@
  */
 package org.rapidandroid.tests;
 
-import org.rapidandroid.activity.Dashboard;
-
-import android.test.ActivityInstrumentationTestCase;
 import android.test.AndroidTestCase;
 
 /**

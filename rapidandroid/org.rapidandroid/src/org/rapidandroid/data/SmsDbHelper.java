@@ -1,7 +1,7 @@
 package org.rapidandroid.data;
 
 import org.rapidandroid.content.translation.*;
-import org.rapidandroid.content.translation.startup.ModelBootstrap;
+
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

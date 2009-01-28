@@ -3,23 +3,20 @@
  */
 package org.rapidandroid.receiver;
 
-import java.util.HashMap;
+
 import java.util.Vector;
 
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.service.ParsingService;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
+;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com

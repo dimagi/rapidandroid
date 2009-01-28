@@ -44,16 +44,18 @@
 				<data android:mimeType="vnd.android.cursor.item/org.rapidandroid.data.message"></data>
 			</intent-filter>
 		</receiver>
-		<activity android:name=".activity.FormEditor"></activity>
-		<activity android:name=".activity.FormReview"></activity>
+		<activity android:name=".activity.FormReviewer"></activity>
+		
 		<activity android:name=".activity.FormCreator"></activity>
-		<activity android:name=".activity.AddField"></activity>
+		
 
 		<uses-library android:name="android.test.runner" />
 
 	<receiver android:name=".receiver.SmsParseReceiver"><intent-filter><action android:name="org.rapidandroid.intents.SMS_SAVED"></action>
 </intent-filter>
 </receiver>
+<activity android:name=".activity.ChartData"></activity>
+<activity android:name=".activity.AddField" android:theme="@android:style/Theme.Dialog"></activity>
 </application>
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner"

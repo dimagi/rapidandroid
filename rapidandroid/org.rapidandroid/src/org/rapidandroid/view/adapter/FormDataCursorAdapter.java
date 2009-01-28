@@ -1,16 +1,14 @@
 package org.rapidandroid.view.adapter;
 
-import org.rapidandroid.view.ParsedMessageView;
+
 import org.rapidandroid.view.SingleRowView;
 import org.rapidsms.java.core.model.Form;
-import org.rapidsms.java.core.model.Message;
-import org.rapidsms.java.core.parser.IParseResult;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+
 import android.widget.CursorAdapter;
 
 /**

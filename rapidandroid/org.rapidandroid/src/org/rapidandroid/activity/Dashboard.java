@@ -63,23 +63,20 @@ public class Dashboard extends Activity {
 	private int mMessageSelected = -1;
 
 	private static final int ACTIVITY_CREATE = 0;
-	private static final int ACTIVITY_EDIT = 1;
-	private static final int ACTIVITY_VIEW = 2; // this and ACTIVITY_REPORTS
-	// don't really need to be
-	// reported back to this view.
-	private static final int ACTIVITY_REPORTS = 3;
-
+	private static final int ACTIVITY_FORM_REVIEW = 1;
+	private static final int ACTIVITY_CHARTS = 2; // this and ACTIVITY_CHARTS
+	
 	private static final int MENU_CREATE_ID = Menu.FIRST;
-	private static final int MENU_EDIT_ID = Menu.FIRST + 1;
-	private static final int MENU_VIEW_ID = Menu.FIRST + 2;
-	private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
+	private static final int MENU_FORM_REVIEW_ID = Menu.FIRST + 1;
+	private static final int MENU_CHARTS_ID = Menu.FIRST + 2;
+	//private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
 	// private static final int MENU_EXIT = Menu.FIRST + 3; //waitaminute, we
 	// don't want to exit this thing, do we?
 
 	
 	
-	private static final int CONTEXT_ITEM_SUMMARY_VIEW = ContextMenu.FIRST;
-	private static final int CONTEXT_ITEM_TABLE_VIEW = ContextMenu.FIRST + 1;
+	private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
+	private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
 //	private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
 //	private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
 
@@ -93,6 +90,7 @@ public class Dashboard extends Activity {
 	private Form[] mAllForms;
 	
 	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dashboard);
@@ -133,7 +131,8 @@ public class Dashboard extends Activity {
 				menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
 				menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
 			}
-		});
+		});		
+		
 		lsv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long row) {
 				if(adapter.getAdapter().getClass().equals(ParsedMessageViewAdapter.class) ) {
@@ -154,20 +153,18 @@ public class Dashboard extends Activity {
 			extras = intent.getExtras(); // right now this is a case where we
 			// don't do much activity back and
 			// forth
-
 		}
 
 		switch (requestCode) {
 		case ACTIVITY_CREATE:
 			// we should do an update of the view
-			dialogMessage = "Activity Done";
-			showDialog(11);
+			loadFormSpinner();
 			break;
-		case ACTIVITY_EDIT:
+		case ACTIVITY_FORM_REVIEW:
 			dialogMessage = "Activity Done";
 			showDialog(12);
 			break;
-		case ACTIVITY_VIEW:
+		case ACTIVITY_CHARTS:
 			dialogMessage = "Activity Done";
 			showDialog(13);
 			break;
@@ -180,9 +177,9 @@ public class Dashboard extends Activity {
 		// http://developerlife.com/tutorials/?p=304
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_CREATE_ID, 0, R.string.dashboard_menu_create);
-		menu.add(0, MENU_EDIT_ID, 0, R.string.dashboard_menu_edit);
-		menu.add(0, MENU_VIEW_ID, 0, R.string.dashboard_menu_view);
-		menu.add(0, MENU_SHOW_REPORTS, 0, R.string.dashboard_menu_show_reports);
+		menu.add(0, MENU_FORM_REVIEW_ID, 0, R.string.dashboard_menu_edit);
+		menu.add(0, MENU_CHARTS_ID, 0, R.string.dashboard_menu_view);
+		//menu.add(0, MENU_SHOW_REPORTS, 0, R.string.dashboard_menu_show_reports);
 		return true;
 	}
 
@@ -192,35 +189,21 @@ public class Dashboard extends Activity {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
 		case MENU_CREATE_ID:
-			// showDialog(MENU_CREATE_ID); //debug, we'll need to spawn the
-			// activities after this
-			StartFormEditActivity(true);
+			startActivityFormCreate();
 			return true;
-		case MENU_EDIT_ID:
-			// showDialog(MENU_EDIT_ID); //debug, we'll need to spawn the
-			// activities after this
-			StartFormEditActivity(false);
+		case MENU_FORM_REVIEW_ID:
+			startActivityFormReview();
 			return true;
-		case MENU_VIEW_ID:
-			// showDialog(MENU_VIEW_ID); //debug, we'll need to spawn the
-			// activities after this
-			if (mChosenForm != null) {
-				StartFormViewerActivity(mChosenForm.getFormId());
-			} else {
-				showDialog(9999);
-			}
-			return true;
-		case MENU_SHOW_REPORTS:			
+		case MENU_CHARTS_ID:
+			startActivityChart(mChosenForm.getFormId());
 			return true;
 		}
-
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		// Flip the enabled status of menu items depending on selection of a
-		// form
+		// Flip the enabled status of menu items depending on selection of a form
 		super.onPrepareOptionsMenu(menu);
 
 		boolean formOptionsEnabled = false;
@@ -228,14 +211,11 @@ public class Dashboard extends Activity {
 			formOptionsEnabled = true;
 		}
 		
-		MenuItem editMenu = menu.findItem(MENU_EDIT_ID);
+		MenuItem editMenu = menu.findItem(MENU_FORM_REVIEW_ID);
 		editMenu.setEnabled(formOptionsEnabled);
 
-		MenuItem viewMenu = menu.findItem(MENU_VIEW_ID);
+		MenuItem viewMenu = menu.findItem(MENU_CHARTS_ID);
 		viewMenu.setEnabled(formOptionsEnabled);
-
-		MenuItem reportsMenu = menu.findItem(MENU_SHOW_REPORTS);
-		reportsMenu.setEnabled(formOptionsEnabled);
 
 		return true;
 	}
@@ -244,50 +224,31 @@ public class Dashboard extends Activity {
 	protected Dialog onCreateDialog(int id) {
 		super.onCreateDialog(id);
 
-		return new AlertDialog.Builder(Dashboard.this).setTitle(
-				"Menu Selection").setMessage(
-				"Selected Menu Item: " + id + " " + dialogMessage)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						/* User clicked OK so do some stuff */
-					}
-				}).create();
+		return new AlertDialog.Builder(Dashboard.this).setTitle("Menu Selection")
+														.setMessage("Selected Menu Item: " + id + " " + dialogMessage)
+														.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+															public void onClick(DialogInterface dialog, int whichButton) {
+																/*
+																 * User clicked
+																 * OK so do some
+																 * stuff
+																 */
+															}
+														}).create();
 	}
 
-	// Start the form edit/create activity
-	private void StartFormEditActivity(boolean isNew) {
-//		Intent i;
-//		if (isNew) {
-//			i = new Intent(this, FormCreator.class);
-//			startActivityForResult(i, ACTIVITY_CREATE);
-//		} else {
-//			i = new Intent(this, FormEditor.class);
-//			i.putExtra(ActivityConstants.EDIT_FORM, mAllForms[mSelectedFormId].getFormId());
-//			startActivityForResult(i, ACTIVITY_EDIT);
-//		}
-	}
-
+	
 	@Override
 	// http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
 	// UGH, things changed from .9 to 1.0
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item
-				.getMenuInfo();
+		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 		case CONTEXT_ITEM_SUMMARY_VIEW:
 			formViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
 			populateListView();
 			break;
-		case CONTEXT_ITEM_TABLE_VIEW:
-			// This is actually where the magic happens.
-				// As we use an adapter view (which the ListView is)
-				// We can cast item.getMenuInfo() to AdapterContextMenuInfo
-				// To get the id of the clicked item in the list use menuInfo.id
-			
-				//SMS SENDING!!!!
-				// android.telephony.gsm.SmsManager smgr =
-				// android.telephony.gsm.SmsManager.getDefault();
-				// smgr.sendTextMessage("6176453236", null,"hello programmatic", null, null);
+		case CONTEXT_ITEM_TABLE_VIEW:			
 			formViewMode = LISTVIEW_MODE_TABLE_VIEW;
 			populateListView();
 
@@ -298,17 +259,28 @@ public class Dashboard extends Activity {
 		return true;
 	}
 
-	private boolean applyMessageContextMenu(MenuItem item) {
-		showDialog(item.getItemId());
-		return true;
+	// Start the form edit/create activity
+	private void startActivityFormReview() {
+		Intent i;
+		
+		i = new Intent(this, FormReviewer.class);
+		i.putExtra(ActivityConstants.REVIEW_FORM, mChosenForm.getFormId());			
+		startActivityForResult(i, ACTIVITY_FORM_REVIEW);	
+	}	
+	
+	// Start the form edit/create activity
+	private void startActivityFormCreate() {
+		Intent i;
+		i = new Intent(this, FormCreator.class);
+		startActivityForResult(i, ACTIVITY_CREATE);		
+	}	
+	
+	private void startActivityChart(int selectedFormId) {
+		Intent i = new Intent(this, ChartData.class);
+		i.putExtra(ActivityConstants.CHART_FORM, mChosenForm.getFormId());
+		startActivityForResult(i, ACTIVITY_CHARTS);
 	}
 
-	private void StartFormViewerActivity(int selectedFormId) {
-		Intent i = new Intent(this, FormReview.class);
-		i.putExtra("FormId", selectedFormId); // bad form, should use some
-		// enum here
-		startActivityForResult(i, ACTIVITY_VIEW);
-	}
 
 	// This is a call to the DB to get all the forms that this form can support.
 	private void loadFormSpinner() {
@@ -330,18 +302,13 @@ public class Dashboard extends Activity {
 		monitors[monitors.length - 2] = "Show all Messages";
 		monitors[monitors.length - 1] = "Show Monitors";
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, monitors);
-		
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, monitors);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
 		// apply it to the spinner
 		spin_forms.setAdapter(adapter);
-
 	}
 
 	private void spinnerItemSelected(int position) {
-
 		if (position == mAllForms.length) {
 			// if it's forms+1, then it's ALL messages			
 			mChosenForm = null;
@@ -350,6 +317,7 @@ public class Dashboard extends Activity {
 		} else if (position == mAllForms.length + 1) {
 			// then it's show all monitors			
 			mChosenForm = null;
+			loadAllMonitorsIntoList();
 			
 		} else {
 
@@ -378,7 +346,7 @@ public class Dashboard extends Activity {
 	
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
-	private void loadMonitorsIntoList() {		
+	private void loadAllMonitorsIntoList() {		
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
 	}
@@ -403,7 +371,7 @@ public class Dashboard extends Activity {
 //					lsv.addHeaderView(headerView);
 //				}
 				
-				if(this.formViewMode == this.LISTVIEW_MODE_SUMMARY_VIEW) {
+				if(this.formViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {
 										
 //					headerView.setVisibility(View.INVISIBLE);
 					this.summaryView = new ParsedMessageViewAdapter(this,mChosenForm, parsedHash);						
@@ -420,7 +388,7 @@ public class Dashboard extends Activity {
 					
 					
 					lsv.setAdapter(summaryView);
-				} else if(this.formViewMode == this.LISTVIEW_MODE_TABLE_VIEW) {
+				} else if(this.formViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
 					
 					Uri dataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId());
 					Cursor cr = getContentResolver().query(dataUri, null,null,null,null);

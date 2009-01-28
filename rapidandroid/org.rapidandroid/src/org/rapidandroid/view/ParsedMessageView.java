@@ -1,24 +1,19 @@
 
 package org.rapidandroid.view;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Vector;
 
-import org.rapidandroid.R;
+import java.text.SimpleDateFormat;
+
+
+
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.parser.IParseResult;
 
 import android.content.Context;
-import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 /**
  * 

@@ -9,9 +9,6 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rapidsms.java.core.parser.IParseResult;
-import org.rapidsms.java.core.parser.service.ParsingService;
-
 import android.util.Log;
 
 import junit.framework.TestCase;
