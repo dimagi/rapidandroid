@@ -14,4 +14,6 @@ public class ActivityConstants {
 	public static final String ADD_FIELD = "add_field";
 	public static final String REVIEW_FORM = "review_form";	
 	public static final String CHART_FORM = "graph_form";
+	public static final String CHART_MESSAGES = "graph_msg";
+	public static final String CHART_MONITORS = "graph_monitor";
 }

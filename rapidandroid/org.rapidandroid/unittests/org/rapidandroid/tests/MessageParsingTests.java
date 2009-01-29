@@ -1,5 +1,6 @@
 package org.rapidandroid.tests;
 
+import java.util.Date;
 import java.util.Vector;
 
 import org.rapidandroid.content.translation.ModelTranslator;
@@ -112,7 +113,9 @@ public class MessageParsingTests extends AndroidTestCase {
 				ContentValues initialValues = new ContentValues();
 				initialValues.put(RapidSmsDataDefs.Message.MESSAGE,messages[i]);		
 				initialValues.put(RapidSmsDataDefs.Message.PHONE,"617645323" + i);
-				initialValues.put(RapidSmsDataDefs.Message.TIME,"10/31/2008 12:5" + i);
+				Date dt = new Date();
+				initialValues.put(RapidSmsDataDefs.Message.TIME,dt.getTime());
+				
 				initialValues.put(RapidSmsDataDefs.Message.IS_OUTGOING,false);
 				Uri msgUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Message.CONTENT_URI, initialValues);				
 				

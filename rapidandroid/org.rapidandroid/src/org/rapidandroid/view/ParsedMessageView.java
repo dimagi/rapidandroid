@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 public class ParsedMessageView extends TableLayout {
 	
-	private SimpleDateFormat sdf;
 	private Form mForm;
 	
 	//TableRow mMessageSummaryRow;
@@ -44,7 +43,6 @@ public class ParsedMessageView extends TableLayout {
 	
 	public ParsedMessageView(Context context, Form form, Message mesg, IParseResult[] results, boolean expanded) { 
 		super(context);
-		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		mForm = form;
 
 			
@@ -112,30 +110,15 @@ public class ParsedMessageView extends TableLayout {
 	
 	
 	
-	private void setMessageTop(Message mesg) {		
-		
-
-        
-        mMessageSummary.setText("ID: " + mesg.getID() + " :: " + sdf.format(mesg.getTimestamp()));          
-        mMonitorString.setText(mesg.getMonitor().getPhone());
-        
-       
-        mMonitorString.setText(mesg.getMonitor().getPhone());
-		 
-       
+	private void setMessageTop(Message mesg) {		        
+        mMessageSummary.setText("ID: " + mesg.getID() + " :: " + Message.DisplayDateFormat.format(mesg.getTimestamp()));          
+        mMonitorString.setText(mesg.getMonitor().getPhone());       
         mRawMessageRow.setText(mesg.getMessageText());        
-       
-        
-        
 	}
 	
-	private void setParsedBottom(IParseResult[] results) {
-		
+	private void setParsedBottom(IParseResult[] results) {		
 		mParsedSummaryRow.setText("Parsed Data");
-		
-        
-        int lenresults = results.length;
-        
+        int lenresults = results.length;        
         for(int i = 0; i < lenresults; i++) {        	
         	mFieldLabels[i].setText(mForm.getFields()[i].getName());        	
         	mFieldValues[i].setText(results[i].getValue().toString());        	        	
@@ -146,16 +129,13 @@ public class ParsedMessageView extends TableLayout {
 		setMessageTop(mesg);
 		setParsedBottom(results);
 	}
-	public void setExpanded(boolean expanded) {
-		//mDialogue.setVisibility(expanded ? VISIBLE : GONE);
-		//mMessageSummaryRow;
-		//mMonitorRow; 
+	
+	public void setExpanded(boolean expanded) {		
 		mRawMessageRow.setVisibility(expanded ? VISIBLE : GONE);
 		mParsedSummaryRow.setVisibility(expanded ? VISIBLE : GONE);
 		int rowLen = mParsedDataRows.length;
 		for(int i = 0; i < rowLen; i++) {
 			mParsedDataRows[i].setVisibility(expanded ? VISIBLE : GONE);
-		}
-			
+		}			
 	}	
 }

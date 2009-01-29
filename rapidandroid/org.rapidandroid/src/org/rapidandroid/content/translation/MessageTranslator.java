@@ -72,9 +72,12 @@ public class MessageTranslator {
 			return null;
 		} else {
 			try {
+				String datestring = msgCursor.getString(Message.COL_TIME);
+				Date msgDate = Message.SQLDateFormatter.parse(datestring);
+				
 				Message newMessage = new Message(msgCursor.getInt(Message.COL_ID),
 												msgCursor.getString(Message.COL_MESSAGE), 
-												DateFormat.getDateTimeInstance().parse(msgCursor.getString(Message.COL_TIME)),									
+												msgDate,									
 												mMonitorHash.get(Integer.valueOf(msgCursor.getInt(Message.COL_MONITOR))));
 				msgCursor.close();
 				return newMessage;

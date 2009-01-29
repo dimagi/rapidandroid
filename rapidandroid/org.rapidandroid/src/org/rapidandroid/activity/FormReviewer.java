@@ -3,17 +3,28 @@
  */
 package org.rapidandroid.activity;
 
+
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Random;
+import java.util.Vector;
 
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
+import org.rapidandroid.content.translation.ParsedDataTranslator;
+import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.Message;
+import org.rapidsms.java.core.parser.IParseResult;
+import org.rapidsms.java.core.parser.service.ParsingService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,12 +46,11 @@ import android.widget.TextView;
 public class FormReviewer extends Activity {
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_FORMAT = Menu.FIRST + 1;
+	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 2;
 	
 
 	private Form mForm;
 	
-	private String mScratchDescription = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +92,7 @@ public class FormReviewer extends Activity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_DONE, 0, R.string.formreview_menu_done).setIcon(android.R.drawable.ic_menu_revert);;
 		menu.add(0, MENU_FORMAT, 0, R.string.formreview_menu_format).setIcon(android.R.drawable.ic_menu_info_details);;		
+		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data");
 		return true;
 	}
 
@@ -98,15 +109,52 @@ public class FormReviewer extends Activity {
 			// setResult(RESULT_OK, mIntent)
 			showDialog(0);
 			return true;
-		
+		case MENU_INJECT_DEBUG:
+			injectMessages();
+			break;
+			
 		}
 		return true;
+	}
+
+	/**
+	 * 
+	 */
+	private void injectMessages() {
+		// TODO Auto-generated method stub
+		
+		for(int i = 0; i < 100; i++) {			
+			StringBuilder sb = this.generateRandomMessage();
+			
+			Uri writeMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
+
+			ContentValues messageValues = new ContentValues();
+			messageValues.put(RapidSmsDataDefs.Message.MESSAGE, sb.toString());
+			messageValues.put(RapidSmsDataDefs.Message.PHONE, "6176453236");
+
+			Date now = new Date();	
+			now.setDate(r.nextInt(30)+1);
+			now.setHours(r.nextInt(24));
+			
+			messageValues.put(RapidSmsDataDefs.Message.TIME, Message.SQLDateFormatter.format(now));
+			messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
+
+			Uri msgUri = null;
+			
+			msgUri = getContentResolver().insert(writeMessageUri,messageValues);
+	
+			
+			Vector<IParseResult> results = ParsingService.ParseMessage(mForm, sb.toString());
+			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(msgUri.getPathSegments().get(1)).intValue(), results);
+		}
+		showDialog(0);
 	}
 
 	private static String[] bools = new String[]{"t", "f","true","false","yes","no","y","n"};
 	private static String[] heights = new String[]{"cm", "m","meters","meter"};
 	private static String[] lengths = new String[]{"cm", "m","meters","meter"};
 	private static String[] weights = new String[]{"kg","kilos","kilo","kg.","kgs"};
+	private static String[] words = new String[] {"bos","nyc","jfk","lax","lun","lhr","asvasd","alksjwlejrwer","bshdkghk","akhsdwer","tiwowuy","xvcxbxkhcvb"};
 	Random r = new Random();
 	
 	
@@ -121,6 +169,17 @@ public class FormReviewer extends Activity {
 			return null;
 		}
 		
+		StringBuilder sb = generateRandomMessage();
+		
+		return new AlertDialog.Builder(FormReviewer.this).setTitle(title)
+		.setMessage(sb.toString().trim()).setPositiveButton("OK", null).create();
+				
+	}
+
+	/**
+	 * @return
+	 */
+	private StringBuilder generateRandomMessage() {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(mForm.getPrefix() + " ");
@@ -135,8 +194,7 @@ public class FormReviewer extends Activity {
 			String type = field.getFieldType().getTokenName();
 			
 			if(type.equals("word")) {
-				String token = Long.toString(Math.abs(r.nextLong()), 36);
-				sb.append(token.substring(0, 10));				
+				sb.append(words[r.nextInt(words.length)]);				
 			} else if(type.equals("number")) {
 				sb.append(r.nextInt(1000));
 			}else if(type.equals("height")) {
@@ -144,17 +202,16 @@ public class FormReviewer extends Activity {
 			}else if(type.equals("boolean")) {
 				sb.append(bools[r.nextInt(bools.length)]);
 			}else if(type.equals("length")) {
-				sb.append(r.nextInt(200) + " " + lengths[r.nextInt(lengths.length)]);
+				sb.append(r.nextInt(200) + " " + lengths[r.nextInt(lengths.length)]);				
 			} else if (type.equals("ratio")) {
 				String floatString = r.nextFloat() + "";
 				sb.append(floatString.substring(0, 4));
+			}else if(type.equals("weight")) {
+				sb.append(r.nextInt(150) + " " + weights[r.nextInt(weights.length)]);
 			}
 			sb.append(" ");
 			
 		}
-		
-		return new AlertDialog.Builder(FormReviewer.this).setTitle(title)
-		.setMessage(sb.toString().trim()).setPositiveButton("OK", null).create();
-				
+		return sb;
 	}
 }

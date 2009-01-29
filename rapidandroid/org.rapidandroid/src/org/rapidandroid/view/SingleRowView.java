@@ -28,24 +28,29 @@ public class SingleRowView extends TableLayout {
 	public SingleRowView(Context context, Cursor c) {
 		super(context);
 		int itemCounter = 0; 
-
+		mColCount =  c.getColumnCount();
+		
 		mRow = new TableRow(context);		
 		
 		mMessageIDCol = new TextView(context);
 		mMessageIDCol.setGravity(1);
+		//mMessageIDCol.setWidth(getWidth()/mColCount);
 		mMessageIDCol.setPadding(3, 3, 3, 3);
 		mRow.addView(mMessageIDCol, itemCounter++);
 		
 		mMonitorCol = new TextView(context);
 		mMonitorCol.setGravity(1);
 		mMonitorCol.setPadding(3, 3, 3, 3);
+		
+		//mMonitorCol.setWidth(getWidth()/mColCount);
 		mRow.addView(mMonitorCol, itemCounter++);
 		
 		mDataCols = new Vector<TextView>();
-		mColCount =  c.getColumnCount();
+		
 		for(int i = 0; i < mColCount -2; i++) {
 			TextView coldata = new TextView(getContext());
 			coldata.setPadding(3, 3, 3, 3);
+			//coldata.setWidth(getWidth()/mColCount);
 			coldata.setGravity(1);
 			//coldata.setText("null");
 			mDataCols.add(coldata);

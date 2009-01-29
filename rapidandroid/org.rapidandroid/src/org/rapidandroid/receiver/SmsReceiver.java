@@ -5,6 +5,7 @@ package org.rapidandroid.receiver;
 
 import java.sql.Timestamp;
 import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidsms.java.core.model.Message;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -54,13 +55,16 @@ public class SmsReceiver extends BroadcastReceiver {
 		messageValues.put(RapidSmsDataDefs.Message.PHONE, mesg
 				.getOriginatingAddress());
 
+		
 		Timestamp ts = new Timestamp(mesg.getTimestampMillis()); // convert the
+		
 		// timestamp
 		// to a
 		// datetime
 		// string
 
-		messageValues.put(RapidSmsDataDefs.Message.TIME, ts.toString());
+		//messageValues.put(RapidSmsDataDefs.Message. TIME,mesg.getTimestampMillis());
+		messageValues.put(RapidSmsDataDefs.Message.TIME, Message.SQLDateFormatter.format(ts));
 		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
 		boolean successfulSave = false;
 		Uri msgUri = null;
@@ -77,7 +81,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			broadcast.putExtra("from", mesg.getOriginatingAddress());
 			broadcast.putExtra("body", mesg.getMessageBody());
 			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-			DeleteSMSFromInbox(context,mesg);
+			//DeleteSMSFromInbox(context,mesg);
 			context.sendBroadcast(broadcast);
 		}
 	}

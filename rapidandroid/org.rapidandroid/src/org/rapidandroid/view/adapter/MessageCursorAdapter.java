@@ -3,6 +3,7 @@ package org.rapidandroid.view.adapter;
 import java.util.Date;
 
 import org.rapidandroid.content.translation.MessageTranslator;
+import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.model.Monitor;
 
 import android.content.Context;
@@ -31,6 +32,13 @@ public class MessageCursorAdapter extends CursorAdapter {
 			String message = cursor.getString(4);
 			boolean isoutgoing = Boolean.parseBoolean(cursor.getString(4));
 			Date hackDate = new Date();
+			boolean success = false;
+			try {
+				hackDate = Message.SQLDateFormatter.parse(timestamp);				
+				success = true;
+			} catch (Exception ex) {
+				success = false;
+			}
 			
 			SimpleMessageView srv = (SimpleMessageView)view;
 			srv.setData(message,hackDate,MonitorID,isoutgoing);
@@ -83,10 +91,11 @@ public class MessageCursorAdapter extends CursorAdapter {
 				sb.append("[In] >>> " );
 			}
 			
-			sb.append(timestamp.toString() + " ");
+			sb.append(Message.DisplayDateFormat.format(timestamp) + " [");
 			Monitor m = MessageTranslator.GetMonitor(getContext(), monitorID);
-			sb.append(m.getPhone());			
-			txvHeader.setText(timestamp.toString());
+			sb.append(m.getPhone() + "]");			
+			//txvHeader.setText(Message.DisplayDateFormat.format(timestamp));
+			txvHeader.setText(sb.toString());
 			
 			txvMessage.setText(message);
 		}

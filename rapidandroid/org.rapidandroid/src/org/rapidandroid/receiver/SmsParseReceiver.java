@@ -46,7 +46,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 		int len = prefixes.length;
 		for(int i = 0; i < len; i++) {
 			String prefix = prefixes[i];
-			if(message.startsWith(prefix+" ")){
+			if(message.toLowerCase().trim().startsWith(prefix+" ")){
 				return forms[i];
 			}
 		}

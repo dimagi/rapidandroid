@@ -21,6 +21,7 @@ import org.rapidsms.java.core.parser.IParseResult;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -30,6 +31,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -57,10 +59,14 @@ public class Dashboard extends Activity {
 	private ArrayAdapter<String> emptyView;
 	private MessageCursorAdapter messageCursorAdapter;
 	
+	ProgressDialog mLoadingDialog;
+	
 	
 	private Form mChosenForm = null;
+	
 		
-	private int mMessageSelected = -1;
+	private boolean mShowMonitors = false;
+	private boolean mShowAllMessages = false;
 
 	private static final int ACTIVITY_CREATE = 0;
 	private static final int ACTIVITY_FORM_REVIEW = 1;
@@ -84,6 +90,8 @@ public class Dashboard extends Activity {
 	private static final int LISTVIEW_MODE_TABLE_VIEW = 1;
 	//private static final int LISTVIEW_MODE_SUMMARY_VIEW = 0;
 	
+	private static final int DIALOG_LOADING = 17;
+	
 	private int formViewMode = 0;
 	
 	
@@ -93,6 +101,7 @@ public class Dashboard extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.dashboard);
 
 		if (savedInstanceState != null) {
@@ -196,7 +205,7 @@ public class Dashboard extends Activity {
 			startActivityFormReview();
 			return true;
 		case MENU_CHARTS_ID:
-			startActivityChart(mChosenForm.getFormId());
+			startActivityChart();
 			return true;
 		}
 		return true;
@@ -216,26 +225,36 @@ public class Dashboard extends Activity {
 		editMenu.setEnabled(formOptionsEnabled);
 
 		MenuItem viewMenu = menu.findItem(MENU_CHARTS_ID);
-		viewMenu.setEnabled(formOptionsEnabled);
+	
 
 		return true;
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		super.onCreateDialog(id);
+		switch(id) {
+			case DIALOG_LOADING: 
+				mLoadingDialog = new ProgressDialog(this);
+				//mLoadingDialog.setTitle("Indeterminate");
+				mLoadingDialog.setMessage("Loading data...");
+				mLoadingDialog.setIndeterminate(true);
+				mLoadingDialog.setCancelable(true);	            
+	            return mLoadingDialog;			
+		}
+		return null;
+		
 
-		return new AlertDialog.Builder(Dashboard.this).setTitle("Menu Selection")
-														.setMessage("Selected Menu Item: " + id + " " + dialogMessage)
-														.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-															public void onClick(DialogInterface dialog, int whichButton) {
-																/*
-																 * User clicked
-																 * OK so do some
-																 * stuff
-																 */
-															}
-														}).create();
+//		return new AlertDialog.Builder(Dashboard.this).setTitle("Menu Selection")
+//														.setMessage("Selected Menu Item: " + id + " " + dialogMessage)
+//														.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//															public void onClick(DialogInterface dialog, int whichButton) {
+//																/*
+//																 * User clicked
+//																 * OK so do some
+//																 * stuff
+//																 */
+//															}
+//														}).create();
 	}
 
 	
@@ -275,9 +294,17 @@ public class Dashboard extends Activity {
 		startActivityForResult(i, ACTIVITY_CREATE);		
 	}	
 	
-	private void startActivityChart(int selectedFormId) {
+	private void startActivityChart() {
 		Intent i = new Intent(this, ChartData.class);
-		i.putExtra(ActivityConstants.CHART_FORM, mChosenForm.getFormId());
+		
+		if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+			i.putExtra(ActivityConstants.CHART_FORM, mChosenForm.getFormId());			
+		} else if(mShowAllMessages && !mShowMonitors) {
+			//show the messages
+			i.putExtra(ActivityConstants.CHART_MESSAGES, true);
+		} else if (mShowMonitors && !mShowAllMessages) {
+			//show all the monitrors
+		}		
 		startActivityForResult(i, ACTIVITY_CHARTS);
 	}
 
@@ -312,15 +339,21 @@ public class Dashboard extends Activity {
 		if (position == mAllForms.length) {
 			// if it's forms+1, then it's ALL messages			
 			mChosenForm = null;
+			this.mShowAllMessages = true;
+			this.mShowMonitors = false;
 			loadAllMessagesIntoList();
+			
 
 		} else if (position == mAllForms.length + 1) {
 			// then it's show all monitors			
 			mChosenForm = null;
+			this.mShowAllMessages = false;
+			this.mShowMonitors = true;
 			loadAllMonitorsIntoList();
 			
 		} else {
-
+			this.mShowAllMessages = false;
+			this.mShowMonitors = false;
 			mChosenForm = mAllForms[position];
 			// get the position, then reset the			
 			populateListView();
@@ -354,6 +387,8 @@ public class Dashboard extends Activity {
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
 	private void populateListView() {
+		
+		showDialog(DIALOG_LOADING);
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this,
@@ -405,6 +440,7 @@ public class Dashboard extends Activity {
 					summaryView = null;
 				}
 			}
+			mLoadingDialog.cancel();
 		}
 	}
 
