@@ -1,6 +1,9 @@
 package org.rapidsms.java.core.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -21,6 +24,10 @@ public class Message {
 	public static final int COL_PARSED_MESSAGE_ID = 1;
 	public static final int COL_PARSED_FIELDS_OFFSET = 2;	
 	
+	//2009-01-29 20:44:30
+	public static DateFormat SQLDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");	//implicit Z
+	public static DateFormat DisplayDateFormat = new SimpleDateFormat("HH:mm MM/dd/yy");
+	
 	public Message(int id, String message, Date timestamp, Monitor monitor) {
 		this.mId = id;
 		this.mMessageText = message;
@@ -35,6 +42,7 @@ public class Message {
 		return mMessageText;
 	}
 	/**
+	 * Get the timestamp for the given message
 	 * @return the mTimestamp
 	 */
 	public Date getTimestamp() {
