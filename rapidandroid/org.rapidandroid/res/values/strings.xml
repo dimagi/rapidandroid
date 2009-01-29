@@ -10,8 +10,8 @@
 <string name="dashboard_menu_create">Create Form</string>
 <string name="dashboard_menu_edit">View Form</string>
 <string name="dashboard_menu_view">Charts</string>
-<string name="formeditor_menu_save">Save</string>
 <string name="formeditor_menu_cancel">Cancel</string>
+<string name="formeditor_menu_save">Save</string>
 <string name="formeditor_menu_add_field">Add Field</string>
 <string name="dashboard_menu_show_reports">Reports</string>
 <string name="menu_done">Finished</string>
@@ -23,4 +23,9 @@
 <string name="btn_finishaddfield">Add</string>
 <string name="btn_canceladdfield">Cancel</string>
 
+<string name="formreview_menu_done">Done</string>
+<string name="formreview_menu_format">Show Example</string>
+<string name="chart_menu_done">Done</string>
+<string name="chart_menu_change_variable">Change Variable</string>
+<string name="chart_menu_change_parameters">Change Parameters</string>
 </resources>

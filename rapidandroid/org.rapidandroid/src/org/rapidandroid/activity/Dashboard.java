@@ -130,6 +130,7 @@ public class Dashboard extends Activity {
 			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 				menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
 				menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
+				
 			}
 		});		
 		
@@ -161,12 +162,12 @@ public class Dashboard extends Activity {
 			loadFormSpinner();
 			break;
 		case ACTIVITY_FORM_REVIEW:
-			dialogMessage = "Activity Done";
-			showDialog(12);
+//			dialogMessage = "Activity Done";
+//			showDialog(12);
 			break;
 		case ACTIVITY_CHARTS:
-			dialogMessage = "Activity Done";
-			showDialog(13);
+//			dialogMessage = "Activity Done";
+//			showDialog(13);
 			break;
 		}
 	}
@@ -176,9 +177,9 @@ public class Dashboard extends Activity {
 		// add images:
 		// http://developerlife.com/tutorials/?p=304
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_CREATE_ID, 0, R.string.dashboard_menu_create);
-		menu.add(0, MENU_FORM_REVIEW_ID, 0, R.string.dashboard_menu_edit);
-		menu.add(0, MENU_CHARTS_ID, 0, R.string.dashboard_menu_view);
+		menu.add(0, MENU_CREATE_ID, 0, R.string.dashboard_menu_create).setIcon(android.R.drawable.ic_menu_add);
+		menu.add(0, MENU_FORM_REVIEW_ID, 0, R.string.dashboard_menu_edit).setIcon(android.R.drawable.ic_menu_agenda);
+		menu.add(0, MENU_CHARTS_ID, 0, R.string.dashboard_menu_view).setIcon(android.R.drawable.ic_menu_sort_by_size);
 		//menu.add(0, MENU_SHOW_REPORTS, 0, R.string.dashboard_menu_show_reports);
 		return true;
 	}
@@ -261,8 +262,7 @@ public class Dashboard extends Activity {
 
 	// Start the form edit/create activity
 	private void startActivityFormReview() {
-		Intent i;
-		
+		Intent i;		
 		i = new Intent(this, FormReviewer.class);
 		i.putExtra(ActivityConstants.REVIEW_FORM, mChosenForm.getFormId());			
 		startActivityForResult(i, ACTIVITY_FORM_REVIEW);	

@@ -14,6 +14,8 @@ import android.content.Intent;
 
 import android.os.Bundle;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -47,6 +49,10 @@ public class AddField extends Activity {
 	public static final String RESULT_PROMPT  = "fieldname";
 	public static final String RESULT_FIELDTYPE_ID = "fieldtypeid";
 	
+	
+	private static final int MENU_SAVE = Menu.FIRST;	
+	private static final int MENU_CANCEL = Menu.FIRST + 1;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -62,45 +68,37 @@ public class AddField extends Activity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			existingFields = extras.keySet().toArray(new String[extras.keySet().size()]);
+		}		
+		
+		if(savedInstanceState != null) {
+			EditText etxName = (EditText)findViewById(R.id.etx_fieldname);
+			EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
+			Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
+			
+			etxName.setText(savedInstanceState.getString("name"));
+			etxPrompt.setText(savedInstanceState.getString("prompt"));
+			int position = savedInstanceState.getInt("type");
+			if(position >= 0) {
+				spinnerFieldTypes.setSelection(position);
+			}
 		}
 		
 		
-		Button btnAdd = (Button) findViewById(R.id.btnAddField_add);
-		btnAdd.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				if(saveNewField()) {
-					EditText etxName = (EditText)findViewById(R.id.etx_fieldname);
-					EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
-					Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
-					
-					Intent ret = new Intent();
-					ret.putExtra(RESULT_FIELDNAME, etxName.getText().toString());
-					ret.putExtra(RESULT_PROMPT, etxPrompt.getText().toString());
-					int pos = spinnerFieldTypes.getSelectedItemPosition();
-					int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos]).getId();					
-					ret.putExtra(RESULT_FIELDTYPE_ID, fieldTypeIdHack);
-					setResult(FormCreator.ACTIVITY_ADDFIELD_ADDED, ret);
-					finish();
-				}
-			}
-			
-		});
-		Button btnCancel = (Button) findViewById(R.id.btnAddField_Cancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				setResult(FormCreator.ACTIVITY_ADDFIELD_CANCEL);
-				finish();				
-			}
-			
-		});		
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		
+		EditText etxName = (EditText)findViewById(R.id.etx_fieldname);
+		EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
+		Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
+		
+		outState.putString("name", etxName.getText().toString());
+		outState.putString("prompt", etxPrompt.getText().toString());
+		outState.putInt("type", spinnerFieldTypes.getSelectedItemPosition());
+	}
 	private void loadFieldTypes() {
 		Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
 		if(fieldTypes == null) {
@@ -117,6 +115,43 @@ public class AddField extends Activity {
 
 		spinnerFieldTypes.setAdapter(adapter);
 		//get the field types from the fieldhash baby
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save).setIcon(android.R.drawable.ic_menu_save);
+		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+		case MENU_SAVE:
+			if(saveNewField()) {
+				EditText etxName = (EditText)findViewById(R.id.etx_fieldname);
+				EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
+				Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
+				
+				Intent ret = new Intent();
+				ret.putExtra(RESULT_FIELDNAME, etxName.getText().toString());
+				ret.putExtra(RESULT_PROMPT, etxPrompt.getText().toString());
+				int pos = spinnerFieldTypes.getSelectedItemPosition();
+				int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos]).getId();					
+				ret.putExtra(RESULT_FIELDTYPE_ID, fieldTypeIdHack);
+				setResult(FormCreator.ACTIVITY_ADDFIELD_ADDED, ret);
+				finish();
+			}
+			return true;		
+		case MENU_CANCEL:
+			setResult(FormCreator.ACTIVITY_ADDFIELD_CANCEL);
+			finish();		
+			return true;
+		}
+
+		return true;
 	}
 	
 	private boolean saveNewField() {

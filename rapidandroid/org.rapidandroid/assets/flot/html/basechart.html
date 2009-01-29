@@ -10,21 +10,28 @@
     
     <script id="source" language="javascript" type="text/javascript">
 function load(){
-	document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle("wassup", 5);
+	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle("wassup", 5);
 	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle();
 	window.graphdata.loadGraph();
 }
 
+function SetGraph(gwidth, gheight) {
+	var graphObj = document.getElementById("placeholder");
+	graphObj.style.width = gwidth;
+	graphObj.style.height = gheight;	
+}
 function GotGraph(gdata) {
+	
 	$.plot($("#placeholder"), gdata);
+	
 
 }
 </script>
     
  </head>
     <body onload="load()">
-    <h1 id="graphtitle">Bar Graph</h1>
+   
 
-    <div id="placeholder" style="width:600px;height:300px"></div>   
+    <div id="placeholder"></div>   
  </body>
 </html>

@@ -10,6 +10,7 @@ import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDataDefs;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.SimpleFieldType;
 import org.rapidsms.java.core.parser.service.ParsingService.ParserType;
 import org.rapidsms.java.core.parser.token.ITokenParser;
 
@@ -77,6 +78,12 @@ public class FormCreator extends Activity {
 	private static final int DIALOGRESULT_OK_DONT_SAVE = 1;
 	private static final int DIALOGRESULT_CANCEL_KEEP_WORKING = 2;	
 	
+	
+	private static final String STATE_FORMNAME = "formname";
+	private static final String STATE_PREFIX = "prefix";
+	private static final String STATE_DESC = "desc";
+	
+	
 	private Vector<Field> mCurrentFields;
 	private String[] fieldStrings;
 	
@@ -92,39 +99,110 @@ public class FormCreator extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.form_create);
 
-		
+		//Required onCreate setup
 		// add some events to the listview
 		ListView lsv = (ListView) findViewById(R.id.lsv_createfields);
-
-		// bind a context menu
 		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 				menu.setHeaderTitle("Current Field");
 				menu.add(0, CONTEXT_MOVE_UP, 0, "Move Up");
 				menu.add(0, CONTEXT_MOVE_DOWN, 0, "Move Down");
 				//menu.add(0, CONTEXT_EDIT, 0, "Edit");
-				menu.add(0, CONTEXT_REMOVE, 0, "Remove");
+				menu.add(0, CONTEXT_REMOVE, 0, "Remove").setIcon(android.R.drawable.ic_menu_delete);
 
 			}
 		});
 		
 		lsv.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				// TODO Auto-generated method stub
-				selectedFieldPosition = arg2;
-				
+				selectedFieldPosition = arg2;				
 			}
 			
 		});
 		TextView noFields = new TextView(this);
 		noFields.setText("No fields");		
-		lsv.setEmptyView(noFields);
+		lsv.setEmptyView(noFields);		
 		
 		
+		
+		if(savedInstanceState != null) {		
+			restoreState(savedInstanceState);		
+		} 
 		updateFieldList();
 		
+	}
+
+
+	private void restoreState(Bundle savedInstanceState) {
+		EditText etxFormName = (EditText) findViewById(R.id.etx_formname);
+			EditText etxFormPrefix = (EditText) findViewById(R.id.etx_formprefix);
+			EditText etxDescription = (EditText) findViewById(R.id.etx_description);
+
+			etxFormName.setText(savedInstanceState.getString(this.STATE_FORMNAME));
+			etxFormPrefix.setText(savedInstanceState.getString(this.STATE_PREFIX));
+			etxDescription.setText(savedInstanceState.getString(this.STATE_DESC));
+			boolean checkForFields = true;
+			int i = 0;
+			do {
+				checkForFields = savedInstanceState.containsKey("Field" + i);
+				if(checkForFields) {
+					Bundle fieldBundle = savedInstanceState.getBundle("Field" + i);
+					addNewField(fieldBundle);
+					i++;
+				}				
+			} while(checkForFields);
+	}
+
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		saveState();
+	}
+
+	//dmyung - since the savestate and onresume rely upon the database, and we are only doing the formcreate in memory, we will not implement these.
+	private void saveState() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		EditText etxFormName = (EditText)findViewById(R.id.etx_formname);
+		EditText etxFormPrefix = (EditText)findViewById(R.id.etx_formprefix);
+		EditText etxDescription = (EditText)findViewById(R.id.etx_description);
+		
+		ListView lsv = (ListView) findViewById(R.id.lsv_createfields);
+		
+		outState.putString(this.STATE_FORMNAME, etxFormName.getText().toString());
+		outState.putString(this.STATE_PREFIX, etxFormPrefix.getText().toString());
+		outState.putString(this.STATE_DESC, etxDescription.getText().toString());
+		
+		if (mCurrentFields != null) {
+			int numFields = this.mCurrentFields.size();
+			for (int i = 0; i < numFields; i++) {
+				Field f = mCurrentFields.get(i);
+
+				Bundle fieldBundle = new Bundle();
+				fieldBundle.putString(AddField.RESULT_FIELDNAME, f.getName());
+				fieldBundle.putString(AddField.RESULT_PROMPT, f.getPrompt());
+				fieldBundle.putInt(AddField.RESULT_FIELDTYPE_ID,
+						((SimpleFieldType) f.getFieldType()).getId());
+				outState.putBundle("Field" + i, fieldBundle);
+			}
+		}
 	}
 
 
@@ -158,7 +236,7 @@ public class FormCreator extends Activity {
 	private void addNewField(Bundle extras) {
 		if(mCurrentFields == null) {
 			mCurrentFields = new Vector<Field>();
-		}
+		} 
 		
 		Field newField = new Field();		
 		newField.setFieldId(-1);
@@ -184,12 +262,12 @@ public class FormCreator extends Activity {
 	private void updateFieldList() {
 		ListView lsv = (ListView) findViewById(R.id.lsv_createfields);
 		if(mCurrentFields == null) {
-			return;
+			mCurrentFields = new Vector<Field>();
 		} 
-		
-		else {
+		int len = mCurrentFields.size();
+		if (len > 0){
 			fieldStrings = new String[mCurrentFields.size()];
-			int len = mCurrentFields.size();
+			
 			for(int i = 0; i < len; i++) {
 				StringBuilder sb = new StringBuilder();
 				Field f = mCurrentFields.get(i);
@@ -211,9 +289,9 @@ public class FormCreator extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save);
-		menu.add(0, MENU_ADD_FIELD, 0, R.string.formeditor_menu_add_field);
-		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel);
+		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save).setIcon(android.R.drawable.ic_menu_save);
+		menu.add(0, MENU_ADD_FIELD, 0, R.string.formeditor_menu_add_field).setIcon(android.R.drawable.ic_menu_add);
+		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return true;
 	}
 

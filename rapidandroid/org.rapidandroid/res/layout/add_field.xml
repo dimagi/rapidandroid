@@ -47,9 +47,6 @@
 	
 
 
-<TableLayout android:id="@+id/TableLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent"><TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="3"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add" android:layout_weight="1" android:id="@+id/btnAddField_add"></Button>
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cancel" android:layout_weight="1" android:id="@+id/btnAddField_Cancel"></Button>
-</TableRow>
-</TableLayout>
+
 
 </LinearLayout>
