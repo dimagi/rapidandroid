@@ -107,7 +107,16 @@ public class FormReviewer extends Activity {
 			// Intent mIntent = new Intent();
 			// mIntent.putExtras(bundle);
 			// setResult(RESULT_OK, mIntent)
+			
+			try {
+				removeDialog(0);
+				
+			} catch(Exception ex) {
+				
+			}
+			
 			showDialog(0);
+			//dismissDialog(0);
 			return true;
 		case MENU_INJECT_DEBUG:
 			injectMessages();

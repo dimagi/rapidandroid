@@ -23,7 +23,7 @@ import android.widget.BaseAdapter;
  * 
  * 
  */
-public class ParsedMessageViewAdapter extends BaseAdapter {
+public class InefficientParsedMessageViewAdapter extends BaseAdapter {
 	
 	/**
 	 * Remember our context so we can use it when constructing views.
@@ -36,7 +36,7 @@ public class ParsedMessageViewAdapter extends BaseAdapter {
 	
 	HashMap<Message,IParseResult[]> mParsedMessages;
 	
-	public ParsedMessageViewAdapter(Context context, Form form, HashMap<Message,IParseResult[]> parsedMessages) {
+	public InefficientParsedMessageViewAdapter(Context context, Form form, HashMap<Message,IParseResult[]> parsedMessages) {
 		mContext = context;
 		mForm = form;		
 		
