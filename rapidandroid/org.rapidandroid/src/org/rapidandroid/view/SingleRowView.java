@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.view.Gravity;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ public class SingleRowView extends TableLayout {
 	TextView mMessageIDCol;
 	TextView mMonitorCol;
 	Vector<TextView> mDataCols;
+	boolean isOdd = false;
 	
 	/**
 	 * @param context
@@ -28,18 +30,25 @@ public class SingleRowView extends TableLayout {
 	public SingleRowView(Context context, Cursor c) {
 		super(context);
 		int itemCounter = 0; 
+		
 		mColCount =  c.getColumnCount();
 		
-		mRow = new TableRow(context);		
-		
+		mRow = new TableRow(context);
+		mRow.setGravity(Gravity.LEFT);
+		isOdd = (c.getPosition() % 2) == 1 ;
+		if(isOdd) {
+			mRow.setBackgroundColor(android.R.color.background_light);
+		} else {
+			mRow.setBackgroundColor(android.R.color.background_dark);
+		}
 		mMessageIDCol = new TextView(context);
-		mMessageIDCol.setGravity(1);
+		//mMessageIDCol.setGravity(Gravity.LEFT);
 		//mMessageIDCol.setWidth(getWidth()/mColCount);
 		mMessageIDCol.setPadding(3, 3, 3, 3);
 		mRow.addView(mMessageIDCol, itemCounter++);
 		
 		mMonitorCol = new TextView(context);
-		mMonitorCol.setGravity(1);
+		//mMonitorCol.setGravity(Gravity.LEFT);
 		mMonitorCol.setPadding(3, 3, 3, 3);
 		
 		//mMonitorCol.setWidth(getWidth()/mColCount);
@@ -51,14 +60,14 @@ public class SingleRowView extends TableLayout {
 			TextView coldata = new TextView(getContext());
 			coldata.setPadding(3, 3, 3, 3);
 			//coldata.setWidth(getWidth()/mColCount);
-			coldata.setGravity(1);
+			//coldata.setGravity(Gravity.LEFT);
 			//coldata.setText("null");
 			mDataCols.add(coldata);
 			
 			mRow.addView(coldata, itemCounter++);
 		}
 		
-		mRow.setWeightSum(itemCounter);
+		//mRow.setWeightSum(itemCounter);
 		this.addView(mRow);
 		setData(c);
 	}

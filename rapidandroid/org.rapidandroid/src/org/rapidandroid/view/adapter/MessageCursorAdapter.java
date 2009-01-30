@@ -18,7 +18,7 @@ import android.widget.TextView;
 public class MessageCursorAdapter extends CursorAdapter {
 
 	public MessageCursorAdapter(Context context, Cursor c) {
-		super(context, c,true);		
+		super(context, c,false);		
 	}
 
 	/* (non-Javadoc)

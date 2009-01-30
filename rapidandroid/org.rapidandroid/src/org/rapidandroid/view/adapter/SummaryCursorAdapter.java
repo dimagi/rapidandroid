@@ -31,7 +31,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 	 * @param c
 	 */
 	public SummaryCursorAdapter(Context context, Cursor c, Form f) {
-		super(context, c, true);
+		super(context, c, false);
 		mForm = f;
 		mFields = new String[mForm.getFields().length];
 		for (int i = 0; i < mFields.length; i++) {
@@ -53,6 +53,9 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		SummaryCursorView pmcv = (SummaryCursorView) view;
 		pmcv.setData(cursor);
 		Integer intpos = Integer.valueOf(cursor.getPosition());
+		if (!mExpanded.containsKey(intpos)) {
+			mExpanded.put(intpos, bFalse);
+		}
 		pmcv.setExpanded(mExpanded.get(intpos).booleanValue());
 
 	}

@@ -45,7 +45,24 @@ public class ModelTranslator {
 	
 	private static SmsDbHelper mDbHelper;
 
-	
+
+	public static boolean doesFormExist(Context context, String prefixCandidate, String nameCandidate) {
+		// next let's see if this form is unique
+		Uri formExistUri = RapidSmsDataDefs.Form.CONTENT_URI;
+		StringBuilder whereclause = new StringBuilder();
+		whereclause.append(RapidSmsDataDefs.Form.PREFIX + "='" + prefixCandidate + "'");
+		whereclause.append(" OR ");
+		whereclause.append(RapidSmsDataDefs.Form.FORMNAME + "='" + nameCandidate + "'");
+		Cursor existsCursor = context.getContentResolver().query(formExistUri, null, whereclause.toString(), null, null);
+
+		if (existsCursor.getCount() == 0) {
+			existsCursor.close();
+			return false;
+		} else {
+			existsCursor.close();
+			return true;
+		}
+	}
 
 	/**
 	 * @param f

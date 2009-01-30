@@ -1,6 +1,5 @@
 package org.rapidandroid;
 
-import org.rapidandroid.content.translation.startup.ModelBootstrap;
 
 import android.app.Application;
 

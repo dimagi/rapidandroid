@@ -1,4 +1,4 @@
-package org.rapidandroid.content.translation.startup;
+package org.rapidandroid;
 
 import java.io.IOException;
 import java.io.InputStream;

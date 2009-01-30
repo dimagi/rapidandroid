@@ -7,6 +7,7 @@ import org.rapidsms.java.core.parser.IParseResult;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.view.Gravity;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -83,9 +84,11 @@ public class SummaryCursorView extends TableLayout {
 			TableRow row = new TableRow(getContext());
 			TextView txvFieldName = new TextView(getContext());			
 			txvFieldName.setTextSize(14);
+			txvFieldName.setGravity(Gravity.LEFT);
 			mFieldLabels[i] = txvFieldName;
 			
 			TextView txvFieldData = new TextView(getContext());
+			txvFieldData.setGravity(Gravity.RIGHT);
 			txvFieldData.setTextSize(14);			
 			mFieldValues[i] = txvFieldData;
 			

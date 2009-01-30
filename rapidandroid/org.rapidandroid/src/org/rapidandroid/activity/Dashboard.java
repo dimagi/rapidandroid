@@ -369,7 +369,7 @@ public class Dashboard extends Activity {
 		
 		resetListAdapters(true);
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
-		Cursor cursor = getContentResolver().query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, null);		
+		Cursor cursor = getContentResolver().query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, "time DESC");		
 		this.messageCursorAdapter = new MessageCursorAdapter(this, cursor);
 		lsv.setAdapter(messageCursorAdapter);
 	}
@@ -397,7 +397,7 @@ public class Dashboard extends Activity {
 		} else {
 			if (formDataCursor == null) {
 				formDataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId());
-				formDataCursor = getContentResolver().query(formDataUri, null,null,null,null);
+				formDataCursor = getContentResolver().query(formDataUri, null,null,null,"message_id desc");
 			} 
 			if(formDataCursor.getCount() == 0) {
 				lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
