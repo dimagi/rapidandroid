@@ -39,7 +39,6 @@ public class MessageDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#getGraphTitle()
 	 */
-	@Override
 	public String getGraphTitle() {
 		// TODO Auto-generated method stub
 		return "message graphs";
@@ -48,7 +47,7 @@ public class MessageDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#loadGraph()
 	 */
-	@Override
+	
 	public void loadGraph() {
 		int width = mAppView.getWidth();
 		int height = 0;
@@ -242,7 +241,7 @@ public class MessageDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#getVariables()
 	 */
-	@Override
+	
 	public String[] getVariables() {
 		// TODO Auto-generated method stub
 		return variables;
@@ -251,7 +250,7 @@ public class MessageDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#setVariable(int)
 	 */
-	@Override
+	
 	public void setVariable(int id) {
 		this.variablechosen = id;
 		

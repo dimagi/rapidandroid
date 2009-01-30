@@ -12,7 +12,7 @@ public class MonitorDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#getGraphTitle()
 	 */
-	@Override
+	
 	public String getGraphTitle() {
 		// TODO Auto-generated method stub
 		return null;
@@ -21,7 +21,7 @@ public class MonitorDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#loadGraph()
 	 */
-	@Override
+	
 	public void loadGraph() {
 		// TODO Auto-generated method stub
 		
@@ -30,7 +30,7 @@ public class MonitorDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#getVariables()
 	 */
-	@Override
+	
 	public String[] getVariables() {
 		// TODO Auto-generated method stub
 		return null;
@@ -39,7 +39,7 @@ public class MonitorDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#setVariable(int)
 	 */
-	@Override
+	
 	public void setVariable(int id) {
 		// TODO Auto-generated method stub
 		

@@ -230,7 +230,7 @@ public class FormDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#getVariables()
 	 */
-	@Override
+	
 	public String[] getVariables() {
 		// TODO Auto-generated method stub
 		return variables;
@@ -239,7 +239,7 @@ public class FormDataBroker implements IChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.IChartBroker#setVariable(int)
 	 */
-	@Override
+	
 	public void setVariable(int id) {
 		// TODO Auto-generated method stub
 		this.fieldToPlot = mForm.getFields()[id];
