@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.model.Monitor;
 
@@ -27,7 +27,7 @@ public class MessageTranslator {
 	
 	public static void updateMonitorHash(Context context) {
 		mMonitorHash = new HashMap<Integer,Monitor>();
-		Cursor monitorCursor = context.getContentResolver().query(RapidSmsDataDefs.Monitor.CONTENT_URI, null,null,null,null);
+		Cursor monitorCursor = context.getContentResolver().query(RapidSmsDBConstants.Monitor.CONTENT_URI, null,null,null,null);
 		if(monitorCursor.getCount() == 0) {
 			return;
 		}
@@ -64,7 +64,7 @@ public class MessageTranslator {
 			updateMonitorHash(context);
 		}
 		
-		Uri getMessageUri = Uri.parse(RapidSmsDataDefs.Message.CONTENT_URI_STRING + messageID);
+		Uri getMessageUri = Uri.parse(RapidSmsDBConstants.Message.CONTENT_URI_STRING + messageID);
 		
 		Cursor msgCursor = context.getContentResolver().query(getMessageUri, null,null,null,null);
 		msgCursor.moveToFirst();
@@ -99,7 +99,7 @@ public class MessageTranslator {
 		}
 		
 		
-		Uri getMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
+		Uri getMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 		String whereclause = "_id in (";
 		int length = messages.length;
 		for(int i = 0; i < length; i++) {

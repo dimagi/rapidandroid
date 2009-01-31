@@ -11,10 +11,10 @@ import android.provider.BaseColumns;
  *          Sql helper
  */
 
-public final class RapidSmsDataDefs {
+public final class RapidSmsDBConstants {
 	public static final String AUTHORITY = "org.rapidandroid.provider.RapidSms";
 
-	private RapidSmsDataDefs() {
+	private RapidSmsDBConstants() {
 	}
 
 	/**
@@ -33,7 +33,12 @@ public final class RapidSmsDataDefs {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.message";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.message";
 
+		/**
+		 * 
+		 * Phone field is a helper for inserting to the content provider.  columnm is there as legacy, but shouldn't be used.
+		 */
 		public static final String PHONE = "phone";
+		
 		public static final String MESSAGE = "message";
 		public static final String MONITOR = "monitor_id";
 		public static final String TIME = "time";

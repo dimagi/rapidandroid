@@ -7,7 +7,7 @@ import java.util.Vector;
 
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;

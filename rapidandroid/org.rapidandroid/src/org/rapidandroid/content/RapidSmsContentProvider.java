@@ -2,7 +2,7 @@ package org.rapidandroid.content;
 
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Form;
 
@@ -30,7 +30,7 @@ import android.text.TextUtils;
  * 
  * It should be the universal URI accessible content provider that's accessible via the GetContentResolver().query()
  * 
- * The definitions for the URI are linked via the RapidSmsDataDefs static properties.
+ * The definitions for the URI are linked via the RapidSmsDBConstants static properties.
  * 
  * This content provider should provide all functionality to do the following:
  *  - insert/query SMS messages that are known to be related to this app
@@ -49,7 +49,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 	 */
 
 	public static final Uri CONTENT_URI = Uri.parse("content://"
-			+ RapidSmsDataDefs.AUTHORITY);
+			+ RapidSmsDBConstants.AUTHORITY);
 
 	private static final String TAG = "RapidSmsContentProvider";
 
@@ -77,37 +77,37 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 	static {
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Message.URI_PART, MESSAGE);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Message.URI_PART + "/#", MESSAGE_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Message.URI_PART, MESSAGE);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Message.URI_PART + "/#", MESSAGE_ID);
 
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Monitor.URI_PART, MONITOR);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Monitor.URI_PART + "/#", MONITOR_ID);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY, "messagesbymonitor/#",
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Monitor.URI_PART, MONITOR);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Monitor.URI_PART + "/#", MONITOR_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY, "messagesbymonitor/#",
 				MONITOR_MESSAGE_ID);
 
 		// form field data stuffs
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Form.URI_PART, FORM);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Form.URI_PART + "/#", FORM_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Form.URI_PART, FORM);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Form.URI_PART + "/#", FORM_ID);
 
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Field.URI_PART, FIELD);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.Field.URI_PART + "/#", FIELD_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Field.URI_PART, FIELD);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.Field.URI_PART + "/#", FIELD_ID);
 
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.FieldType.URI_PART, FIELDTYPE);
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.FieldType.URI_PART + "/#", FIELDTYPE_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.FieldType.URI_PART, FIELDTYPE);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.FieldType.URI_PART + "/#", FIELDTYPE_ID);
 
 		// actual form data
-		sUriMatcher.addURI(RapidSmsDataDefs.AUTHORITY,
-				RapidSmsDataDefs.FormData.URI_PART + "/#", FORMDATA_ID);
+		sUriMatcher.addURI(RapidSmsDBConstants.AUTHORITY,
+				RapidSmsDBConstants.FormData.URI_PART + "/#", FORMDATA_ID);
 	}
 
 	/*
@@ -119,34 +119,34 @@ public class RapidSmsContentProvider extends ContentProvider {
 	public String getType(Uri uri) {
 		switch (sUriMatcher.match(uri)) {
 		case MESSAGE:
-			return RapidSmsDataDefs.Message.CONTENT_TYPE;
+			return RapidSmsDBConstants.Message.CONTENT_TYPE;
 		case MESSAGE_ID:
-			return RapidSmsDataDefs.Message.CONTENT_ITEM_TYPE;
+			return RapidSmsDBConstants.Message.CONTENT_ITEM_TYPE;
 		case MONITOR:
-			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
+			return RapidSmsDBConstants.Monitor.CONTENT_TYPE;
 		case MONITOR_ID:
-			return RapidSmsDataDefs.Monitor.CONTENT_ITEM_TYPE;
+			return RapidSmsDBConstants.Monitor.CONTENT_ITEM_TYPE;
 		case MONITOR_MESSAGE_ID:
 			// this is similar to Monitor, but is filtered
-			return RapidSmsDataDefs.Monitor.CONTENT_TYPE;
+			return RapidSmsDBConstants.Monitor.CONTENT_TYPE;
 
 		case FORM:
-			return RapidSmsDataDefs.Form.CONTENT_TYPE;
+			return RapidSmsDBConstants.Form.CONTENT_TYPE;
 		case FORM_ID:
-			return RapidSmsDataDefs.Form.CONTENT_ITEM_TYPE;
+			return RapidSmsDBConstants.Form.CONTENT_ITEM_TYPE;
 
 		case FIELD:
-			return RapidSmsDataDefs.Field.CONTENT_TYPE;
+			return RapidSmsDBConstants.Field.CONTENT_TYPE;
 		case FIELD_ID:
-			return RapidSmsDataDefs.Field.CONTENT_ITEM_TYPE;
+			return RapidSmsDBConstants.Field.CONTENT_ITEM_TYPE;
 
 		case FIELDTYPE:
-			return RapidSmsDataDefs.FieldType.CONTENT_TYPE;
+			return RapidSmsDBConstants.FieldType.CONTENT_TYPE;
 		case FIELDTYPE_ID:
-			return RapidSmsDataDefs.FieldType.CONTENT_ITEM_TYPE;
+			return RapidSmsDBConstants.FieldType.CONTENT_ITEM_TYPE;
 
 		case FORMDATA_ID:
-			return RapidSmsDataDefs.FormData.CONTENT_TYPE;
+			return RapidSmsDBConstants.FormData.CONTENT_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 			// return sUriMatcher.match(uri)+"";
@@ -210,11 +210,11 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		//doInsert doesn't apply well here.		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(RapidSmsDataDefs.FormData.TABLE_PREFIX + formprefix,
-				RapidSmsDataDefs.FormData.MESSAGE, values);
+		long rowId = db.insert(RapidSmsDBConstants.FormData.TABLE_PREFIX + formprefix,
+				RapidSmsDBConstants.FormData.MESSAGE, values);
 		if (rowId > 0) {
 			Uri fieldUri = ContentUris.withAppendedId(
-					RapidSmsDataDefs.Form.CONTENT_URI, rowId);
+					RapidSmsDBConstants.Form.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(fieldUri, null);
 			return Uri.parse(uri.toString() + "/" + rowId);
 		} else {
@@ -223,13 +223,13 @@ public class RapidSmsContentProvider extends ContentProvider {
 	}
 	
 	private Uri insertForm(Uri uri, ContentValues values) {
-		if (values.containsKey(RapidSmsDataDefs.Form.FORMNAME) == false
-				|| values.containsKey(RapidSmsDataDefs.Form.DESCRIPTION) == false
-				|| values.containsKey(RapidSmsDataDefs.Form.PARSEMETHOD) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Form.FORMNAME) == false
+				|| values.containsKey(RapidSmsDBConstants.Form.DESCRIPTION) == false
+				|| values.containsKey(RapidSmsDBConstants.Form.PARSEMETHOD) == false) {
 			throw new SQLException("Insufficient arguments for Form insert "
 					+ uri);
 		}		
-		return doInsert(uri, values, RapidSmsDataDefs.Form.TABLE,RapidSmsDataDefs.Form.FORMNAME);
+		return doInsert(uri, values, RapidSmsDBConstants.Form.TABLE,RapidSmsDBConstants.Form.FORMNAME);
 	}
 
 	/**
@@ -255,28 +255,28 @@ public class RapidSmsContentProvider extends ContentProvider {
 	
 	//Insert Methods
 	private Uri insertField(Uri uri, ContentValues values) {
-		if (values.containsKey(RapidSmsDataDefs.Field.FORM) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.NAME) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.FIELDTYPE) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.PROMPT) == false
-				|| values.containsKey(RapidSmsDataDefs.Field.SEQUENCE) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Field.FORM) == false
+				|| values.containsKey(RapidSmsDBConstants.Field.NAME) == false
+				|| values.containsKey(RapidSmsDBConstants.Field.FIELDTYPE) == false
+				|| values.containsKey(RapidSmsDBConstants.Field.PROMPT) == false
+				|| values.containsKey(RapidSmsDBConstants.Field.SEQUENCE) == false) {
 			throw new SQLException("Insufficient arguments for field insert "
 					+ uri);
 		}
 		
-		return doInsert(uri, values, RapidSmsDataDefs.Field.TABLE, RapidSmsDataDefs.Field.NAME);		
+		return doInsert(uri, values, RapidSmsDBConstants.Field.TABLE, RapidSmsDBConstants.Field.NAME);		
 	}
 
 	private Uri insertFieldType(Uri uri, ContentValues values) {
 		if (values.containsKey(BaseColumns._ID) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.NAME) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.REGEX) == false
-				|| values.containsKey(RapidSmsDataDefs.FieldType.DATATYPE) == false) {
+				|| values.containsKey(RapidSmsDBConstants.FieldType.NAME) == false
+				|| values.containsKey(RapidSmsDBConstants.FieldType.REGEX) == false
+				|| values.containsKey(RapidSmsDBConstants.FieldType.DATATYPE) == false) {
 
 			throw new SQLException(
 					"Insufficient arguments for fieldtype insert " + uri);
 		}
-		return doInsert(uri, values, RapidSmsDataDefs.FieldType.TABLE,RapidSmsDataDefs.FieldType.NAME);		
+		return doInsert(uri, values, RapidSmsDBConstants.FieldType.TABLE,RapidSmsDBConstants.FieldType.NAME);		
 	}
 	
 	public void ClearFormDataDebug() {
@@ -303,38 +303,39 @@ public class RapidSmsContentProvider extends ContentProvider {
 		Long now = Long.valueOf(System.currentTimeMillis());
 
 		// Make sure that the fields are all set
-		if (values.containsKey(RapidSmsDataDefs.Message.TIME) == false) {
-			values.put(RapidSmsDataDefs.Message.TIME, now);
+		if (values.containsKey(RapidSmsDBConstants.Message.TIME) == false) {
+			values.put(RapidSmsDBConstants.Message.TIME, now);
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Message.MESSAGE) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Message.MESSAGE) == false) {
 			throw new SQLException("No message");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Message.PHONE) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Message.PHONE) == false) {
 			throw new SQLException("No message");
 		} else {
 			ContentValues monitorValues = new ContentValues();
-			monitorValues.put(RapidSmsDataDefs.Monitor.PHONE, values
-					.getAsString(RapidSmsDataDefs.Message.PHONE));
+			monitorValues.put(RapidSmsDBConstants.Message.MESSAGE, values
+					.getAsString(RapidSmsDBConstants.Message.MESSAGE));
 			Uri monitorUri = insertMonitor(
-					RapidSmsDataDefs.Monitor.CONTENT_URI, monitorValues);
+					RapidSmsDBConstants.Monitor.CONTENT_URI, monitorValues);
 			// ok, so we insert the mMonitorString into the mMonitorString table.
 			// get the URI back and assign the foreign key into the values as
 			// part of the message insert
-			values.put(RapidSmsDataDefs.Message.MONITOR, monitorUri
+			values.put(RapidSmsDBConstants.Message.MONITOR, monitorUri
 					.getPathSegments().get(1));
+			values.remove(RapidSmsDBConstants.Message.PHONE);
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Message.IS_OUTGOING) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Message.IS_OUTGOING) == false) {
 			throw new SQLException("No direction");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Message.IS_VIRTUAL) == false) {
-			values.put(RapidSmsDataDefs.Message.IS_VIRTUAL, false);
+		if (values.containsKey(RapidSmsDBConstants.Message.IS_VIRTUAL) == false) {
+			values.put(RapidSmsDBConstants.Message.IS_VIRTUAL, false);
 		}
 
-		return doInsert(uri, values, RapidSmsDataDefs.Message.TABLE, RapidSmsDataDefs.Message.MESSAGE);
+		return doInsert(uri, values, RapidSmsDBConstants.Message.TABLE, RapidSmsDBConstants.Message.MESSAGE);
 	}
 
 	/**
@@ -343,47 +344,47 @@ public class RapidSmsContentProvider extends ContentProvider {
 	 */
 	private Uri insertMonitor(Uri uri, ContentValues values) {
 		// Make sure that the fields are all set
-		if (values.containsKey(RapidSmsDataDefs.Monitor.PHONE) == false) {
+		if (values.containsKey(RapidSmsDBConstants.Monitor.PHONE) == false) {
 			throw new SQLException("No phone");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Monitor.ALIAS) == false) {
-			values.put(RapidSmsDataDefs.Monitor.ALIAS, values
-					.getAsString(RapidSmsDataDefs.Monitor.PHONE));
+		if (values.containsKey(RapidSmsDBConstants.Monitor.ALIAS) == false) {
+			values.put(RapidSmsDBConstants.Monitor.ALIAS, values
+					.getAsString(RapidSmsDBConstants.Monitor.PHONE));
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Monitor.EMAIL) == false) {
-			values.put(RapidSmsDataDefs.Monitor.EMAIL, "");
+		if (values.containsKey(RapidSmsDBConstants.Monitor.EMAIL) == false) {
+			values.put(RapidSmsDBConstants.Monitor.EMAIL, "");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Monitor.FIRST_NAME) == false) {
-			values.put(RapidSmsDataDefs.Monitor.FIRST_NAME, "");
+		if (values.containsKey(RapidSmsDBConstants.Monitor.FIRST_NAME) == false) {
+			values.put(RapidSmsDBConstants.Monitor.FIRST_NAME, "");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Monitor.LAST_NAME) == false) {
-			values.put(RapidSmsDataDefs.Monitor.LAST_NAME, "");
+		if (values.containsKey(RapidSmsDBConstants.Monitor.LAST_NAME) == false) {
+			values.put(RapidSmsDBConstants.Monitor.LAST_NAME, "");
 		}
 
-		if (values.containsKey(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES) == false) {
-			values.put(RapidSmsDataDefs.Monitor.INCOMING_MESSAGES, 0);
+		if (values.containsKey(RapidSmsDBConstants.Monitor.INCOMING_MESSAGES) == false) {
+			values.put(RapidSmsDBConstants.Monitor.INCOMING_MESSAGES, 0);
 		}
 		
 		
 		//Check if mMonitorString exists, if it doesn't insert a new one, else return the old one.
-		Cursor exists = query(uri, null, RapidSmsDataDefs.Monitor.PHONE + "='"
-				+ values.getAsString(RapidSmsDataDefs.Monitor.PHONE) + "'",
+		Cursor exists = query(uri, null, RapidSmsDBConstants.Monitor.PHONE + "='"
+				+ values.getAsString(RapidSmsDBConstants.Monitor.PHONE) + "'",
 				null, null);		
 
 		if (exists.getCount() == 1) {	
 			exists.moveToFirst();
 			int existingMonitorId = exists.getInt(0);
 			exists.close();
-			return ContentUris.withAppendedId(RapidSmsDataDefs.Monitor.CONTENT_URI,existingMonitorId);
+			return ContentUris.withAppendedId(RapidSmsDBConstants.Monitor.CONTENT_URI,existingMonitorId);
 		} else {
 			exists.close();
 		}
 
-		Uri ret = doInsert(uri, values, RapidSmsDataDefs.Monitor.TABLE, RapidSmsDataDefs.Monitor.PHONE);
+		Uri ret = doInsert(uri, values, RapidSmsDBConstants.Monitor.TABLE, RapidSmsDBConstants.Monitor.PHONE);
 		MessageTranslator.updateMonitorHash(getContext());
 		return ret;
 	}
@@ -397,31 +398,31 @@ public class RapidSmsContentProvider extends ContentProvider {
 		
 		switch (sUriMatcher.match(uri)) {
 		case MESSAGE:
-			table = RapidSmsDataDefs.Message.TABLE;
+			table = RapidSmsDBConstants.Message.TABLE;
 			break;
 
 		case MESSAGE_ID:
-			table = RapidSmsDataDefs.Message.TABLE;
+			table = RapidSmsDBConstants.Message.TABLE;
 			finalWhere = BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
 		case MONITOR:
-			table = RapidSmsDataDefs.Monitor.TABLE;
+			table = RapidSmsDBConstants.Monitor.TABLE;
 			break;
 
 		case MONITOR_ID:
-			table = RapidSmsDataDefs.Monitor.TABLE;
+			table = RapidSmsDBConstants.Monitor.TABLE;
 			finalWhere = BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
 		case MONITOR_MESSAGE_ID:
-			table = RapidSmsDataDefs.Message.TABLE;
-			// qb.appendWhere(RapidSmsDataDefs.Message.MONITOR + "="
+			table = RapidSmsDBConstants.Message.TABLE;
+			// qb.appendWhere(RapidSmsDBConstants.Message.MONITOR + "="
 			// + uri.getPathSegments().get(1));
 
-			finalWhere = RapidSmsDataDefs.Message.MONITOR + "="
+			finalWhere = RapidSmsDBConstants.Message.MONITOR + "="
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
@@ -453,49 +454,49 @@ public class RapidSmsContentProvider extends ContentProvider {
 
 		switch (sUriMatcher.match(uri)) {
 		case MESSAGE:
-			qb.setTables(RapidSmsDataDefs.Message.TABLE);
+			qb.setTables(RapidSmsDBConstants.Message.TABLE);
 			break;
 
 		case MESSAGE_ID:
-			qb.setTables(RapidSmsDataDefs.Message.TABLE);
+			qb.setTables(RapidSmsDBConstants.Message.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case MONITOR:
-			qb.setTables(RapidSmsDataDefs.Monitor.TABLE);
+			qb.setTables(RapidSmsDBConstants.Monitor.TABLE);
 			break;
 
 		case MONITOR_ID:
-			qb.setTables(RapidSmsDataDefs.Monitor.TABLE);
+			qb.setTables(RapidSmsDBConstants.Monitor.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case MONITOR_MESSAGE_ID:
-			qb.setTables(RapidSmsDataDefs.Message.TABLE);
-			qb.appendWhere(RapidSmsDataDefs.Message.MONITOR + "="
+			qb.setTables(RapidSmsDBConstants.Message.TABLE);
+			qb.appendWhere(RapidSmsDBConstants.Message.MONITOR + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case FORM:
-			qb.setTables(RapidSmsDataDefs.Form.TABLE);
+			qb.setTables(RapidSmsDBConstants.Form.TABLE);
 			break;
 		case FORM_ID:
-			qb.setTables(RapidSmsDataDefs.Form.TABLE);
+			qb.setTables(RapidSmsDBConstants.Form.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case FIELD:
-			qb.setTables(RapidSmsDataDefs.Field.TABLE);
+			qb.setTables(RapidSmsDBConstants.Field.TABLE);
 			break;
 		case FIELD_ID:
-			qb.setTables(RapidSmsDataDefs.Field.TABLE);
+			qb.setTables(RapidSmsDBConstants.Field.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
 		case FIELDTYPE:
-			qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
+			qb.setTables(RapidSmsDBConstants.FieldType.TABLE);
 			break;
 		case FIELDTYPE_ID:
-			qb.setTables(RapidSmsDataDefs.FieldType.TABLE);
+			qb.setTables(RapidSmsDBConstants.FieldType.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
 			break;
@@ -506,7 +507,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 				// and appending that to do the qb.setTables
 				String formid = uri.getPathSegments().get(1);
 				Form f = ModelTranslator.getFormById(Integer.valueOf(formid).intValue());
-				qb.setTables(RapidSmsDataDefs.FormData.TABLE_PREFIX + f.getPrefix());
+				qb.setTables(RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
 				break;
 			//throw new IllegalArgumentException(uri	+ " query handler not implemented.");
 

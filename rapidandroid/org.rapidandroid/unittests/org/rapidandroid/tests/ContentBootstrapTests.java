@@ -15,7 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
@@ -258,19 +258,19 @@ public class ContentBootstrapTests extends AndroidTestCase {
 			Log.d("dimagi","**** inserting form " + f.getFormName());
 			
 			//insert the form first
-			Uri formUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + f.getFormId());
+			Uri formUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + f.getFormId());
 			Cursor crform = getContext().getContentResolver().query(formUri, null, null, null, null);
 			if (crform.getCount() == 0) {
 				ContentValues typecv = new ContentValues();
 
-				typecv.put(RapidSmsDataDefs.Form._ID, f.getFormId());
-				typecv.put(RapidSmsDataDefs.Form.FORMNAME, f.getFormName());
-				//typecv.put(RapidSmsDataDefs.Form.PARSEMETHOD, f.getParser().getName());	
-				typecv.put(RapidSmsDataDefs.Form.PARSEMETHOD, "simpleregex");
-				typecv.put(RapidSmsDataDefs.Form.PREFIX, f.getPrefix());
-				typecv.put(RapidSmsDataDefs.Form.DESCRIPTION, f.getDescription());							
+				typecv.put(RapidSmsDBConstants.Form._ID, f.getFormId());
+				typecv.put(RapidSmsDBConstants.Form.FORMNAME, f.getFormName());
+				//typecv.put(RapidSmsDBConstants.Form.PARSEMETHOD, f.getParser().getName());	
+				typecv.put(RapidSmsDBConstants.Form.PARSEMETHOD, "simpleregex");
+				typecv.put(RapidSmsDBConstants.Form.PREFIX, f.getPrefix());
+				typecv.put(RapidSmsDBConstants.Form.DESCRIPTION, f.getDescription());							
 
-				Uri insertedFormUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Form.CONTENT_URI, typecv);
+				Uri insertedFormUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Form.CONTENT_URI, typecv);
 				Log.d("dimagi","****** Inserted form into db: " + insertedFormUri);
 				assertEquals(insertedFormUri.getPathSegments().get(1),f.getFormId()+"");					
 			}		
@@ -283,40 +283,40 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				//make the URI and insert for the Fieldtype
 				Log.d("dimagi","******** Iterating through fields: " + thefield.getName() + " id: " + thefield.getFieldId());
 
-				Uri fieldtypeUri = Uri.parse(RapidSmsDataDefs.FieldType.CONTENT_URI_STRING + thetype.getId());
+				Uri fieldtypeUri = Uri.parse(RapidSmsDBConstants.FieldType.CONTENT_URI_STRING + thetype.getId());
 				Cursor typeCursor = getContext().getContentResolver().query(fieldtypeUri, null, null, null, null);
 				if (typeCursor.getCount() == 0) {
 					ContentValues typecv = new ContentValues();
 
-					typecv.put(RapidSmsDataDefs.FieldType._ID, thetype.getId());					
-					typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype.getDataType());
-					typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype.getTokenName());
-					typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype.getRegex());
+					typecv.put(RapidSmsDBConstants.FieldType._ID, thetype.getId());					
+					typecv.put(RapidSmsDBConstants.FieldType.DATATYPE, thetype.getDataType());
+					typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getTokenName());
+					typecv.put(RapidSmsDBConstants.FieldType.REGEX, thetype.getRegex());
 					
 					Log.d("dimagi", "InsertFieldType: " + thetype.getId());
 					Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
 					Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
 					Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
 
-					Uri insertedTypeUri = getContext().getContentResolver().insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
+					Uri insertedTypeUri = getContext().getContentResolver().insert(RapidSmsDBConstants.FieldType.CONTENT_URI, typecv);
 					Log.d("dimagi","********** Inserted SimpleFieldType into db: " + insertedTypeUri);
 					assertEquals(insertedTypeUri.getPathSegments().get(1),thetype.getId()+"");					
 				}
 				typeCursor.close();
 				
-				Uri fieldUri = Uri.parse(RapidSmsDataDefs.Field.CONTENT_URI_STRING + thefield.getFieldId());
+				Uri fieldUri = Uri.parse(RapidSmsDBConstants.Field.CONTENT_URI_STRING + thefield.getFieldId());
 				Cursor crfield = getContext().getContentResolver().query(fieldUri, null, null, null, null);
 				if (crfield.getCount() == 0) {
 					ContentValues typecv = new ContentValues();
 
-					typecv.put(RapidSmsDataDefs.Field._ID, thefield.getFieldId());
-					typecv.put(RapidSmsDataDefs.Field.NAME, thefield.getName());
-					typecv.put(RapidSmsDataDefs.Field.FORM, f.getFormId());
-					typecv.put(RapidSmsDataDefs.Field.PROMPT, thefield.getPrompt());
-					typecv.put(RapidSmsDataDefs.Field.SEQUENCE, thefield.getSequenceId());
+					typecv.put(RapidSmsDBConstants.Field._ID, thefield.getFieldId());
+					typecv.put(RapidSmsDBConstants.Field.NAME, thefield.getName());
+					typecv.put(RapidSmsDBConstants.Field.FORM, f.getFormId());
+					typecv.put(RapidSmsDBConstants.Field.PROMPT, thefield.getPrompt());
+					typecv.put(RapidSmsDBConstants.Field.SEQUENCE, thefield.getSequenceId());
 					
-					typecv.put(RapidSmsDataDefs.Field.FIELDTYPE, ((SimpleFieldType) (thefield.getFieldType())).getId());
-					//typecv.put(RapidSmsDataDefs.Field.FIELDTYPE, thefield.getFieldType().getId());	
+					typecv.put(RapidSmsDBConstants.Field.FIELDTYPE, ((SimpleFieldType) (thefield.getFieldType())).getId());
+					//typecv.put(RapidSmsDBConstants.Field.FIELDTYPE, thefield.getFieldType().getId());	
 					
 //					Log.d("dimagi", "_ID: " + thefield.getFieldId());
 //					Log.d("dimagi", "NAME: " + thefield.getName());
@@ -325,7 +325,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 //					Log.d("dimagi", "SEQUENCE: " + thefield.getSequenceId());
 //					Log.d("dimagi", "FIELDTYPE: " + thefield.getFieldType().getId());
 
-					Uri insertedFieldUri = getContext().getContentResolver().insert(RapidSmsDataDefs.Field.CONTENT_URI, typecv);
+					Uri insertedFieldUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Field.CONTENT_URI, typecv);
 					Log.d("dimagi","********** Inserted Field into db: " + insertedFieldUri);
 					assertEquals(insertedFieldUri.getPathSegments().get(1),thefield.getFieldId()+"");					
 				}			
@@ -344,7 +344,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		test000BootstrapFormsAndInsertIntoDB();
 		
 		Log.d("dimagi","************ getting forms from the db");
-		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
 		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		assertEquals(2, cr.getCount());
 		
@@ -355,7 +355,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 		do {
 			int id = cr.getInt(0);	//presumably the id
-			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
+			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
 			Log.d("dimagi", "Querying for form: " + directUri);
 			Form f = ModelTranslator.getFormFromUri(directUri);
 			
@@ -371,13 +371,13 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 		test000BootstrapFormsAndInsertIntoDB();
 					
-		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
 		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		cr.moveToFirst();
 		
 		do {
 			int id = cr.getInt(0);	//presumably the id
-			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);
+			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
 			
 			Form f = ModelTranslator.getFormFromUri(directUri);
 			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
@@ -392,7 +392,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 		test005RegenerateTablesForForms();
 		
-		Uri query = RapidSmsDataDefs.Form.CONTENT_URI;
+		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
 		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		cr.moveToFirst();
 		
@@ -400,7 +400,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		do {
 			
 			int id = cr.getInt(0);	//presumably the id			
-			Uri directUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + id);			
+			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);			
 			Form f = ModelTranslator.getFormFromUri(directUri);			
 			
 			for (int msgcount = 0; msgcount < 10; msgcount++) {
@@ -412,7 +412,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				String msgid = "1";
 				
 				ContentValues cv = new ContentValues();
-				cv.put(RapidSmsDataDefs.FormData.MESSAGE, msgid);
+				cv.put(RapidSmsDBConstants.FormData.MESSAGE, msgid);
 				Field[] fields = f.getFields();
 				int len = fields.length;
 				Random r = new Random();
@@ -420,20 +420,20 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				for(int i = 0; i < len; i++) {
 					Field field = fields[i];
 					if (field.getFieldType().getItemType().equals("integer")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
 					} else if (field.getFieldType().getItemType().equals("number")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
 					} else if (field.getFieldType().getItemType().equals("boolean")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),r.nextBoolean());
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextBoolean());
 					} else if (field.getFieldType().getItemType().equals("word")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
 					} else if (field.getFieldType().getItemType().equals("ratio")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
 					} else if (field.getFieldType().getItemType().equals("datetime")) {
-						cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX + field.getName(),"10/31/2008 11:59");
+						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),"10/31/2008 11:59");
 					}					
 				}	
-				Uri inserted = getContext().getContentResolver().insert(Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + f.getFormId()), cv);
+				Uri inserted = getContext().getContentResolver().insert(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + f.getFormId()), cv);
 				Log.d("dimagi", "inserted form data for: " + inserted);
 			}
 			

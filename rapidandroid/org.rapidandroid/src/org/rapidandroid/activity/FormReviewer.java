@@ -13,7 +13,8 @@ import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
+import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -23,6 +24,7 @@ import org.rapidsms.java.core.parser.service.ParsingService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,9 +48,11 @@ import android.widget.TextView;
 public class FormReviewer extends Activity {
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_FORMAT = Menu.FIRST + 1;
-	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 2;
+	private static final int MENU_DUMP_CSV = Menu.FIRST + 2;
+	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 3;
 
 	private Form mForm;
+	private ProgressDialog mLoadingDialog;
 	
 	final Handler mDebugHandler = new Handler();
 	
@@ -59,7 +63,8 @@ public class FormReviewer extends Activity {
     };
     
     private void updateResultsInUi() {
-    	showDialog(0);
+    	//showDialog(0);
+    	mLoadingDialog.dismiss();
     }
 
 	@Override
@@ -67,6 +72,11 @@ public class FormReviewer extends Activity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.form_edit);
+		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
+		mLoadingDialog.setMessage("Loading data...");
+		mLoadingDialog.setTitle("Please wait");
+		mLoadingDialog.setIndeterminate(true);
+		mLoadingDialog.setCancelable(false);			
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -102,6 +112,8 @@ public class FormReviewer extends Activity {
 		;
 		menu.add(0, MENU_FORMAT, 0, R.string.formreview_menu_format).setIcon(android.R.drawable.ic_menu_info_details);
 		;
+		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(android.R.drawable.ic_menu_info_details);
+		;
 		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data");
 		return true;
 	}
@@ -119,15 +131,16 @@ public class FormReviewer extends Activity {
 				// setResult(RESULT_OK, mIntent)
 
 				try {
+					//this is because the randomization doesn't get instantiated for some weird reason
+					//unless we blow away the dialog
 					removeDialog(0);
-
 				} catch (Exception ex) {
-
 				}
-
 				showDialog(0);
-				// dismissDialog(0);
 				return true;
+			case MENU_DUMP_CSV:
+				outputCSV();
+				break;
 			case MENU_INJECT_DEBUG:
 				injectMessages();
 				break;
@@ -139,9 +152,35 @@ public class FormReviewer extends Activity {
 	/**
 	 * 
 	 */
+	private void outputCSV() {
+		// TODO Auto-generated method stub
+		
+		mLoadingDialog.setMessage("Outputting csv...");
+		mLoadingDialog.show();
+		// Fire off a thread to do some work that we shouldn't do directly in the UI thread
+        Thread t = new Thread() {
+            public void run() {
+            	ParsedDataReporter pdr = new ParsedDataReporter(getBaseContext());
+            	Calendar now = Calendar.getInstance();
+            	Calendar then = Calendar.getInstance();
+            	then.set(Calendar.YEAR, 1990);
+        		
+            	pdr.exportFormDataToCSV(mForm,then, now);
+                mDebugHandler.post(mUpdateResults);
+            }
+        };
+        t.start();
+		
+	}
+	
+	
+
+	/**
+	 * 
+	 */
 	private void injectMessages() {
 		// TODO Auto-generated method stub
-
+		mLoadingDialog.show();
 		// Fire off a thread to do some work that we shouldn't do directly in the UI thread
         Thread t = new Thread() {
             public void run() {
@@ -154,19 +193,19 @@ public class FormReviewer extends Activity {
 	
 	private void doInjection() {
 		
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 100; i++) {
 			StringBuilder sb = this.generateRandomMessage();
 
-			Uri writeMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
+			Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 			ContentValues messageValues = new ContentValues();
-			messageValues.put(RapidSmsDataDefs.Message.MESSAGE, sb.toString());
-			messageValues.put(RapidSmsDataDefs.Message.PHONE, "6176453236");
+			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, sb.toString());
+			messageValues.put(RapidSmsDBConstants.Message.PHONE, "6176453236");
 
 			Date now = getRandomDate();
 
-			messageValues.put(RapidSmsDataDefs.Message.TIME, Message.SQLDateFormatter.format(now));
-			messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
+			messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(now));
+			messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 
 			Uri msgUri = null;
 

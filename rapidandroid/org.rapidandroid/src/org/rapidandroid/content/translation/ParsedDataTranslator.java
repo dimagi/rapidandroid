@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -31,7 +31,7 @@ public class ParsedDataTranslator {
 			int message_id, Vector<IParseResult> results) {
 
 		ContentValues cv = new ContentValues();
-		cv.put(RapidSmsDataDefs.FormData.MESSAGE, message_id);
+		cv.put(RapidSmsDBConstants.FormData.MESSAGE, message_id);
 		Field[] fields = f.getFields();
 		int len = fields.length;
 		Random r = new Random();
@@ -40,15 +40,15 @@ public class ParsedDataTranslator {
 			Field field = fields[i];
 			IParseResult res = results.get(i);
 			if (res != null) {
-				cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX
+				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX
 						+ field.getName(), res.getValue().toString());
 			} else {
-				cv.put(RapidSmsDataDefs.FormData.COLUMN_PREFIX
+				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX
 						+ field.getName(), "");
 			}
 		}
 		Uri inserted = context.getContentResolver().insert(
-				Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX
+				Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
 						+ f.getFormId()), cv);
 		return true;
 	}
@@ -62,7 +62,7 @@ public class ParsedDataTranslator {
 		int fieldsLen = formFields.length;
 
 		Cursor cursor = context.getContentResolver().query(
-		Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX
+		Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
 								+ formid), null, null, null, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();

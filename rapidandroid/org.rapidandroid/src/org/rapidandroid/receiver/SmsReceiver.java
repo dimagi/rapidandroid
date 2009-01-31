@@ -4,7 +4,7 @@
 package org.rapidandroid.receiver;
 
 import java.sql.Timestamp;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Message;
 
 import android.content.BroadcastReceiver;
@@ -47,12 +47,12 @@ public class SmsReceiver extends BroadcastReceiver {
 	Uri uriSms = Uri.parse("content://sms/conversations");
 	
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
-		Uri writeMessageUri = RapidSmsDataDefs.Message.CONTENT_URI;
+		Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 		ContentValues messageValues = new ContentValues();
-		messageValues.put(RapidSmsDataDefs.Message.MESSAGE, mesg
+		messageValues.put(RapidSmsDBConstants.Message.MESSAGE, mesg
 				.getMessageBody());
-		messageValues.put(RapidSmsDataDefs.Message.PHONE, mesg
+		messageValues.put(RapidSmsDBConstants.Message.PHONE, mesg
 				.getOriginatingAddress());
 
 		
@@ -63,9 +63,9 @@ public class SmsReceiver extends BroadcastReceiver {
 		// datetime
 		// string
 
-		//messageValues.put(RapidSmsDataDefs.Message. TIME,mesg.getTimestampMillis());
-		messageValues.put(RapidSmsDataDefs.Message.TIME, Message.SQLDateFormatter.format(ts));
-		messageValues.put(RapidSmsDataDefs.Message.IS_OUTGOING, false);
+		//messageValues.put(RapidSmsDBConstants.Message. TIME,mesg.getTimestampMillis());
+		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));
+		messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 		boolean successfulSave = false;
 		Uri msgUri = null;
 		try {

@@ -11,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
@@ -46,7 +46,7 @@ public class ModelBootstrap {
 	}
 	
 	private static boolean isFieldTypeTableEmpty() {
-		Uri fieldtypeUri = RapidSmsDataDefs.FieldType.CONTENT_URI;
+		Uri fieldtypeUri = RapidSmsDBConstants.FieldType.CONTENT_URI;
 		Cursor fieldtypecheck = mContext.getContentResolver().query(fieldtypeUri, null, null, null, null);
 		if(fieldtypecheck.getCount() == 0) {
 			fieldtypecheck.close();
@@ -104,22 +104,22 @@ public class ModelBootstrap {
 			SimpleFieldType thetype = pairs.getValue();
 			//make the URI and insert for the Fieldtype			
 
-			Uri fieldtypeUri = Uri.parse(RapidSmsDataDefs.FieldType.CONTENT_URI_STRING + thetype.getId());
+			Uri fieldtypeUri = Uri.parse(RapidSmsDBConstants.FieldType.CONTENT_URI_STRING + thetype.getId());
 			Cursor typeCursor = mContext.getContentResolver().query(fieldtypeUri, null, null, null, null);
 			if (typeCursor.getCount() == 0) {
 				ContentValues typecv = new ContentValues();
 
 				typecv.put(BaseColumns._ID, thetype.getId());					
-				typecv.put(RapidSmsDataDefs.FieldType.DATATYPE, thetype.getDataType());
-				typecv.put(RapidSmsDataDefs.FieldType.NAME, thetype.getTokenName());
-				typecv.put(RapidSmsDataDefs.FieldType.REGEX, thetype.getRegex());
+				typecv.put(RapidSmsDBConstants.FieldType.DATATYPE, thetype.getDataType());
+				typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getTokenName());
+				typecv.put(RapidSmsDBConstants.FieldType.REGEX, thetype.getRegex());
 				
 				Log.d("dimagi", "InsertFieldType: " + thetype.getId());
 				Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
 				Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
 				Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
 
-				Uri insertedTypeUri = mContext.getContentResolver().insert(RapidSmsDataDefs.FieldType.CONTENT_URI, typecv);
+				Uri insertedTypeUri = mContext.getContentResolver().insert(RapidSmsDBConstants.FieldType.CONTENT_URI, typecv);
 				Log.d("dimagi","********** Inserted SimpleFieldType into db: " + insertedTypeUri);										
 			}
 			typeCursor.close();
@@ -254,7 +254,7 @@ public class ModelBootstrap {
 			Log.d("dimagi","**** inserting form " + f.getFormName());
 			
 			//insert the form first
-			Uri formUri = Uri.parse(RapidSmsDataDefs.Form.CONTENT_URI_STRING + f.getFormId());
+			Uri formUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + f.getFormId());
 			Cursor crform = mContext.getContentResolver().query(formUri, null, null, null, null);
 			boolean newFormInserted = false;
 			if (crform.getCount() == 0) {

@@ -5,7 +5,7 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
@@ -88,11 +88,11 @@ public class FormDataBroker implements IChartBroker {
 		JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 		
-		String fieldcol = RapidSmsDataDefs.FormData.COLUMN_PREFIX + fieldToPlot.getName();
+		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX + fieldToPlot.getName();
 		StringBuilder rawQuery = new StringBuilder();
 		rawQuery.append("select " + fieldcol);
 		rawQuery.append(", count(*) from ");
-		rawQuery.append(RapidSmsDataDefs.FormData.TABLE_PREFIX +mForm.getPrefix());
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX +mForm.getPrefix());
 		rawQuery.append(" group by " + fieldcol);
 		rawQuery.append(" order by " + fieldcol);
 		

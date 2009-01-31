@@ -5,7 +5,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Message;

@@ -6,7 +6,7 @@ package org.rapidandroid.activity;
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDataDefs;
+import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.view.SingleRowHeaderView;
 import org.rapidandroid.view.adapter.FormDataCursorAdapter;
 import org.rapidandroid.view.adapter.MessageCursorAdapter;
@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,11 +90,10 @@ public class Dashboard extends Activity {
 	private int formViewMode = 0;
 	
 	
-	private Form[] mAllForms;
+	private Form[] mAllForms;	
 	
-	
-	Uri formDataUri = null; 
-	Cursor formDataCursor = null; 
+	boolean formChanged = true; 
+	Cursor mListviewCursor = null; 
 	
 	
 	@Override
@@ -107,6 +108,12 @@ public class Dashboard extends Activity {
 			//dialogMessage = "SMS :: " + from + " : " + body;
 			//showDialog(160);
 		}
+		
+		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
+		mLoadingDialog.setMessage("Loading data...");
+		mLoadingDialog.setTitle("Please wait");
+		mLoadingDialog.setIndeterminate(true);
+		mLoadingDialog.setCancelable(false);			
 
 		this.loadFormSpinner();
 
@@ -122,7 +129,8 @@ public class Dashboard extends Activity {
 					public void onNothingSelected(AdapterView<?> parent) {
 						// blow away the listview's items		
 						mChosenForm = null;
-						loadListViewWithFormData(true);
+						formChanged = true;
+						loadListViewWithFormData();
 					}
 				});
 
@@ -153,7 +161,7 @@ public class Dashboard extends Activity {
 
 			}
 
-		});
+		});	
 	}
 
 	@Override
@@ -227,38 +235,11 @@ public class Dashboard extends Activity {
 		editMenu.setEnabled(formOptionsEnabled);
 
 		MenuItem viewMenu = menu.findItem(MENU_CHARTS_ID);
-	
 
 		return true;
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch(id) {
-			case DIALOG_LOADING: 
-				mLoadingDialog = new ProgressDialog(this);
-				//mLoadingDialog.setTitle("Indeterminate");
-				mLoadingDialog.setMessage("Loading data...");
-				mLoadingDialog.setIndeterminate(true);
-				mLoadingDialog.setCancelable(true);	            
-	            return mLoadingDialog;			
-		}
-		return null;
-		
-
-//		return new AlertDialog.Builder(Dashboard.this).setTitle("Menu Selection")
-//														.setMessage("Selected Menu Item: " + id + " " + dialogMessage)
-//														.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//															public void onClick(DialogInterface dialog, int whichButton) {
-//																/*
-//																 * User clicked
-//																 * OK so do some
-//																 * stuff
-//																 */
-//															}
-//														}).create();
-	}
-
+	
 	
 	@Override
 	// http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
@@ -267,17 +248,16 @@ public class Dashboard extends Activity {
 		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 		case CONTEXT_ITEM_SUMMARY_VIEW:
-			formViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
-			loadListViewWithFormData(false);
+			formViewMode = LISTVIEW_MODE_SUMMARY_VIEW;			
 			break;
 		case CONTEXT_ITEM_TABLE_VIEW:			
-			formViewMode = LISTVIEW_MODE_TABLE_VIEW;
-			loadListViewWithFormData(false);
-
+			formViewMode = LISTVIEW_MODE_TABLE_VIEW;			
 			break;
 		default:
 			return super.onContextItemSelected(item);
 		}
+		this.formChanged = false;
+		beginListViewReload();
 		return true;
 	}
 
@@ -343,7 +323,9 @@ public class Dashboard extends Activity {
 			mChosenForm = null;
 			this.mShowAllMessages = true;
 			this.mShowMonitors = false;
-			loadListViewWithRawMessages();
+			formChanged = true;
+			beginListViewReload();
+			//loadListViewWithRawMessages();
 			
 
 		} else if (position == mAllForms.length + 1) {
@@ -351,55 +333,84 @@ public class Dashboard extends Activity {
 			mChosenForm = null;
 			this.mShowAllMessages = false;
 			this.mShowMonitors = true;
-			loadListViewsWithMonitors();
+			formChanged = true;
+			beginListViewReload();
+			//loadListViewsWithMonitors();
 			
 		} else {
 			this.mShowAllMessages = false;
 			this.mShowMonitors = false;
 			mChosenForm = mAllForms[position];
-			
-			loadListViewWithFormData(true);
-		}
-		
+			formChanged = true;
+			beginListViewReload();
+			//loadListViewWithFormData(true);
+		}		
 	}
+		
 	
+	
+    
+    private void finishListViewReload() {
+    	ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
+		
+    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+    		loadListViewWithFormData();
+    	}
+    	else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
+			this.messageCursorAdapter = new MessageCursorAdapter(this, mListviewCursor);
+			lsv.setAdapter(messageCursorAdapter);
+    	}
+    	else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {    		
+    		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
+    		
+    	}    	
+    }
+    
+    private void beginListViewReload() {
+    	//mLoadingDialog = ProgressDialog.show(this,"Loading data", "Please wait");
+    	mLoadingDialog.show();
+    	resetListAdapters();
+    	final Handler mDashboardHandler = new Handler();
+    	final Runnable mUpdateResults = new Runnable() {
+            public void run() {
+            	finishListViewReload();
+            	mLoadingDialog.dismiss();    	
+            }
+        };
+    	
+    	Thread t = new Thread() {
+            public void run() {            	
+            	fillCursorInBackground();            	            	
+            	mDashboardHandler.post(mUpdateResults);
+            }
+        };
+        t.start();
+    }
+    
+    private void fillCursorInBackground() {
+    	if(mListviewCursor == null) {
+	    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,null,null,"message_id desc");	
+	    	} else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
+	    		mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, "time DESC");
+	    	} else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {
+	    		//do something
+	    	}    	
+    	}
+    	
+    }
+    
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
-	private void loadListViewWithRawMessages() {
-		
-		resetListAdapters(true);
-		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
-		Cursor cursor = getContentResolver().query(RapidSmsDataDefs.Message.CONTENT_URI, null, null, null, "time DESC");		
-		this.messageCursorAdapter = new MessageCursorAdapter(this, cursor);
-		lsv.setAdapter(messageCursorAdapter);
-	}
-	
-	
-	// this is a call to the DB to update the ListView with the messages for a
-	// selected form
-	private void loadListViewsWithMonitors() {	
-		resetListAdapters(true);
-		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
-	}
-	
-	// this is a call to the DB to update the ListView with the messages for a
-	// selected form
-	private void loadListViewWithFormData(boolean changedforms) {
-		//showDialog(DIALOG_LOADING);		
-		
-		resetListAdapters(changedforms);
-		
+	private void loadListViewWithFormData() {
+				
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
 													new String[] { "Select an item" }));
 		} else {
-			if (formDataCursor == null) {
-				formDataUri = Uri.parse(RapidSmsDataDefs.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId());
-				formDataCursor = getContentResolver().query(formDataUri, null,null,null,"message_id desc");
-			} 
-			if(formDataCursor.getCount() == 0) {
+			
+			if(mListviewCursor.getCount() == 0) {
 				lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
 						new String[] { "No data" }));
 				return;
@@ -409,10 +420,7 @@ public class Dashboard extends Activity {
 				 * if we want to get super fancy, we can do a join to make it all accessible in one cursor instead of having to requery
 				 * select formdata_bednets.*, rapidandroid_message.message,rapidandroid_message.time from formdata_bednets
 join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message._id)
-				 */
-			
-			
-			
+				 */			
 			
 //				if (headerView == null) {
 //					this.headerView = new SingleRowHeaderView(this, mChosenForm);
@@ -420,39 +428,39 @@ join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message
 //				
 				if(this.formViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {										
 					//headerView.setVisibility(View.INVISIBLE);
-					this.summaryView = new SummaryCursorAdapter(this, formDataCursor, mChosenForm);						
+					this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);						
 					lsv.setAdapter(summaryView);
 				} else if(this.formViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
-					rowView = new FormDataCursorAdapter(this, mChosenForm, formDataCursor);
+					rowView = new FormDataCursorAdapter(this, mChosenForm, mListviewCursor);
 					lsv.setAdapter(rowView);					
 				}
 			}
-			//mLoadingDialog.dismiss();
+			
 		}
 
 	/**
 	 * @param changedforms
 	 */
-	private void resetListAdapters(boolean changedforms) {
+	private void resetListAdapters() {
 		if(rowView != null) {
 			rowView = null;
 		}
 		if(summaryView != null) {
 			summaryView = null;
 		}
-		if(messageCursorAdapter != null) {
-			messageCursorAdapter.getCursor().close();
+		if(messageCursorAdapter != null) {			
 			messageCursorAdapter = null;
 		}
 		//monitorCursorAdapter
 		
-		if(changedforms) {
+		if(formChanged) {
 			//need to reset the cursor
-			if(formDataCursor != null) {
-				formDataCursor.close();
-				formDataCursor = null;
-			}			
-		}
+			if(mListviewCursor != null) {
+				mListviewCursor.close();
+				mListviewCursor = null;
+			}
+			formChanged = false;
+		}		
 	}
 	
 
