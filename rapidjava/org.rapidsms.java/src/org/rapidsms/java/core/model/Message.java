@@ -13,7 +13,8 @@ import java.util.TimeZone;
 public class Message {
 	
 	public static final int COL_ID = 0;	
-	public static final int COL_PHONE = 1;	//deprecated
+	//do not use
+	//public static final int COL_PHONE = 1;
 	public static final int COL_MONITOR = 2;
 	public static final int COL_TIME = 3;
 	public static final int COL_MESSAGE = 4;
@@ -25,7 +26,15 @@ public class Message {
 	public static final int COL_PARSED_FIELDS_OFFSET = 2;	
 	
 	//2009-01-29 20:44:30
-	public static DateFormat SQLDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");	//implicit Z
+	/**
+	 * Formats the message to a string that SQLite likes:
+	 * (yyyy-MM-dd HH:mm:ss) in the current machine's timezone.
+	 */	
+	public static DateFormat SQLDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	/**
+	 * Format the timestamp to a displayable format in the UI
+	 * HH:mm MM/dd/yy
+	 */
 	public static DateFormat DisplayDateFormat = new SimpleDateFormat("HH:mm MM/dd/yy");
 	
 	public Message(int id, String message, Date timestamp, Monitor monitor) {

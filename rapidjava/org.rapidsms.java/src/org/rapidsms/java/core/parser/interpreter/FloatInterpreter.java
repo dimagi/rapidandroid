@@ -31,7 +31,7 @@ public class FloatInterpreter implements IParseInterpreter {
 				float f = Float.valueOf(m.group(0));
 				return f;
 			} catch (Exception ex) {
-				System.out.println("Float Interpretation exception: " +token + " Message: "+ ex.getMessage());
+				//System.out.println("Float Interpretation exception: " +token + " Message: "+ ex.getMessage());
 				return null;
 			}
 			

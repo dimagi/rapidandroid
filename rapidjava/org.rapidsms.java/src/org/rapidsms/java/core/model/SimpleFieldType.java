@@ -120,7 +120,7 @@ public class SimpleFieldType implements ITokenParser {
 			for (int q = 0; q < matcher.groupCount(); q++) {
 
 				if(matcher.group(q) == null) {
-					System.out.println("why the frack is this null " + q + " count: " + matcher.groupCount());
+					//System.out.println("why the frack is this null " + q + " count: " + matcher.groupCount());
 					continue;
 				}
 				int currsize = matcher.group(q).length();
@@ -132,18 +132,18 @@ public class SimpleFieldType implements ITokenParser {
 			}
 			minstart = matcher.start(maxGroup);
 			maxend = matcher.end(maxGroup);
-			System.out.println(matcher.group(maxGroup));
+			//System.out.println(matcher.group(maxGroup));
 		}
 		else {
 			return null;
 		}
 		
 		if(minstart < maxend) {
-			System.out.println("\t\tFragmenting: " + minstart + "-" + maxend);
+			//System.out.println("\t\tFragmenting: " + minstart + "-" + maxend);
 			String parsed = fragment.substring(minstart, maxend);
 			
 			parsed = parsed.trim();			
-			System.out.println("\t\tMatched fragment: ##" + parsed + "##");						
+			//System.out.println("\t\tMatched fragment: ##" + parsed + "##");						
 			SimpleParseResult res = new SimpleParseResult(this,parsed, getInterpreter().interpretValue(parsed));
 			
 			return res;

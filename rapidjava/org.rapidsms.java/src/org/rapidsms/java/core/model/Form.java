@@ -34,7 +34,7 @@ public class Form {
 		this.fields = fields;
 		this.parser = parse;
 		
-		System.out.println("Created new form: " + formName + " prefix: " + prefix);
+		//Log.d.out.println("Created new form: " + formName + " prefix: " + prefix);
 	}
 	
 	/**
