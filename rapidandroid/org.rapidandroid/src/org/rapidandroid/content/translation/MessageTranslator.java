@@ -8,6 +8,7 @@ import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.model.Monitor;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,9 +25,12 @@ import android.net.Uri;
 public class MessageTranslator {
 	
 	private static HashMap<Integer,Monitor> mMonitorHash = null;
+	private static HashMap<String,Monitor> mMonitorHashByPhone = null;
 	
-	public static void updateMonitorHash(Context context) {
+	public static synchronized void updateMonitorHash(Context context) {
+		
 		mMonitorHash = new HashMap<Integer,Monitor>();
+		mMonitorHashByPhone = new HashMap<String,Monitor>();
 		Cursor monitorCursor = context.getContentResolver().query(RapidSmsDBConstants.Monitor.CONTENT_URI, null,null,null,null);
 		if(monitorCursor.getCount() == 0) {
 			return;
@@ -44,12 +48,13 @@ public class MessageTranslator {
 					monitorCursor.getString(Monitor.COL_PHONE),
 					monitorCursor.getString(Monitor.COL_EMAIL),
 					monitorCursor.getInt(Monitor.COL_MESSAGECOUNT));
-			mMonitorHash.put(Integer.valueOf(newMonitor.getID()), newMonitor);			
+			mMonitorHash.put(Integer.valueOf(newMonitor.getID()), newMonitor);
+			mMonitorHashByPhone.put(newMonitor.getPhone(),newMonitor);			
 		}while (monitorCursor.moveToNext());
 		monitorCursor.close();
 	}
 	
-	public static Monitor GetMonitor(Context context, int monitorID) {
+	public static synchronized Monitor GetMonitor(Context context, int monitorID) {
 		Integer monID = Integer.valueOf(monitorID);
 		if(mMonitorHash.containsKey(monID)) {
 			return mMonitorHash.get(monID);
@@ -58,8 +63,20 @@ public class MessageTranslator {
 		}
 	}
 	
+	public static synchronized Monitor GetMonitorAndInsertIfNew(Context context, String phone) {
+		if(mMonitorHashByPhone.containsKey(phone)) {
+			return mMonitorHashByPhone.get(phone);
+		} else {
+			ContentValues cv = new ContentValues();
+			cv.put(RapidSmsDBConstants.Monitor.PHONE, phone);
+			Uri newUri = context.getContentResolver().insert(RapidSmsDBConstants.Monitor.CONTENT_URI, cv);
+			updateMonitorHash(context);
+			return mMonitorHashByPhone.get(phone);			
+		}
+	}
 	
-	public static Message GetMessage(Context context, int messageID) {
+	
+	public static synchronized Message GetMessage(Context context, int messageID) {
 		if(mMonitorHash == null) {
 			updateMonitorHash(context);
 		}
@@ -82,17 +99,12 @@ public class MessageTranslator {
 				msgCursor.close();
 				return newMessage;
 			} catch (Exception ex) {
-				Message newMessage = new Message(msgCursor.getInt(Message.COL_ID),
-						msgCursor.getString(Message.COL_MESSAGE), 
-						new Date(),									
-						mMonitorHash.get(Integer.valueOf(msgCursor.getInt(Message.COL_MONITOR))));;
-				msgCursor.close();
-						return newMessage;
+				throw new IllegalArgumentException("Invalid state");
 			}			
 		}
 	}
 	
-	public static Message[] GetMessages(Context context, int[] messages) {		
+	public static synchronized Message[] GetMessages(Context context, int[] messages) {		
 		if(mMonitorHash == null) {
 			updateMonitorHash(context);
 		}		

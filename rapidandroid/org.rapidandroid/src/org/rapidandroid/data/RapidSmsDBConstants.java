@@ -40,6 +40,9 @@ public final class RapidSmsDBConstants {
 		public static final String PHONE = "phone";
 		
 		public static final String MESSAGE = "message";
+		/**
+		 * The monitorID of the sender. theMonitor must exist before a message can be inserted.
+		 */
 		public static final String MONITOR = "monitor_id";
 		public static final String TIME = "time";
 		public static final String IS_OUTGOING = "is_outgoing";

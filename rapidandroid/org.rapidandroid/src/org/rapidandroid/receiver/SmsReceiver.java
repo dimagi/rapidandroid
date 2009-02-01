@@ -4,8 +4,11 @@
 package org.rapidandroid.receiver;
 
 import java.sql.Timestamp;
+
+import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Message;
+import org.rapidsms.java.core.model.Monitor;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -52,18 +55,12 @@ public class SmsReceiver extends BroadcastReceiver {
 		ContentValues messageValues = new ContentValues();
 		messageValues.put(RapidSmsDBConstants.Message.MESSAGE, mesg
 				.getMessageBody());
-		messageValues.put(RapidSmsDBConstants.Message.PHONE, mesg
-				.getOriginatingAddress());
-
 		
-		Timestamp ts = new Timestamp(mesg.getTimestampMillis()); // convert the
+		Timestamp ts = new Timestamp(mesg.getTimestampMillis()); 
 		
-		// timestamp
-		// to a
-		// datetime
-		// string
-
-		//messageValues.put(RapidSmsDBConstants.Message. TIME,mesg.getTimestampMillis());
+		Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(context, mesg.getOriginatingAddress());
+		
+		messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
 		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));
 		messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 		boolean successfulSave = false;

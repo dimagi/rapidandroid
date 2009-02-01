@@ -311,21 +311,27 @@ public class RapidSmsContentProvider extends ContentProvider {
 			throw new SQLException("No message");
 		}
 
-		if (values.containsKey(RapidSmsDBConstants.Message.PHONE) == false) {
-			throw new SQLException("No message");
-		} else {
-			ContentValues monitorValues = new ContentValues();
-			monitorValues.put(RapidSmsDBConstants.Message.MESSAGE, values
-					.getAsString(RapidSmsDBConstants.Message.MESSAGE));
-			Uri monitorUri = insertMonitor(
-					RapidSmsDBConstants.Monitor.CONTENT_URI, monitorValues);
-			// ok, so we insert the mMonitorString into the mMonitorString table.
-			// get the URI back and assign the foreign key into the values as
-			// part of the message insert
-			values.put(RapidSmsDBConstants.Message.MONITOR, monitorUri
-					.getPathSegments().get(1));
-			values.remove(RapidSmsDBConstants.Message.PHONE);
-		}
+		if (values.containsKey(RapidSmsDBConstants.Message.MONITOR) == false) {
+			throw new SQLException("Must set a monitor for insertion");
+		} 
+//		else {
+//			//check if the monitor exists.
+//			Cursor monitorCursor = query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, "phone='" + values.getAsString(RapidSmsDBConstants.Message.PHONE) + "'" , null, null);
+//			if(monitorCursor.getCount() == 0) {
+//				ContentValues monitorValues = new ContentValues();
+//				monitorValues.put(RapidSmsDBConstants.Message.MESSAGE, values
+//						.getAsString(RapidSmsDBConstants.Message.MESSAGE));
+//				Uri monitorUri = insertMonitor(RapidSmsDBConstants.Monitor.CONTENT_URI, monitorValues);
+//				// ok, so we insert the mMonitorString into the mMonitorString table.
+//				// get the URI back and assign the foreign key into the values as
+//				// part of the message insert
+//				values.put(RapidSmsDBConstants.Message.MONITOR, monitorUri
+//						.getPathSegments().get(1));
+//				values.remove(RapidSmsDBConstants.Message.PHONE);
+//			}
+//			
+//			
+//		}
 
 		if (values.containsKey(RapidSmsDBConstants.Message.IS_OUTGOING) == false) {
 			throw new SQLException("No direction");

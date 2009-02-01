@@ -117,7 +117,8 @@ public class SummaryCursorView extends TableLayout {
         int lenresults = mFields.length;        
         for(int i = 0; i < lenresults; i++) {        	
         	mFieldLabels[i].setText(mFields[i]);        	
-        	mFieldValues[i].setText(cr.getString(i+2));        	        	
+        	mFieldValues[i].setText(cr.getString(i+2));
+        	
         }        	
 	}	
 	

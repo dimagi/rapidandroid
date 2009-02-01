@@ -20,7 +20,7 @@ import android.widget.BaseAdapter;
  * 
  *          Pulled from the Android API examples for an example of an adapter
  *          with a custom view for a listview.
- * 
+ * @deprecated
  * 
  */
 public class InefficientParsedMessageViewAdapter extends BaseAdapter {

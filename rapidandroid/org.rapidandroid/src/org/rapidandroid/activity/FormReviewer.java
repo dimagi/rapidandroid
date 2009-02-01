@@ -27,6 +27,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
+import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
@@ -34,26 +35,24 @@ import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
+import org.rapidsms.java.core.model.Monitor;
 import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.service.ParsingService;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.AndroidException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * 
@@ -82,9 +81,13 @@ public class FormReviewer extends Activity {
 	boolean success = false;
 
 	private Form mForm;
-	private ProgressDialog mLoadingDialog;
-
 	final Handler mDebugHandler = new Handler();
+
+	final Runnable mCsvSaveCompleted = new Runnable() {
+		public void run() {
+			alertCSVStatus();
+		}
+	};
 
 	final Runnable mUpdateResults = new Runnable() {
 		public void run() {
@@ -102,14 +105,8 @@ public class FormReviewer extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setTitle("RapidAndroid :: Review Form");		
+		setTitle("RapidAndroid :: Review Form");
 		setContentView(R.layout.form_edit);
-		mLoadingDialog = new ProgressDialog(this,
-				ProgressDialog.STYLE_HORIZONTAL);
-		mLoadingDialog.setMessage("Loading data...");
-		mLoadingDialog.setTitle("Please wait");
-		mLoadingDialog.setIndeterminate(true);
-		mLoadingDialog.setCancelable(false);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -150,16 +147,18 @@ public class FormReviewer extends Activity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_DONE, 0, R.string.formreview_menu_done).setIcon(
 				android.R.drawable.ic_menu_revert);
-		
+
 		menu.add(0, MENU_FORMAT, 0, R.string.formreview_menu_format).setIcon(
 				android.R.drawable.ic_menu_info_details);
-		
+
 		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(
 				android.R.drawable.ic_menu_save);
-		
-		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv).setIcon(android.R.drawable.ic_menu_upload);
-		
-		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(android.R.drawable.ic_menu_manage);
+
+		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv)
+				.setIcon(android.R.drawable.ic_menu_upload);
+
+		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(
+				android.R.drawable.ic_menu_manage);
 		return true;
 	}
 
@@ -219,41 +218,27 @@ public class FormReviewer extends Activity {
 
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		super.onCreateDialog(id);
-
-		String title = "Sample submission";
-
-		if (mForm == null) {
-			return null;
+	private void alertUploadStatus() {
+		if (success) {
+			Toast.makeText(getApplicationContext(), "File upload successful",
+					Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(getApplicationContext(), "File upload failed",
+					Toast.LENGTH_LONG).show();
 		}
-
-		StringBuilder sb = generateRandomMessage();
-
-		return new AlertDialog.Builder(FormReviewer.this).setTitle(title)
-				.setMessage(sb.toString().trim()).setPositiveButton("OK", null)
-				.create();
-
 	}
 
-	private void alertUploadStatus() {
-		mLoadingDialog.dismiss();
-		Builder ad = new AlertDialog.Builder(this);
-		ad.setTitle("Upload result");
-		if (success) {
-			ad.setMessage("upload successful");
+	private void alertCSVStatus() {
 
-		} else {
-			ad.setMessage("upload failed");
-		}
-		ad.setPositiveButton("ok", null);
-		ad.show();
+		Toast.makeText(getApplicationContext(), "CSV Save Complete",
+				Toast.LENGTH_LONG).show();
+
 	}
 
 	private void updateResultsInUi() {
-		// showDialog(0);
-		mLoadingDialog.dismiss();
+		Toast.makeText(getApplicationContext(), "Data injection completed",
+				Toast.LENGTH_LONG).show();
+
 	}
 
 	private void chooseFile() {
@@ -265,8 +250,8 @@ public class FormReviewer extends Activity {
 	}
 
 	private void uploadFile(final String filename) {
-		mLoadingDialog.setMessage("Uploading file...");
-		mLoadingDialog.show();
+		Toast.makeText(getApplicationContext(), "File upload begun",
+				Toast.LENGTH_LONG).show();
 		Thread t = new Thread() {
 			public void run() {
 				try {
@@ -311,8 +296,8 @@ public class FormReviewer extends Activity {
 	 * 
 	 */
 	private void outputCSV() {
-		mLoadingDialog.setMessage("Outputting csv...");
-		mLoadingDialog.show();
+		Toast.makeText(getApplicationContext(), "CSV output job has begun",
+				Toast.LENGTH_LONG).show();
 		// Fire off a thread to do some work that we shouldn't do directly in
 		// the UI thread
 		Thread t = new Thread() {
@@ -324,7 +309,7 @@ public class FormReviewer extends Activity {
 				then.set(Calendar.YEAR, 1990);
 
 				pdr.exportFormDataToCSV(mForm, then, now);
-				mDebugHandler.post(mUpdateResults);
+				mDebugHandler.post(mCsvSaveCompleted);
 			}
 		};
 		t.start();
@@ -334,8 +319,8 @@ public class FormReviewer extends Activity {
 	 * 
 	 */
 	private void injectMessages() {
-		// TODO Auto-generated method stub
-		mLoadingDialog.show();
+		Toast.makeText(getApplicationContext(), "Debug data injection started",
+				Toast.LENGTH_LONG).show();
 		// Fire off a thread to do some work that we shouldn't do directly in
 		// the UI thread
 		Thread t = new Thread() {
@@ -348,16 +333,20 @@ public class FormReviewer extends Activity {
 	}
 
 	private void doInjection() {
+		Random r = new Random();
 
 		for (int i = 0; i < 100; i++) {
-			StringBuilder sb = this.generateRandomMessage();
 
+			// first, let's get the
+			String token = Long.toString(Math.abs(r.nextLong()), 36);
+			Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(this, token);
+			
 			Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
+			StringBuilder sb = this.generateRandomMessage();
 			ContentValues messageValues = new ContentValues();
-			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, sb
-					.toString());
-			messageValues.put(RapidSmsDBConstants.Message.PHONE, "6176453236");
+			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, sb.toString());
+			messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
 
 			Date now = getRandomDate();
 

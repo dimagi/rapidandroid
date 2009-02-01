@@ -3,20 +3,49 @@ package org.rapidandroid.view.adapter;
 import java.util.HashMap;
 
 import org.rapidandroid.view.SummaryCursorView;
-import org.rapidandroid.view.ParsedMessageView;
 import org.rapidsms.java.core.model.Form;
 
+import android.R;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.PixelFormat;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.CursorAdapter;
+import android.widget.TextView;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 29, 2009 Summary:
  */
 public class SummaryCursorAdapter extends CursorAdapter {
+
+	private int mLoadViewCount = 0;
+	
+	@Override
+	public void notifyDataSetInvalidated() {
+		// TODO Auto-generated method stub
+		super.notifyDataSetInvalidated();
+		mLoadViewCount = 0;
+	}
+
+	@Override
+	public void changeCursor(Cursor cursor) {
+		// TODO Auto-generated method stub
+		super.changeCursor(cursor);
+		mLoadViewCount = 0;
+	}
+	
+	@Override
+	protected void init(Context context, Cursor c, boolean autoRequery) {
+		// TODO Auto-generated method stub
+		super.init(context, c, autoRequery);
+		mLoadViewCount = 0;
+	}
 
 	private Form mForm;
 	String[] mFields;
@@ -38,8 +67,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 			mFields[i] = mForm.getFields()[i].getName();
 		}
 		mExpanded = new HashMap<Integer, Boolean>();
-
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	/*
@@ -50,6 +78,13 @@ public class SummaryCursorAdapter extends CursorAdapter {
 	 */
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
+		
+		if(mLoadViewCount < 10) {
+		
+		} else {
+		
+		}
+		
 		SummaryCursorView pmcv = (SummaryCursorView) view;
 		pmcv.setData(cursor);
 		Integer intpos = Integer.valueOf(cursor.getPosition());
@@ -58,6 +93,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		}
 		pmcv.setExpanded(mExpanded.get(intpos).booleanValue());
 
+		mLoadViewCount++;
 	}
 
 	/*
