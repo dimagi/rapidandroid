@@ -1,18 +1,25 @@
 package org.rapidandroid.activity;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.activity.chart.IChartBroker;
 import org.rapidandroid.activity.chart.form.FormDataBroker;
 import org.rapidandroid.activity.chart.message.MessageDataBroker;
 import org.rapidandroid.content.translation.ModelTranslator;
+import org.rapidandroid.data.controller.MessageDataReporter;
+import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,12 +33,21 @@ import android.webkit.WebView;
  */
 public class ChartData extends Activity {
 
+	
+	public class CallParams {
+		public static final String CHART_FORM = "graph_form";
+		public static final String CHART_MESSAGES = "graph_msg";
+		public static final String CHART_MONITORS = "graph_monitor";
+	}
+	
 	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
 	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
 	
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CHANGE_VARIABLE = Menu.FIRST + 1;
 	private static final int MENU_CHANGE_PARAMETERS = Menu.FIRST + 2;
+	
+	private static final int ACTIVITY_DATERANGE = 7;
 	
 	private Form mForm;
 	private Field mField;
@@ -51,16 +67,14 @@ public class ChartData extends Activity {
 		setContentView(org.rapidandroid.R.layout.data_chart);
 		WebView wv = (WebView) findViewById(org.rapidandroid.R.id.wv1);
 
-		
-		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			if(extras.containsKey(ActivityConstants.CHART_FORM)) {
-				mForm = ModelTranslator.getFormById(extras.getInt(ActivityConstants.CHART_FORM));
+			if(extras.containsKey(CallParams.CHART_FORM)) {
+				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
 				mBroker= new FormDataBroker(wv, mForm);
-			} else if(extras.containsKey(ActivityConstants.CHART_MESSAGES)) {
+			} else if(extras.containsKey(CallParams.CHART_MESSAGES)) {
 				mBroker= new MessageDataBroker(wv);
-			} else if(extras.containsKey(ActivityConstants.CHART_MONITORS)) {
+			} else if(extras.containsKey(CallParams.CHART_MONITORS)) {
 				
 			}
 		}
@@ -131,9 +145,51 @@ public class ChartData extends Activity {
 			showDialog(MENU_CHANGE_VARIABLE);
 			return true;
 		case MENU_CHANGE_PARAMETERS:
-			//todo, show dialog
+			startDateRangeActivity();
 			return true;
 		}
 		return true;
+	}
+
+	private void startDateRangeActivity() {		
+		Intent i = new Intent(this, DateRange.class);
+		Date endDate = new Date();
+		if(mForm != null) {
+			ParsedDataReporter pdr = new ParsedDataReporter(this);
+			endDate = pdr.getOldestMessage(mForm);		
+		} else {
+			endDate = MessageDataReporter.getOldestMessageDate(this);
+		}
+		
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_ENDDATE, Message.SQLDateFormatter.format(endDate));
+		startActivityForResult(i, ACTIVITY_DATERANGE);	
+		
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		Bundle extras = null;
+		if (intent != null) {
+			extras = intent.getExtras(); // right now this is a case where we
+			// don't do much activity back and
+			// forth
+		}
+
+		switch (requestCode) {
+		case ACTIVITY_DATERANGE:
+			if(extras != null) {
+				try {
+					Date startDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+					Date endDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			break;
+		
+		}
 	}
 }

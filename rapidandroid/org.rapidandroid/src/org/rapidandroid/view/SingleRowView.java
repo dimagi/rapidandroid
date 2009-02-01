@@ -2,6 +2,7 @@ package org.rapidandroid.view;
 
 import java.util.Vector;
 
+import android.R;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.Gravity;
@@ -31,6 +32,7 @@ public class SingleRowView extends TableLayout {
 		super(context);
 		int itemCounter = 0; 
 		
+		context.setTheme(R.style.Theme_Translucent);
 		mColCount =  c.getColumnCount();
 		
 		mRow = new TableRow(context);
@@ -44,12 +46,12 @@ public class SingleRowView extends TableLayout {
 		mMessageIDCol = new TextView(context);
 		//mMessageIDCol.setGravity(Gravity.LEFT);
 		//mMessageIDCol.setWidth(getWidth()/mColCount);
-		mMessageIDCol.setPadding(3, 3, 3, 3);
+		//mMessageIDCol.setPadding(3, 3, 3, 3);
 		mRow.addView(mMessageIDCol, itemCounter++);
 		
 		mMonitorCol = new TextView(context);
 		//mMonitorCol.setGravity(Gravity.LEFT);
-		mMonitorCol.setPadding(3, 3, 3, 3);
+		//mMonitorCol.setPadding(3, 3, 3, 3);
 		
 		//mMonitorCol.setWidth(getWidth()/mColCount);
 		mRow.addView(mMonitorCol, itemCounter++);
@@ -58,17 +60,23 @@ public class SingleRowView extends TableLayout {
 		
 		for(int i = 0; i < mColCount -2; i++) {
 			TextView coldata = new TextView(getContext());
-			coldata.setPadding(3, 3, 3, 3);
+			//coldata.setPadding(3, 3, 3, 3);
 			//coldata.setWidth(getWidth()/mColCount);
 			//coldata.setGravity(Gravity.LEFT);
-			//coldata.setText("null");
-			mDataCols.add(coldata);
-			
+			//coldata.setText("null");			
+			mDataCols.add(coldata);			
 			mRow.addView(coldata, itemCounter++);
 		}
 		
 		//mRow.setWeightSum(itemCounter);
-		this.addView(mRow);
+		addView(mRow);
+		
+		for(int i = 0; i < mColCount; i++) {
+			this.setColumnCollapsed(i, false);
+			this.setColumnShrinkable(i, false);
+			this.setColumnStretchable(i, false);
+		}
+		
 		setData(c);
 	}
 	

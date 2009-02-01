@@ -92,13 +92,10 @@ public class MessageTranslator {
 		}
 	}
 	
-	public static Message[] GetMessages(Context context, int[] messages) {
-		
+	public static Message[] GetMessages(Context context, int[] messages) {		
 		if(mMonitorHash == null) {
 			updateMonitorHash(context);
-		}
-		
-		
+		}		
 		Uri getMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 		String whereclause = "_id in (";
 		int length = messages.length;

@@ -20,7 +20,7 @@ import android.widget.TextView;
  *  
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 9, 2009
- * 
+ * @deprecated
  * 
  *   
  */

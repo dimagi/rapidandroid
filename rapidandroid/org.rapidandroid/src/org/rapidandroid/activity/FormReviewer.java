@@ -47,6 +47,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.AndroidException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -65,88 +66,59 @@ import android.widget.TextView;
  */
 
 public class FormReviewer extends Activity {
+
+	public class CallParams {
+		public static final String REVIEW_FORM = "review_form";
+	}
+
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_FORMAT = Menu.FIRST + 1;
 	private static final int MENU_DUMP_CSV = Menu.FIRST + 2;
 	private static final int MENU_HTTP_UPLOAD = Menu.FIRST + 3;
 	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 4;
 
-	
 	public static final int ACTIVITY_FILE_BROWSE = 0;
-	
-	
+
 	boolean success = false;
-	
+
 	private Form mForm;
 	private ProgressDialog mLoadingDialog;
-	
-	final Handler mDebugHandler = new Handler();
-	
-	final Runnable mUpdateResults = new Runnable() {
-        public void run() {
-            updateResultsInUi();
-        }
-    };
-    
-    final Runnable mFinishUpload = new Runnable() {
-        public void run() {
-            alertUploadStatus();
-        }
-    };
-    
-    private void alertUploadStatus() {
-    	mLoadingDialog.dismiss();
-    	Builder ad = new AlertDialog.Builder(this);    
-    	ad.setTitle("Upload result");
-    	if(success) {
-    		ad.setMessage("upload successful");
-    		
-    	} else {
-    		ad.setMessage("upload failed");
-    	}
-    	ad.setPositiveButton("ok", null);
-    	ad.show();
-    }
-    
-    private void updateResultsInUi() {
-    	//showDialog(0);
-    	mLoadingDialog.dismiss();
-    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		Bundle extras = null;	
-		super.onActivityResult(requestCode, resultCode,intent);
-		if (intent != null) {
-			extras = intent.getExtras(); 
-			
-			switch (requestCode) {
-			case ACTIVITY_FILE_BROWSE:
-				// get the filename
-				String filename = extras.getString("filename");
-				uploadFile(filename);
-				break;
-			default:
-				break;
-			}
+	final Handler mDebugHandler = new Handler();
+
+	final Runnable mUpdateResults = new Runnable() {
+		public void run() {
+			updateResultsInUi();
 		}
-		
-	}
+	};
+
+	final Runnable mFinishUpload = new Runnable() {
+		public void run() {
+			alertUploadStatus();
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		setTitle("RapidAndroid :: Review Form");		
 		setContentView(R.layout.form_edit);
-		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
+		mLoadingDialog = new ProgressDialog(this,
+				ProgressDialog.STYLE_HORIZONTAL);
 		mLoadingDialog.setMessage("Loading data...");
 		mLoadingDialog.setTitle("Please wait");
 		mLoadingDialog.setIndeterminate(true);
-		mLoadingDialog.setCancelable(false);			
+		mLoadingDialog.setCancelable(false);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			int formID = extras.getInt(ActivityConstants.REVIEW_FORM);
+
+			if (!extras.containsKey(CallParams.REVIEW_FORM)) {
+				throw new IllegalArgumentException(
+						"Error, activity was called without a Form ID to review.");
+			}
+			int formID = extras.getInt(CallParams.REVIEW_FORM);
 			mForm = ModelTranslator.getFormById(formID);
 
 			TextView txv_formname = (TextView) findViewById(R.id.txv_formname);
@@ -163,9 +135,11 @@ public class FormReviewer extends Activity {
 			String[] fields = new String[len];
 			for (int i = 0; i < len; i++) {
 				Field field = mForm.getFields()[i];
-				fields[i] = field.getName() + " [" + field.getFieldType().getItemType() + "]";
+				fields[i] = field.getName() + " ["
+						+ field.getFieldType().getItemType() + "]";
 			}
-			lsv_fields.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fields));
+			lsv_fields.setAdapter(new ArrayAdapter<String>(this,
+					android.R.layout.simple_list_item_1, fields));
 
 		}
 	}
@@ -174,15 +148,18 @@ public class FormReviewer extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_DONE, 0, R.string.formreview_menu_done).setIcon(android.R.drawable.ic_menu_revert);
-		;
-		menu.add(0, MENU_FORMAT, 0, R.string.formreview_menu_format).setIcon(android.R.drawable.ic_menu_info_details);
-		;
-		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(android.R.drawable.ic_menu_info_details);
-		;
-		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv);
-		;
-		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data");
+		menu.add(0, MENU_DONE, 0, R.string.formreview_menu_done).setIcon(
+				android.R.drawable.ic_menu_revert);
+		
+		menu.add(0, MENU_FORMAT, 0, R.string.formreview_menu_format).setIcon(
+				android.R.drawable.ic_menu_info_details);
+		
+		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(
+				android.R.drawable.ic_menu_save);
+		
+		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv).setIcon(android.R.drawable.ic_menu_upload);
+		
+		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(android.R.drawable.ic_menu_manage);
 		return true;
 	}
 
@@ -190,48 +167,108 @@ public class FormReviewer extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
-			case MENU_DONE:
-				finish();
-				return true;
-			case MENU_FORMAT:
-				// Intent mIntent = new Intent();
-				// mIntent.putExtras(bundle);
-				// setResult(RESULT_OK, mIntent)
+		case MENU_DONE:
+			finish();
+			return true;
+		case MENU_FORMAT:
+			// Intent mIntent = new Intent();
+			// mIntent.putExtras(bundle);
+			// setResult(RESULT_OK, mIntent)
 
-				try {
-					//this is because the randomization doesn't get instantiated for some weird reason
-					//unless we blow away the dialog
-					removeDialog(0);
-				} catch (Exception ex) {
-				}
-				showDialog(0);
-				return true;
-			case MENU_DUMP_CSV:
-				outputCSV();
-				break;
-			case MENU_HTTP_UPLOAD:
-				chooseFile();			
-				break;
-			case MENU_INJECT_DEBUG:
-				injectMessages();
-				break;
+			try {
+				// this is because the randomization doesn't get instantiated
+				// for some weird reason
+				// unless we blow away the dialog
+				removeDialog(0);
+			} catch (Exception ex) {
+			}
+			showDialog(0);
+			return true;
+		case MENU_DUMP_CSV:
+			outputCSV();
+			break;
+		case MENU_HTTP_UPLOAD:
+			chooseFile();
+			break;
+		case MENU_INJECT_DEBUG:
+			injectMessages();
+			break;
 
 		}
 		return true;
 	}
-	private void chooseFile() {
-		//spawn the activity for file browsing
-		Intent i;		
-		i = new Intent(this, FileBrowser.class);					
-		startActivityForResult(i, ACTIVITY_FILE_BROWSE);	
-		//on activity return do the upload
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode,
+			Intent intent) {
+		Bundle extras = null;
+		super.onActivityResult(requestCode, resultCode, intent);
+		if (intent != null) {
+			extras = intent.getExtras();
+
+			switch (requestCode) {
+			case ACTIVITY_FILE_BROWSE:
+				// get the filename
+				String filename = extras.getString("filename");
+				uploadFile(filename);
+				break;
+			default:
+				break;
+			}
+		}
+
 	}
-	
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		super.onCreateDialog(id);
+
+		String title = "Sample submission";
+
+		if (mForm == null) {
+			return null;
+		}
+
+		StringBuilder sb = generateRandomMessage();
+
+		return new AlertDialog.Builder(FormReviewer.this).setTitle(title)
+				.setMessage(sb.toString().trim()).setPositiveButton("OK", null)
+				.create();
+
+	}
+
+	private void alertUploadStatus() {
+		mLoadingDialog.dismiss();
+		Builder ad = new AlertDialog.Builder(this);
+		ad.setTitle("Upload result");
+		if (success) {
+			ad.setMessage("upload successful");
+
+		} else {
+			ad.setMessage("upload failed");
+		}
+		ad.setPositiveButton("ok", null);
+		ad.show();
+	}
+
+	private void updateResultsInUi() {
+		// showDialog(0);
+		mLoadingDialog.dismiss();
+	}
+
+	private void chooseFile() {
+		// spawn the activity for file browsing
+		Intent i;
+		i = new Intent(this, FileBrowser.class);
+		startActivityForResult(i, ACTIVITY_FILE_BROWSE);
+		// on activity return do the upload
+	}
+
 	private void uploadFile(final String filename) {
 		mLoadingDialog.setMessage("Uploading file...");
 		mLoadingDialog.show();
 		Thread t = new Thread() {
-            public void run() {
+			public void run() {
 				try {
 					DefaultHttpClient httpclient = new DefaultHttpClient();
 
@@ -250,47 +287,48 @@ public class FormReviewer extends Activity {
 					// but works):
 					response = httpclient.execute(httpost);
 
-					Log.d("httpPost", "Login form get: " + response.getStatusLine());
-					
+					Log.d("httpPost", "Login form get: "
+							+ response.getStatusLine());
 
-					if (entity != null) {						
+					if (entity != null) {
 						entity.consumeContent();
 					}
-					
+
 					success = true;
 				} catch (Exception ex) {
-					Log.d("FormReviewer","Upload failed: " + ex.getMessage() + " Stacktrace: " + ex.getStackTrace());
+					Log.d("FormReviewer", "Upload failed: " + ex.getMessage()
+							+ " Stacktrace: " + ex.getStackTrace());
 					success = false;
 				} finally {
 					mDebugHandler.post(mFinishUpload);
 				}
-            }
-        };
-        t.start();		
+			}
+		};
+		t.start();
 	}
-	
+
 	/**
 	 * 
 	 */
 	private void outputCSV() {
 		mLoadingDialog.setMessage("Outputting csv...");
 		mLoadingDialog.show();
-		// Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            public void run() {
-            	ParsedDataReporter pdr = new ParsedDataReporter(getBaseContext());
-            	Calendar now = Calendar.getInstance();
-            	Calendar then = Calendar.getInstance();
-            	then.set(Calendar.YEAR, 1990);
-        		
-            	pdr.exportFormDataToCSV(mForm,then, now);
-                mDebugHandler.post(mUpdateResults);
-            }
-        };
-        t.start();		
+		// Fire off a thread to do some work that we shouldn't do directly in
+		// the UI thread
+		Thread t = new Thread() {
+			public void run() {
+				ParsedDataReporter pdr = new ParsedDataReporter(
+						getBaseContext());
+				Calendar now = Calendar.getInstance();
+				Calendar then = Calendar.getInstance();
+				then.set(Calendar.YEAR, 1990);
+
+				pdr.exportFormDataToCSV(mForm, then, now);
+				mDebugHandler.post(mUpdateResults);
+			}
+		};
+		t.start();
 	}
-	
-	
 
 	/**
 	 * 
@@ -298,41 +336,46 @@ public class FormReviewer extends Activity {
 	private void injectMessages() {
 		// TODO Auto-generated method stub
 		mLoadingDialog.show();
-		// Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            public void run() {
-            	doInjection();
-                mDebugHandler.post(mUpdateResults);
-            }
-        };
-        t.start();
+		// Fire off a thread to do some work that we shouldn't do directly in
+		// the UI thread
+		Thread t = new Thread() {
+			public void run() {
+				doInjection();
+				mDebugHandler.post(mUpdateResults);
+			}
+		};
+		t.start();
 	}
-	
+
 	private void doInjection() {
-		
+
 		for (int i = 0; i < 100; i++) {
 			StringBuilder sb = this.generateRandomMessage();
 
 			Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 			ContentValues messageValues = new ContentValues();
-			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, sb.toString());
+			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, sb
+					.toString());
 			messageValues.put(RapidSmsDBConstants.Message.PHONE, "6176453236");
 
 			Date now = getRandomDate();
 
-			messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(now));
+			messageValues.put(RapidSmsDBConstants.Message.TIME,
+					Message.SQLDateFormatter.format(now));
 			messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 
 			Uri msgUri = null;
 
-			msgUri = getContentResolver().insert(writeMessageUri, messageValues);
+			msgUri = getContentResolver()
+					.insert(writeMessageUri, messageValues);
 
-			Vector<IParseResult> results = ParsingService.ParseMessage(mForm, sb.toString());
-			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(msgUri.getPathSegments().get(1))
-																	.intValue(), results);
+			Vector<IParseResult> results = ParsingService.ParseMessage(mForm,
+					sb.toString());
+			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(
+					msgUri.getPathSegments().get(1)).intValue(), results);
 		}
-		
+
 	}
 
 	private Date getRandomDate() {
@@ -355,30 +398,18 @@ public class FormReviewer extends Activity {
 		return d;
 	}
 
-	private static String[] bools = new String[] { "t", "f", "true", "false", "yes", "no", "y", "n" };
-	private static String[] heights = new String[] { "cm", "m", "meters", "meter" };
-	private static String[] lengths = new String[] { "cm", "m", "meters", "meter" };
-	private static String[] weights = new String[] { "kg", "kilos", "kilo", "kg.", "kgs" };
-	private static String[] words = new String[] { "bos", "nyc", "jfk", "lax", "lun", "lhr", "asvasd", "alksjwlejrwer",
-			"bshdkghk", "akhsdwer", "tiwowuy", "xvcxbxkhcvb" };
+	private static String[] bools = new String[] { "t", "f", "true", "false",
+			"yes", "no", "y", "n" };
+	private static String[] heights = new String[] { "cm", "m", "meters",
+			"meter" };
+	private static String[] lengths = new String[] { "cm", "m", "meters",
+			"meter" };
+	private static String[] weights = new String[] { "kg", "kilos", "kilo",
+			"kg.", "kgs" };
+	private static String[] words = new String[] { "bos", "nyc", "jfk", "lax",
+			"lun", "lhr", "asvasd", "alksjwlejrwer", "bshdkghk", "akhsdwer",
+			"tiwowuy", "xvcxbxkhcvb" };
 	Random r = new Random();
-
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		super.onCreateDialog(id);
-
-		String title = "Sample submission";
-
-		if (mForm == null) {
-			return null;
-		}
-
-		StringBuilder sb = generateRandomMessage();
-
-		return new AlertDialog.Builder(FormReviewer.this).setTitle(title).setMessage(sb.toString().trim())
-															.setPositiveButton("OK", null).create();
-
-	}
 
 	/**
 	 * @return
@@ -401,16 +432,19 @@ public class FormReviewer extends Activity {
 			} else if (type.equals("number")) {
 				sb.append(r.nextInt(1000));
 			} else if (type.equals("height")) {
-				sb.append(r.nextInt(200) + " " + heights[r.nextInt(heights.length)]);
+				sb.append(r.nextInt(200) + " "
+						+ heights[r.nextInt(heights.length)]);
 			} else if (type.equals("boolean")) {
 				sb.append(bools[r.nextInt(bools.length)]);
 			} else if (type.equals("length")) {
-				sb.append(r.nextInt(200) + " " + lengths[r.nextInt(lengths.length)]);
+				sb.append(r.nextInt(200) + " "
+						+ lengths[r.nextInt(lengths.length)]);
 			} else if (type.equals("ratio")) {
 				String floatString = r.nextFloat() + "";
 				sb.append(floatString.substring(0, 4));
 			} else if (type.equals("weight")) {
-				sb.append(r.nextInt(150) + " " + weights[r.nextInt(weights.length)]);
+				sb.append(r.nextInt(150) + " "
+						+ weights[r.nextInt(weights.length)]);
 			}
 			sb.append(" ");
 

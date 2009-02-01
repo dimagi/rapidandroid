@@ -44,10 +44,12 @@ public class AddField extends Activity {
 	String[] existingFields;
 	ITokenParser[] fieldTypes;
 	String[] fieldTypeNames;
-	
-	public static final String RESULT_FIELDNAME = "fieldname";
-	public static final String RESULT_PROMPT  = "fieldname";
-	public static final String RESULT_FIELDTYPE_ID = "fieldtypeid";
+
+	public class ResultConstants {
+		public static final String RESULT_KEY_FIELDNAME = "fieldname";
+		public static final String RESULT_KEY_PROMPT  = "fieldname";
+		public static final String RESULT_KEY_FIELDTYPE_ID = "fieldtypeid";	
+	}
 	
 	
 	private static final int MENU_SAVE = Menu.FIRST;	
@@ -62,7 +64,7 @@ public class AddField extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.add_field);
-		this.setTitle("Add field");		
+		setTitle("Add field");		
 		loadFieldTypes();
 		
 		Bundle extras = getIntent().getExtras();
@@ -136,11 +138,11 @@ public class AddField extends Activity {
 				Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
 				
 				Intent ret = new Intent();
-				ret.putExtra(RESULT_FIELDNAME, etxName.getText().toString());
-				ret.putExtra(RESULT_PROMPT, etxPrompt.getText().toString());
+				ret.putExtra(ResultConstants.RESULT_KEY_FIELDNAME, etxName.getText().toString());
+				ret.putExtra(ResultConstants.RESULT_KEY_PROMPT, etxPrompt.getText().toString());
 				int pos = spinnerFieldTypes.getSelectedItemPosition();
 				int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos]).getId();					
-				ret.putExtra(RESULT_FIELDTYPE_ID, fieldTypeIdHack);
+				ret.putExtra(ResultConstants.RESULT_KEY_FIELDTYPE_ID, fieldTypeIdHack);
 				setResult(FormCreator.ACTIVITY_ADDFIELD_ADDED, ret);
 				finish();
 			}

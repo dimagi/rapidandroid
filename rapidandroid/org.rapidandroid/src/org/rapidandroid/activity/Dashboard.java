@@ -47,14 +47,14 @@ import android.widget.AdapterView.OnItemClickListener;
  *          messages below that pertain to that message.
  * 
  */
-public class Dashboard extends Activity {
-		
+public class Dashboard extends Activity {	
+	
 	private SingleRowHeaderView headerView;
 	private SummaryCursorAdapter summaryView; 
 	private FormDataCursorAdapter rowView;
 	private MessageCursorAdapter messageCursorAdapter;
 	
-	private ProgressDialog mLoadingDialog;
+	//private ProgressDialog mLoadingDialog;
 	
 	
 	private Form mChosenForm = null;
@@ -100,20 +100,21 @@ public class Dashboard extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		setTitle("RapidAndroid :: Dashboard");		
 		setContentView(R.layout.dashboard);
 
-		if (savedInstanceState != null) {
-			String from = savedInstanceState.getString("from");
-			String body = savedInstanceState.getString("body");
-			//dialogMessage = "SMS :: " + from + " : " + body;
-			//showDialog(160);
-		}
+//		if (savedInstanceState != null) {
+//			String from = savedInstanceState.getString("from");
+//			String body = savedInstanceState.getString("body");
+//			//dialogMessage = "SMS :: " + from + " : " + body;
+//			//showDialog(160);
+//		}
 		
-		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
-		mLoadingDialog.setMessage("Loading data...");
-		mLoadingDialog.setTitle("Please wait");
-		mLoadingDialog.setIndeterminate(true);
-		mLoadingDialog.setCancelable(false);			
+//		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
+//		mLoadingDialog.setMessage("Loading data...");
+//		mLoadingDialog.setTitle("Please wait");
+//		mLoadingDialog.setIndeterminate(true);
+//		mLoadingDialog.setCancelable(false);			
 
 		this.loadFormSpinner();
 
@@ -265,7 +266,7 @@ public class Dashboard extends Activity {
 	private void startActivityFormReview() {
 		Intent i;		
 		i = new Intent(this, FormReviewer.class);
-		i.putExtra(ActivityConstants.REVIEW_FORM, mChosenForm.getFormId());			
+		i.putExtra(FormReviewer.CallParams.REVIEW_FORM, mChosenForm.getFormId());			
 		startActivityForResult(i, ACTIVITY_FORM_REVIEW);	
 	}	
 	
@@ -280,10 +281,10 @@ public class Dashboard extends Activity {
 		Intent i = new Intent(this, ChartData.class);
 		
 		if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
-			i.putExtra(ActivityConstants.CHART_FORM, mChosenForm.getFormId());			
+			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());			
 		} else if(mShowAllMessages && !mShowMonitors) {
 			//show the messages
-			i.putExtra(ActivityConstants.CHART_MESSAGES, true);
+			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
 		} else if (mShowMonitors && !mShowAllMessages) {
 			//show all the monitrors
 		}		
@@ -361,20 +362,22 @@ public class Dashboard extends Activity {
 			lsv.setAdapter(messageCursorAdapter);
     	}
     	else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {    		
-    		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));
+    		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));    		
     		
     	}    	
     }
     
     private void beginListViewReload() {
     	//mLoadingDialog = ProgressDialog.show(this,"Loading data", "Please wait");
-    	mLoadingDialog.show();
+    	//mLoadingDialog.show();
+    	setProgressBarVisibility(true); 
     	resetListAdapters();
     	final Handler mDashboardHandler = new Handler();
     	final Runnable mUpdateResults = new Runnable() {
             public void run() {
             	finishListViewReload();
-            	mLoadingDialog.dismiss();    	
+            	//mLoadingDialog.dismiss();
+            	setProgressBarVisibility(false); 
             }
         };
     	

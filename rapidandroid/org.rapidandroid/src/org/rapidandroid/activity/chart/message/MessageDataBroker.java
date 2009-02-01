@@ -1,5 +1,6 @@
 package org.rapidandroid.activity.chart.message;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.json.JSONArray;
@@ -79,7 +80,7 @@ public class MessageDataBroker implements IChartBroker {
 		JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
-		String rawQuery = "select time, count(*) from rapidandroid_message group by date(time) order by date(time)";
+		String rawQuery = "select time, count(*) from rapidandroid_message group by date(time) order by time ASC";
 
 		// the string value is column 0
 		// the magnitude is column 1
@@ -114,6 +115,7 @@ public class MessageDataBroker implements IChartBroker {
 				result.put("lines", getShowTrue());
 				result.put("points", getShowTrue());
 				result.put("xaxis", getDateOptions());
+				
 
 			} catch (Exception ex) {
 
@@ -152,7 +154,7 @@ public class MessageDataBroker implements IChartBroker {
 				result.put("label", "Messages");
 				result.put("data", prepareData(yVals));
 				result.put("bars", getShowTrue());
-				result.put("xaxis", getXaxisOptions(xVals));
+				
 
 			} catch (Exception ex) {
 
@@ -258,6 +260,11 @@ public class MessageDataBroker implements IChartBroker {
 	public void setVariable(int id) {
 		this.variablechosen = id;
 
+	}
+
+	public void setRange(Calendar startTime, Calendar endTime) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -2,7 +2,7 @@
 <resources>
     <string name="hello">Hello World, rapidandroid</string>
     <string name="app_name">RapidAndroid</string>
-<string name="lbl_formname">Form Name:</string>
+<string name="lbl_formname">Name:</string>
 <string name="lbl_description">Description:</string>
 <string name="lbl_formprefix">Prefix:</string>
 <string name="lbl_formchoose">Forms:</string>
@@ -30,4 +30,10 @@
 <string name="chart_menu_change_parameters">Change Parameters</string>
 <string name="formreview_dump_csv">Output CSV</string>
 <string name="formreview_upload_csv">Upload Report</string>
+<string name="lbl_enddate">End date:</string>
+<string name="lbl_startdate">Start date:</string>
+<string name="range_btn_lastweek">Last Week</string>
+<string name="range_btn_lastmonth">Last Month</string>
+<string name="range_btn_lastday">Last Day</string>
+
 </resources>

@@ -6,6 +6,7 @@ package org.rapidandroid.activity;
 import java.util.Vector;
 
 import org.rapidandroid.R;
+import org.rapidandroid.activity.AddField.ResultConstants;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
@@ -26,6 +27,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -89,6 +91,7 @@ public class FormCreator extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.form_create);
 
 		// Required onCreate setup
@@ -129,9 +132,9 @@ public class FormCreator extends Activity {
 		EditText etxFormPrefix = (EditText) findViewById(R.id.etx_formprefix);
 		EditText etxDescription = (EditText) findViewById(R.id.etx_description);
 
-		etxFormName.setText(savedInstanceState.getString(this.STATE_FORMNAME));
-		etxFormPrefix.setText(savedInstanceState.getString(this.STATE_PREFIX));
-		etxDescription.setText(savedInstanceState.getString(this.STATE_DESC));
+		etxFormName.setText(savedInstanceState.getString(STATE_FORMNAME));
+		etxFormPrefix.setText(savedInstanceState.getString(STATE_PREFIX));
+		etxDescription.setText(savedInstanceState.getString(STATE_DESC));
 		boolean checkForFields = true;
 		int i = 0;
 		do {
@@ -173,9 +176,9 @@ public class FormCreator extends Activity {
 
 		ListView lsv = (ListView) findViewById(R.id.lsv_createfields);
 
-		outState.putString(this.STATE_FORMNAME, etxFormName.getText().toString());
-		outState.putString(this.STATE_PREFIX, etxFormPrefix.getText().toString());
-		outState.putString(this.STATE_DESC, etxDescription.getText().toString());
+		outState.putString(STATE_FORMNAME, etxFormName.getText().toString());
+		outState.putString(STATE_PREFIX, etxFormPrefix.getText().toString());
+		outState.putString(STATE_DESC, etxDescription.getText().toString());
 
 		if (mCurrentFields != null) {
 			int numFields = this.mCurrentFields.size();
@@ -183,9 +186,9 @@ public class FormCreator extends Activity {
 				Field f = mCurrentFields.get(i);
 
 				Bundle fieldBundle = new Bundle();
-				fieldBundle.putString(AddField.RESULT_FIELDNAME, f.getName());
-				fieldBundle.putString(AddField.RESULT_PROMPT, f.getPrompt());
-				fieldBundle.putInt(AddField.RESULT_FIELDTYPE_ID, ((SimpleFieldType) f.getFieldType()).getId());
+				fieldBundle.putString(AddField.ResultConstants.RESULT_KEY_FIELDNAME, f.getName());
+				fieldBundle.putString(AddField.ResultConstants.RESULT_KEY_PROMPT, f.getPrompt());
+				fieldBundle.putInt(AddField.ResultConstants.RESULT_KEY_FIELDTYPE_ID, ((SimpleFieldType) f.getFieldType()).getId());
 				outState.putBundle("Field" + i, fieldBundle);
 			}
 		}
@@ -225,9 +228,9 @@ public class FormCreator extends Activity {
 
 		Field newField = new Field();
 		newField.setFieldId(-1);
-		newField.setName(extras.getString(AddField.RESULT_FIELDNAME));
-		newField.setPrompt(extras.getString(AddField.RESULT_PROMPT));
-		int fieldTypeID = extras.getInt(AddField.RESULT_FIELDTYPE_ID);
+		newField.setName(extras.getString(ResultConstants.RESULT_KEY_FIELDNAME));
+		newField.setPrompt(extras.getString(ResultConstants.RESULT_KEY_PROMPT));
+		int fieldTypeID = extras.getInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID);
 		ITokenParser fieldtype = ModelTranslator.getFieldType(fieldTypeID);
 		newField.setFieldType(fieldtype);
 

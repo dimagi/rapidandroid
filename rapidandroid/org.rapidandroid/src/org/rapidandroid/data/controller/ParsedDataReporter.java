@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.zip.GZIPOutputStream;
@@ -35,6 +36,29 @@ public class ParsedDataReporter {
 	Context mContext;
 	
 	private String[] messageColumns = new String[] {"message_time", "monitor_id", "monitor_phone", "message_text"};
+	
+	public Date getOldestMessage(Form f) {
+		StringBuilder query = new StringBuilder();
+		query.append("select min(rapidandroid_message.time) ");		
+		query.append(" from " + RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
+		query.append(" join rapidandroid_message on (");
+		query.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
+		query.append(".message_id = rapidandroid_message._id");
+		query.append(") ");
+		
+		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
+		cr.moveToFirst();
+		String dateString = cr.getString(0);
+		Date ret = new Date();
+		try {
+			ret = Message.SQLDateFormatter.parse(dateString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		cr.close();
+		return ret;
+	}
 	
 	public ParsedDataReporter(Context context) {
 		mHelper = new SmsDbHelper(context);
