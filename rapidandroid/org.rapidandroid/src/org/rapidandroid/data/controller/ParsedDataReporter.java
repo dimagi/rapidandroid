@@ -117,21 +117,34 @@ public class ParsedDataReporter {
 		}
 	
 	}
-	
+
 	void compressFile(File rawFile) {
-		try {		
-			FileInputStream fin = new FileInputStream(rawFile);
-			FileOutputStream fout = new FileOutputStream(rawFile.getAbsoluteFile() + ".gz");
-		 	GZIPOutputStream gz = new GZIPOutputStream(fout);
-		 	byte[] buf = new byte[4096];
-		 	int readCount;		 	
-		 	while ((readCount = fin.read(buf)) != -1) {
-                gz.write(buf, 0, readCount);
-		 	}
-		 	fin.close();
-			gz.close();
+		FileInputStream fin = null;
+		GZIPOutputStream gz = null;
+		try {
+			fin = new FileInputStream(rawFile);
+			FileOutputStream fout = new FileOutputStream(rawFile
+					.getAbsoluteFile()
+					+ ".gz");
+			gz = new GZIPOutputStream(fout);
+			byte[] buf = new byte[4096];
+			int readCount;
+			while ((readCount = fin.read(buf)) != -1) {
+				gz.write(buf, 0, readCount);
+			}
 
 		} catch (Exception ex) {
+		} finally {
+			// Close the BufferedInputStream
+			try {
+				if (fin != null)
+					fin.close();
+				if (gz != null)
+					gz.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+
 		}
 	}
 }
