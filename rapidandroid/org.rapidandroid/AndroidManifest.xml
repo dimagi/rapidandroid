@@ -56,6 +56,7 @@
 </receiver>
 <activity android:name=".activity.ChartData"></activity>
 <activity android:name=".activity.AddField" android:theme="@android:style/Theme.Dialog"></activity>
+<activity android:name=".activity.FileBrowser"></activity>
 </application>
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner"
@@ -68,4 +69,5 @@
 	<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
 
 	<uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 </manifest> 

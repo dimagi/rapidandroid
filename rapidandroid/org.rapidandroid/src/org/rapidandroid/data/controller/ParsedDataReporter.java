@@ -1,11 +1,15 @@
 package org.rapidandroid.data.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.GZIPOutputStream;
 
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
@@ -17,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
 /**
  * 
@@ -37,10 +42,8 @@ public class ParsedDataReporter {
 	}
 	
 	public void exportFormDataToCSV(Form f, Calendar startDate, Calendar endDate) {
-		//mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,null,null,"message_id desc");
-		
-//		what the frack, joins don't work in Android mysql.  This query works fine on the desktop mysql programs!
-		//hackish workaround is to do the same query as the MessageView and have to query for the Message for the direct output
+
+		//build the query
 		StringBuilder query = new StringBuilder();
 		query.append("select " + RapidSmsDBConstants.FormData.TABLE_PREFIX);
 		query.append(f.getPrefix() + ".*");
@@ -59,8 +62,7 @@ public class ParsedDataReporter {
 		query.append(" rapidandroid_message.time < '" + endDate.get(Calendar.YEAR) + "-" + (1+endDate.get(Calendar.MONTH)) + "-" + endDate.get(Calendar.DATE) + "';");
 		
 		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
-		//mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, "time DESC");
-		//Cursor cr = mContext.getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + f.getFormId()), null,null,null,"message_id desc");
+
 		File sdcard = Environment.getExternalStorageDirectory();
 		File destinationdir = new File(sdcard,"rapidandroid/exports");
 		destinationdir.mkdir();
@@ -81,17 +83,7 @@ public class ParsedDataReporter {
 				} else {
 					sbrow.append("\n");
 				}
-			}
-			//add the auxiliary columns
-//			int colcount2 =  messageColumns.length;
-//			for(int i = 0; i < colcount2; i++) {
-//				sbrow.append(messageColumns[i]);
-//				if (i <= colcount2 - 1) {
-//					sbrow.append(",");
-//				} else {
-//					sbrow.append("\n");
-//				}
-//			}
+			}			
 			fOut.write(sbrow.toString().getBytes());
 			cr.moveToFirst();
 			do{
@@ -105,12 +97,6 @@ public class ParsedDataReporter {
 						sbrow.append("\n");
 					}
 				}
-//				//next, append the direct monitordata.
-//				Message msg = MessageTranslator.GetMessage(mContext, cr.getInt(Message.COL_PARSED_MESSAGE_ID));
-//				sbrow.append(Message.SQLDateFormatter.format(msg.getTimestamp()) + ",");
-//				sbrow.append(msg.getMonitor().getID() + ",");
-//				sbrow.append(msg.getMonitor().getPhone() + ",");
-//				sbrow.append(msg.getMessageText() + "\n");				
 				fOut.write(sbrow.toString().getBytes());
 			} while (cr.moveToNext());			
 		} catch (IOException e) {
@@ -126,9 +112,26 @@ public class ParsedDataReporter {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
+			}			
+			//compressFile(destinationfile);
 		}
-		//select formdata_bednets.*, rapidandroid_message.message,rapidandroid_message.time from formdata_bednets
-		//join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message._id)
+	
+	}
+	
+	void compressFile(File rawFile) {
+		try {		
+			FileInputStream fin = new FileInputStream(rawFile);
+			FileOutputStream fout = new FileOutputStream(rawFile.getAbsoluteFile() + ".gz");
+		 	GZIPOutputStream gz = new GZIPOutputStream(fout);
+		 	byte[] buf = new byte[4096];
+		 	int readCount;		 	
+		 	while ((readCount = fin.read(buf)) != -1) {
+                gz.write(buf, 0, readCount);
+		 	}
+		 	fin.close();
+			gz.close();
+
+		} catch (Exception ex) {
+		}
 	}
 }

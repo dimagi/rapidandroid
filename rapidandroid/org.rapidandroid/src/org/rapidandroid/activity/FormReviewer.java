@@ -3,12 +3,28 @@
  */
 package org.rapidandroid.activity;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
@@ -25,10 +41,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -49,8 +68,15 @@ public class FormReviewer extends Activity {
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_FORMAT = Menu.FIRST + 1;
 	private static final int MENU_DUMP_CSV = Menu.FIRST + 2;
-	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 3;
+	private static final int MENU_HTTP_UPLOAD = Menu.FIRST + 3;
+	private static final int MENU_INJECT_DEBUG = Menu.FIRST + 4;
 
+	
+	public static final int ACTIVITY_FILE_BROWSE = 0;
+	
+	
+	boolean success = false;
+	
 	private Form mForm;
 	private ProgressDialog mLoadingDialog;
 	
@@ -62,10 +88,50 @@ public class FormReviewer extends Activity {
         }
     };
     
+    final Runnable mFinishUpload = new Runnable() {
+        public void run() {
+            alertUploadStatus();
+        }
+    };
+    
+    private void alertUploadStatus() {
+    	mLoadingDialog.dismiss();
+    	Builder ad = new AlertDialog.Builder(this);    
+    	ad.setTitle("Upload result");
+    	if(success) {
+    		ad.setMessage("upload successful");
+    		
+    	} else {
+    		ad.setMessage("upload failed");
+    	}
+    	ad.setPositiveButton("ok", null);
+    	ad.show();
+    }
+    
     private void updateResultsInUi() {
     	//showDialog(0);
     	mLoadingDialog.dismiss();
     }
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		Bundle extras = null;	
+		super.onActivityResult(requestCode, resultCode,intent);
+		if (intent != null) {
+			extras = intent.getExtras(); 
+			
+			switch (requestCode) {
+			case ACTIVITY_FILE_BROWSE:
+				// get the filename
+				String filename = extras.getString("filename");
+				uploadFile(filename);
+				break;
+			default:
+				break;
+			}
+		}
+		
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +180,8 @@ public class FormReviewer extends Activity {
 		;
 		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(android.R.drawable.ic_menu_info_details);
 		;
+		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv);
+		;
 		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data");
 		return true;
 	}
@@ -141,6 +209,9 @@ public class FormReviewer extends Activity {
 			case MENU_DUMP_CSV:
 				outputCSV();
 				break;
+			case MENU_HTTP_UPLOAD:
+				chooseFile();			
+				break;
 			case MENU_INJECT_DEBUG:
 				injectMessages();
 				break;
@@ -148,13 +219,60 @@ public class FormReviewer extends Activity {
 		}
 		return true;
 	}
+	private void chooseFile() {
+		//spawn the activity for file browsing
+		Intent i;		
+		i = new Intent(this, FileBrowser.class);					
+		startActivityForResult(i, ACTIVITY_FILE_BROWSE);	
+		//on activity return do the upload
+	}
+	
+	private void uploadFile(final String filename) {
+		mLoadingDialog.setMessage("Uploading file...");
+		mLoadingDialog.show();
+		Thread t = new Thread() {
+            public void run() {
+				try {
+					DefaultHttpClient httpclient = new DefaultHttpClient();
 
+					File f = new File(filename);
+
+					HttpPost httpost = new HttpPost(
+							"http://192.168.2.114:8160/upload/upload");
+					MultipartEntity entity = new MultipartEntity();
+					entity.addPart("myIdentifier", new StringBody("somevalue"));
+					entity.addPart("myFile", new FileBody(f));
+					httpost.setEntity(entity);
+
+					HttpResponse response;
+
+					// Post, check and show the result (not really spectacular,
+					// but works):
+					response = httpclient.execute(httpost);
+
+					Log.d("httpPost", "Login form get: " + response.getStatusLine());
+					
+
+					if (entity != null) {						
+						entity.consumeContent();
+					}
+					
+					success = true;
+				} catch (Exception ex) {
+					Log.d("FormReviewer","Upload failed: " + ex.getMessage() + " Stacktrace: " + ex.getStackTrace());
+					success = false;
+				} finally {
+					mDebugHandler.post(mFinishUpload);
+				}
+            }
+        };
+        t.start();		
+	}
+	
 	/**
 	 * 
 	 */
 	private void outputCSV() {
-		// TODO Auto-generated method stub
-		
 		mLoadingDialog.setMessage("Outputting csv...");
 		mLoadingDialog.show();
 		// Fire off a thread to do some work that we shouldn't do directly in the UI thread
@@ -169,8 +287,7 @@ public class FormReviewer extends Activity {
                 mDebugHandler.post(mUpdateResults);
             }
         };
-        t.start();
-		
+        t.start();		
 	}
 	
 	

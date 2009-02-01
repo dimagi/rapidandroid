@@ -29,4 +29,5 @@
 <string name="chart_menu_change_variable">Change Variable</string>
 <string name="chart_menu_change_parameters">Change Parameters</string>
 <string name="formreview_dump_csv">Output CSV</string>
+<string name="formreview_upload_csv">Upload Report</string>
 </resources>
