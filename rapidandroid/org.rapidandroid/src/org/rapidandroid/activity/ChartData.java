@@ -31,9 +31,7 @@ import android.webkit.WebView;
  * @created Jan 28, 2009
  * Summary:
  */
-public class ChartData extends Activity {
-
-	
+public class ChartData extends Activity {	
 	public class CallParams {
 		public static final String CHART_FORM = "graph_form";
 		public static final String CHART_MESSAGES = "graph_msg";
@@ -45,12 +43,11 @@ public class ChartData extends Activity {
 	
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CHANGE_VARIABLE = Menu.FIRST + 1;
-	private static final int MENU_CHANGE_PARAMETERS = Menu.FIRST + 2;
+	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
 	
 	private static final int ACTIVITY_DATERANGE = 7;
 	
 	private Form mForm;
-	private Field mField;
 	IChartBroker mBroker;
 	
 	
@@ -130,7 +127,7 @@ public class ChartData extends Activity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_DONE, 0, R.string.chart_menu_done).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, MENU_CHANGE_VARIABLE, 0, R.string.chart_menu_change_variable).setIcon(android.R.drawable.ic_menu_preferences);
-		menu.add(0, MENU_CHANGE_PARAMETERS, 0, R.string.chart_menu_change_parameters).setIcon(android.R.drawable.ic_menu_recent_history);
+		menu.add(0, MENU_CHANGE_DATERANGE, 0, R.string.chart_menu_change_parameters).setIcon(android.R.drawable.ic_menu_recent_history);
 		return true;
 	}
 	@Override
@@ -144,7 +141,7 @@ public class ChartData extends Activity {
 		case MENU_CHANGE_VARIABLE:
 			showDialog(MENU_CHANGE_VARIABLE);
 			return true;
-		case MENU_CHANGE_PARAMETERS:
+		case MENU_CHANGE_DATERANGE:
 			startDateRangeActivity();
 			return true;
 		}

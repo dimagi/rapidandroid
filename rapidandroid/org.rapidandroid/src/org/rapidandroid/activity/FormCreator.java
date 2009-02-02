@@ -8,7 +8,6 @@ import java.util.Vector;
 import org.rapidandroid.R;
 import org.rapidandroid.activity.AddField.ResultConstants;
 import org.rapidandroid.content.translation.ModelTranslator;
-import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;

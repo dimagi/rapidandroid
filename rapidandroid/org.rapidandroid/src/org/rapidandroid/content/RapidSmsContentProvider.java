@@ -1,5 +1,7 @@
 package org.rapidandroid.content;
 
+import java.util.Calendar;
+
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
@@ -507,14 +509,33 @@ public class RapidSmsContentProvider extends ContentProvider {
 					+ uri.getPathSegments().get(1));
 			break;
 			case FORMDATA_ID:
-				// todo: need to set the table to the FieldData + form_prefix
+				// need to set the table to the FieldData + form_prefix
 				// this is possible via querying hte forms to get the
 				// formname/prefix from the form table definition
 				// and appending that to do the qb.setTables
 				String formid = uri.getPathSegments().get(1);
 				Form f = ModelTranslator.getFormById(Integer.valueOf(formid).intValue());
-				qb.setTables(RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
-				break;
+				StringBuilder query = new StringBuilder();
+				query.append("select " + RapidSmsDBConstants.FormData.TABLE_PREFIX);
+				query.append(f.getPrefix() + ".*");
+				query.append(" from " + RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
+				query.append(" join rapidandroid_message on (");
+				query.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
+				query.append(".message_id = rapidandroid_message._id");
+				query.append(") ");				
+				
+				if(selection != null) {
+					query.append(" WHERE " + selection);
+					query.append(" ORDER BY rapidandroid_message.time DESC");
+				} else {
+					query.append(" ORDER BY RAPIDANDROID_MESSAGE.time DESC");
+				}
+				SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+				Cursor c = db.rawQuery(query.toString(),null);
+				c.setNotificationUri(getContext().getContentResolver(), uri);
+				return c;
+				
+			
 			//throw new IllegalArgumentException(uri	+ " query handler not implemented.");
 
 		default:

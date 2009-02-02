@@ -3,16 +3,23 @@
  */
 package org.rapidandroid.activity;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
+import org.rapidandroid.data.controller.MessageDataReporter;
+import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidandroid.view.SingleRowHeaderView;
 import org.rapidandroid.view.adapter.FormDataCursorAdapter;
 import org.rapidandroid.view.adapter.MessageCursorAdapter;
 import org.rapidandroid.view.adapter.InefficientParsedMessageViewAdapter;
 import org.rapidandroid.view.adapter.SummaryCursorAdapter;
 import org.rapidsms.java.core.model.Form;
+import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -37,14 +44,14 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
- * 
+ * Main entry point activity for RapidAndroid. It is a simple view with a
+ * pulldown for for form type, and a listview of messages below that pertain to
+ * that message.
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 9, 2009
  * 
- *          Main entry point activity for RapidAndroid. It is a
- *          simple view with a pulldown for for form type, and a listview of
- *          messages below that pertain to that message.
+ * 
  * 
  */
 public class Dashboard extends Activity {	
@@ -65,11 +72,13 @@ public class Dashboard extends Activity {
 
 	private static final int ACTIVITY_CREATE = 0;
 	private static final int ACTIVITY_FORM_REVIEW = 1;
-	private static final int ACTIVITY_CHARTS = 2; // this and ACTIVITY_CHARTS
+	private static final int ACTIVITY_DATERANGE = 2;
+	private static final int ACTIVITY_CHARTS = 3; // this and ACTIVITY_CHARTS
 	
 	private static final int MENU_CREATE_ID = Menu.FIRST;
 	private static final int MENU_FORM_REVIEW_ID = Menu.FIRST + 1;
-	private static final int MENU_CHARTS_ID = Menu.FIRST + 2;
+	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
+	private static final int MENU_CHARTS_ID = Menu.FIRST + 3;
 	//private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
 	// private static final int MENU_EXIT = Menu.FIRST + 3; //waitaminute, we
 	// don't want to exit this thing, do we?
@@ -85,15 +94,19 @@ public class Dashboard extends Activity {
 	private static final int LISTVIEW_MODE_TABLE_VIEW = 1;
 	//private static final int LISTVIEW_MODE_SUMMARY_VIEW = 0;
 	
-	private static final int DIALOG_LOADING = 17;
+	
+	
 	
 	private int formViewMode = 0;
 	
 	
 	private Form[] mAllForms;	
 	
-	boolean formChanged = true; 
+	boolean resetCursor = true; 
 	Cursor mListviewCursor = null; 
+	
+	private Date mStartDate;
+	private Date mEndDate;
 	
 	
 	@Override
@@ -130,7 +143,7 @@ public class Dashboard extends Activity {
 					public void onNothingSelected(AdapterView<?> parent) {
 						// blow away the listview's items		
 						mChosenForm = null;
-						formChanged = true;
+						resetCursor = true;
 						loadListViewWithFormData();
 					}
 				});
@@ -163,6 +176,11 @@ public class Dashboard extends Activity {
 			}
 
 		});	
+		
+		//by default on startup:
+		mStartDate = new Date();
+		mEndDate = new Date();
+		mEndDate.setDate(mStartDate.getDate() - 1);
 	}
 
 	@Override
@@ -189,6 +207,23 @@ public class Dashboard extends Activity {
 //			dialogMessage = "Activity Done";
 //			showDialog(13);
 			break;
+		case ACTIVITY_DATERANGE:
+				if (extras != null) {
+					try {
+						this.mStartDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+						this.mEndDate = Message.DisplayDateFormat
+																.parse(extras
+																				.getString(DateRange.ResultParams.RESULT_END_DATE));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					resetCursor = true;
+					beginListViewReload();
+
+					
+				}
+				break;
 		}
 	}
 
@@ -199,6 +234,7 @@ public class Dashboard extends Activity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_CREATE_ID, 0, R.string.dashboard_menu_create).setIcon(android.R.drawable.ic_menu_add);
 		menu.add(0, MENU_FORM_REVIEW_ID, 0, R.string.dashboard_menu_edit).setIcon(android.R.drawable.ic_menu_agenda);
+		menu.add(0, MENU_CHANGE_DATERANGE, 0, R.string.chart_menu_change_parameters).setIcon(android.R.drawable.ic_menu_recent_history);
 		menu.add(0, MENU_CHARTS_ID, 0, R.string.dashboard_menu_view).setIcon(android.R.drawable.ic_menu_sort_by_size);
 		//menu.add(0, MENU_SHOW_REPORTS, 0, R.string.dashboard_menu_show_reports);
 		return true;
@@ -214,6 +250,10 @@ public class Dashboard extends Activity {
 			return true;
 		case MENU_FORM_REVIEW_ID:
 			startActivityFormReview();
+			return true;
+		
+		case MENU_CHANGE_DATERANGE:
+			startDateRangeActivity();
 			return true;
 		case MENU_CHARTS_ID:
 			startActivityChart();
@@ -257,9 +297,17 @@ public class Dashboard extends Activity {
 		default:
 			return super.onContextItemSelected(item);
 		}
-		this.formChanged = false;
+		this.resetCursor = false;
 		beginListViewReload();
 		return true;
+	}
+	private void startDateRangeActivity() {		
+		Intent i = new Intent(this, DateRange.class);
+		Date endDate = new Date();
+		
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_ENDDATE, Message.SQLDateFormatter.format(endDate));
+		startActivityForResult(i, ACTIVITY_DATERANGE);	
+		
 	}
 
 	// Start the form edit/create activity
@@ -324,7 +372,7 @@ public class Dashboard extends Activity {
 			mChosenForm = null;
 			this.mShowAllMessages = true;
 			this.mShowMonitors = false;
-			formChanged = true;
+			resetCursor = true;
 			beginListViewReload();
 			//loadListViewWithRawMessages();
 			
@@ -334,7 +382,7 @@ public class Dashboard extends Activity {
 			mChosenForm = null;
 			this.mShowAllMessages = false;
 			this.mShowMonitors = true;
-			formChanged = true;
+			resetCursor = true;
 			beginListViewReload();
 			//loadListViewsWithMonitors();
 			
@@ -342,7 +390,7 @@ public class Dashboard extends Activity {
 			this.mShowAllMessages = false;
 			this.mShowMonitors = false;
 			mChosenForm = mAllForms[position];
-			formChanged = true;
+			resetCursor = true;
 			beginListViewReload();
 			//loadListViewWithFormData(true);
 		}		
@@ -352,6 +400,9 @@ public class Dashboard extends Activity {
 	
     
     private void finishListViewReload() {
+    	TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
+    	lbl_recents.setText("Messages: " + Message.DisplayDateFormat.format(mEndDate) + " to " + Message.DisplayDateFormat.format(mStartDate));
+    	
     	ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
 		
     	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
@@ -393,14 +444,20 @@ public class Dashboard extends Activity {
     private void fillCursorInBackground() {
     	if(mListviewCursor == null) {
 	    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
-	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,null,null,"message_id desc");	
+	    		String whereclause = " rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "'";
+	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,whereclause,null,null);
+	    		
 	    	} else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
-	    		mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, "time DESC");
+	    		String whereclause = "time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "'";
+	    		mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, whereclause, null, "time DESC");
+	    		
 	    	} else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {
 	    		//do something
+//	    		query.append("WHERE rapidandroid_message.time > '" + startDate.get(Calendar.YEAR) + "-" + (startDate.get(Calendar.MONTH)+1) + "-" + startDate.get(Calendar.DATE) + "' AND ");
+//	    		query.append(" rapidandroid_message.time < '" + endDate.get(Calendar.YEAR) + "-" + (1+endDate.get(Calendar.MONTH)) + "-" + endDate.get(Calendar.DATE) + "';");
+//	    	
 	    	}    	
-    	}
-    	
+    	}    	
     }
     
 	// this is a call to the DB to update the ListView with the messages for a
@@ -456,13 +513,13 @@ join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message
 		}
 		//monitorCursorAdapter
 		
-		if(formChanged) {
+		if(resetCursor) {
 			//need to reset the cursor
 			if(mListviewCursor != null) {
 				mListviewCursor.close();
 				mListviewCursor = null;
 			}
-			formChanged = false;
+			resetCursor = false;
 		}		
 	}
 	
