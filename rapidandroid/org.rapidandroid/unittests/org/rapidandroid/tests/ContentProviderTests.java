@@ -13,6 +13,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import android.net.Uri;
+import android.test.AndroidTestCase;
 /**
  *  
  * @author Daniel Myung dmyung@dimagi.com
@@ -22,20 +23,16 @@ import android.net.Uri;
  */
 
 public class ContentProviderTests extends
-		android.test.ProviderTestCase<RapidSmsContentProvider> {
+		AndroidTestCase {
 
-	private RapidSmsContentProvider mProv;
+	
 	private Uri currUri;
 	
-	public ContentProviderTests() {
-		super(RapidSmsContentProvider.class,
-				"org.rapidandroid.rapidandroiddata");
-	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		mProv = getProvider();
+		
 	}
 
 	/*
@@ -60,32 +57,32 @@ public class ContentProviderTests extends
 	
 
 	public void test001ProviderGetTypeBase() {
-		assertEquals(mProv.getType(RapidSmsDBConstants.Message.CONTENT_URI),RapidSmsDBConstants.Message.CONTENT_TYPE);
-		assertEquals(mProv.getType(RapidSmsDBConstants.Monitor.CONTENT_URI),RapidSmsDBConstants.Monitor.CONTENT_TYPE);		
+		assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.Message.CONTENT_URI),RapidSmsDBConstants.Message.CONTENT_TYPE);
+		assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.Monitor.CONTENT_URI),RapidSmsDBConstants.Monitor.CONTENT_TYPE);		
 		
-		assertEquals(mProv.getType(RapidSmsDBConstants.Form.CONTENT_URI),RapidSmsDBConstants.Form.CONTENT_TYPE);
-		assertEquals(mProv.getType(RapidSmsDBConstants.Field.CONTENT_URI),RapidSmsDBConstants.Field.CONTENT_TYPE);		
-		assertEquals(mProv.getType(RapidSmsDBConstants.FieldType.CONTENT_URI),RapidSmsDBConstants.FieldType.CONTENT_TYPE);
+		assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.Form.CONTENT_URI),RapidSmsDBConstants.Form.CONTENT_TYPE);
+		assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.Field.CONTENT_URI),RapidSmsDBConstants.Field.CONTENT_TYPE);		
+		assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.FieldType.CONTENT_URI),RapidSmsDBConstants.FieldType.CONTENT_TYPE);
 		
-		//assertEquals(mProv.getType(RapidSmsDBConstants.FormData.CONTENT_URI),RapidSmsDBConstants.FormData.CONTENT_TYPE);	//this doesn';t exist in this case				
+		//assertEquals(getContext().getContentResolver().getType(RapidSmsDBConstants.FormData.CONTENT_URI),RapidSmsDBConstants.FormData.CONTENT_TYPE);	//this doesn';t exist in this case				
 	}
 	
 	public void test001ProviderGetTypeID() {
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Message.URI_PART + "/1")),RapidSmsDBConstants.Message.CONTENT_ITEM_TYPE);
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Monitor.URI_PART + "/1")),RapidSmsDBConstants.Monitor.CONTENT_ITEM_TYPE);		
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Message.URI_PART + "/1")),RapidSmsDBConstants.Message.CONTENT_ITEM_TYPE);
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Monitor.URI_PART + "/1")),RapidSmsDBConstants.Monitor.CONTENT_ITEM_TYPE);		
 		
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Form.URI_PART + "/1")),RapidSmsDBConstants.Form.CONTENT_ITEM_TYPE);
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Field.URI_PART + "/1")),RapidSmsDBConstants.Field.CONTENT_ITEM_TYPE);
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.FieldType.URI_PART + "/1")),RapidSmsDBConstants.FieldType.CONTENT_ITEM_TYPE);
-		assertEquals(mProv.getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.FormData.URI_PART + "/1")),RapidSmsDBConstants.FormData.CONTENT_TYPE);
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Form.URI_PART + "/1")),RapidSmsDBConstants.Form.CONTENT_ITEM_TYPE);
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.Field.URI_PART + "/1")),RapidSmsDBConstants.Field.CONTENT_ITEM_TYPE);
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.FieldType.URI_PART + "/1")),RapidSmsDBConstants.FieldType.CONTENT_ITEM_TYPE);
+		assertEquals(getContext().getContentResolver().getType(Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/" + RapidSmsDBConstants.FormData.URI_PART + "/1")),RapidSmsDBConstants.FormData.CONTENT_TYPE);
 	}	
 	
 	public void test002MonitorInsertAndQuerySingle() {
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(RapidSmsDBConstants.Monitor.PHONE,"6176453236");		
-		currUri = mProv.insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
+		currUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
 		
-		Cursor cr = mProv.query(currUri, null, null, null, null);
+		Cursor cr = getContext().getContentResolver().query(currUri, null, null, null, null);
 		assertEquals(1, cr.getCount());
 		cr.close();
 	}
@@ -93,9 +90,9 @@ public class ContentProviderTests extends
 	public void test002MonitorInsertRepeat() {
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(RapidSmsDBConstants.Monitor.PHONE,"6176453236");		
-		currUri = mProv.insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
+		currUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
 				
-		Uri repeatUri = mProv.insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
+		Uri repeatUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
 		
 		assertEquals(repeatUri,currUri);
 						
@@ -106,17 +103,17 @@ public class ContentProviderTests extends
 		int baseline = 0;
 		//Log.w("ContentProviderTests.testMonitorInsertAndVerifyCounts", "flasjdfklasdjf");
 		Uri monitorquery = Uri.parse("content://" + RapidSmsDBConstants.AUTHORITY + "/mMonitorString");
-		Cursor cr = mProv.query(monitorquery, null, null, null, null);
+		Cursor cr = getContext().getContentResolver().query(monitorquery, null, null, null, null);
 		baseline = cr.getCount();
 		cr.close();
 		
 		for(int i = 0; i < count; i++) {
 			ContentValues initialValues = new ContentValues();
 			initialValues.put(RapidSmsDBConstants.Monitor.PHONE,"8887" + i);		
-			mProv.insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
+			getContext().getContentResolver().insert(RapidSmsDBConstants.Monitor.CONTENT_URI, initialValues);
 		}
 		
-		Cursor cr2 =mProv.query(monitorquery, null, null, null, null);
+		Cursor cr2 =getContext().getContentResolver().query(monitorquery, null, null, null, null);
 		assertEquals(baseline+count, cr2.getCount());
 		cr2.close();
         
@@ -126,7 +123,7 @@ public class ContentProviderTests extends
 	
 	//add a bunch and confirm that the number of messages are ok
 	//add messages as well and see if the number of 
-	private void test002MessageInsertMessage() {
+	public void testMessageInsertMessage() {
 		
 		String msg1 = "alert unlocked supply room at WSMA";
 		String date1 = "10/30/2008 19:51";
@@ -165,11 +162,11 @@ public class ContentProviderTests extends
 		
 		
 		//confirm the numbers
-		Cursor msgcount = mProv.query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
+		Cursor msgcount = getContext().getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
 		assertEquals(7,msgcount.getCount());
 		msgcount.close();
 		
-		Cursor monitorcount = mProv.query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, null, null, null);
+		Cursor monitorcount = getContext().getContentResolver().query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, null, null, null);
 		assertEquals(3,monitorcount.getCount());
 		monitorcount.close();
 	}
@@ -180,7 +177,7 @@ public class ContentProviderTests extends
 		initialValues.put(RapidSmsDBConstants.Message.PHONE,phone);
 		initialValues.put(RapidSmsDBConstants.Message.TIME,date);
 		initialValues.put(RapidSmsDBConstants.Message.IS_OUTGOING,false);
-		currUri = mProv.insert(RapidSmsDBConstants.Message.CONTENT_URI, initialValues);
+		currUri = getContext().getContentResolver().insert(RapidSmsDBConstants.Message.CONTENT_URI, initialValues);
 	}
 	
 	private void test003InsertMessagesAndCountPerMonitor() {
@@ -237,12 +234,8 @@ public class ContentProviderTests extends
 		confirmMessageCountForMonitor(getMonitorIdForPhoneNumber("251911877430"),0);		
 	}
 	
-	public void test004GetMesssages() {
-		
-	}
-	
 	private int getMonitorIdForPhoneNumber(String phonenumber) {
-		Cursor monitor = mProv.query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, "phone='" + phonenumber + "'", null,null);
+		Cursor monitor = getContext().getContentResolver().query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, "phone='" + phonenumber + "'", null,null);
 		monitor.moveToFirst();
 		assertEquals(1, monitor.getCount());
 		int ret = monitor.getInt(0);
@@ -252,20 +245,20 @@ public class ContentProviderTests extends
 	
 	private void confirmMessageCountForMonitor(int monitor_id, int expected) {
 		Uri getMessagesBySingleMonitor = ContentUris.withAppendedId(RapidSmsDBConstants.Monitor.MESSAGE_BY_MONITOR_URI, monitor_id);				
-		Cursor msgcount = mProv.query(getMessagesBySingleMonitor, null, null, null, null);
+		Cursor msgcount = getContext().getContentResolver().query(getMessagesBySingleMonitor, null, null, null, null);
 		assertEquals(expected,msgcount.getCount());
 		msgcount.close();
 	}
 	
 	private void deleteMessagesByMonitor(int monitor_id) {
-		Cursor msgcount = mProv.query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
+		Cursor msgcount = getContext().getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
 		int oldcount = msgcount.getCount();
 		msgcount.close();
 		
 		Uri deleteMessagesBySingleMonitor = ContentUris.withAppendedId(RapidSmsDBConstants.Monitor.MESSAGE_BY_MONITOR_URI, monitor_id);
-		int delcount = mProv.delete(deleteMessagesBySingleMonitor, null, null);
+		int delcount = getContext().getContentResolver().delete(deleteMessagesBySingleMonitor, null, null);
 		
-		Cursor newcountc = mProv.query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
+		Cursor newcountc = getContext().getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, null, null, null);
 		int newcount = newcountc.getCount();
 		newcountc.close();
 		
@@ -279,13 +272,13 @@ public class ContentProviderTests extends
 	
 	public void testGetFieldTypes() {
 		Uri query = RapidSmsDBConstants.FieldType.CONTENT_URI;
-		Cursor cr = mProv.query(query, null, null, null, null);
+		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		cr.close();
 	}	
 	
 	public void testGetFields() {
 		Uri query = RapidSmsDBConstants.Field.CONTENT_URI;
-		Cursor cr = mProv.query(query, null, null, null, null);
+		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		cr.close();
 	}
 
@@ -295,7 +288,7 @@ public class ContentProviderTests extends
 		// objective:
 		// get all the forms from the database
 		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
-		Cursor cr = mProv.query(query, null, null, null, null);
+		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
 		if (cr.getCount() > 0) {
 			cr.moveToFirst();
 			do {
@@ -305,7 +298,7 @@ public class ContentProviderTests extends
 				Uri formDataUri = Uri
 						.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
 								+ formId);
-				Cursor formDataCursor = mProv.query(formDataUri, null, null,
+				Cursor formDataCursor = getContext().getContentResolver().query(formDataUri, null, null,
 						null, null);
 
 				formDataCursor.close();

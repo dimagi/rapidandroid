@@ -11,6 +11,7 @@ import org.rapidandroid.activity.chart.message.MessageDataBroker;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.controller.MessageDataReporter;
 import org.rapidandroid.data.controller.ParsedDataReporter;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -36,6 +37,9 @@ public class ChartData extends Activity {
 		public static final String CHART_FORM = "graph_form";
 		public static final String CHART_MESSAGES = "graph_msg";
 		public static final String CHART_MONITORS = "graph_monitor";
+		
+		public static final String START_DATE = "startdate";
+		public static final String END_DATE = "enddate";
 	}
 	
 	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
@@ -66,21 +70,37 @@ public class ChartData extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
+			Date startDate = Constants.NULLDATE;
+			Date endDate = Constants.NULLDATE;
+			
+			try {
+			if(extras.containsKey(CallParams.START_DATE)) {
+				startDate = Message.SQLDateFormatter.parse(extras.getString(CallParams.START_DATE));
+				
+			} 
+			if(extras.containsKey(CallParams.END_DATE)) {
+				endDate = Message.SQLDateFormatter.parse(extras.getString(CallParams.END_DATE));
+			} 
+			} catch(Exception ex) {
+				
+			}
+			
+			
 			if(extras.containsKey(CallParams.CHART_FORM)) {
 				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
-				mBroker= new FormDataBroker(wv, mForm);
+				mBroker= new FormDataBroker(wv, mForm, startDate,endDate);
 			} else if(extras.containsKey(CallParams.CHART_MESSAGES)) {
-				mBroker= new MessageDataBroker(wv);
+				mBroker= new MessageDataBroker(wv,startDate,endDate);
 			} else if(extras.containsKey(CallParams.CHART_MONITORS)) {
 				
 			}
-		}
-		
-        
+			
+			
+		}        
         wv.getSettings().setJavaScriptEnabled(true);
         wv.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);
         wv.loadUrl(CHART_FILE);
-     
+        
         wv.debugDump();
 	}
 
@@ -154,6 +174,7 @@ public class ChartData extends Activity {
 		if(mForm != null) {
 			ParsedDataReporter pdr = new ParsedDataReporter(this);
 			endDate = pdr.getOldestMessage(mForm);		
+			pdr.done();
 		} else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);
 		}
@@ -177,13 +198,14 @@ public class ChartData extends Activity {
 		case ACTIVITY_DATERANGE:
 			if(extras != null) {
 				try {
-					Date startDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-					Date endDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
+					Date startDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+					Date endDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
+					mBroker.setRange(startDate, endDate);
+					mBroker.loadGraph();
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-				
+				}				
 			}
 			break;
 		

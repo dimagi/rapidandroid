@@ -22,19 +22,22 @@ import android.util.Log;
 
 /**
  * 
+ * Initial broadcast receiver for RapidAndroid.
+ * 
+ * Gets triggered on Android SMS receive event, gets a handle to the message and
+ * does the following: - verify that it's what the app wants to process - save
+ * message to rapidandroid's db via the content provider - save a new
+ * mMonitorString if necessary (that's handled by the content provider save) -
+ * delete message from inbox because we don't want it to be in duplicate - upon
+ * successful save, trigger a separate event to tell the next process that a
+ * save was done.
+ * 
+ * 
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 12, 2009
  * 
- *          Initial broadcast receiver for RapidAndroid.
  * 
- *          Gets triggered on Android SMS receive event, gets a handle to the
- *          message and does the following: - verify that it's what the app
- *          wants to process - save message to rapidandroid's db via the content
- *          provider - save a new mMonitorString if necessary (that's handled by the
- *          content provider save) - delete message from inbox because we don't
- *          want it to be in duplicate - upon successful save, trigger a
- *          separate event to tell the next process that a save was done.
  * 
  * 
  */
@@ -48,55 +51,54 @@ public class SmsReceiver extends BroadcastReceiver {
 	 */
 
 	Uri uriSms = Uri.parse("content://sms/conversations");
-	
+
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
 		Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 		ContentValues messageValues = new ContentValues();
-		messageValues.put(RapidSmsDBConstants.Message.MESSAGE, mesg
-				.getMessageBody());
-		
-		Timestamp ts = new Timestamp(mesg.getTimestampMillis()); 
-		
+		messageValues.put(RapidSmsDBConstants.Message.MESSAGE, mesg.getMessageBody());
+
+		Timestamp ts = new Timestamp(mesg.getTimestampMillis());
+
 		Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(context, mesg.getOriginatingAddress());
-		
+
 		messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
 		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));
 		messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 		boolean successfulSave = false;
 		Uri msgUri = null;
 		try {
-			msgUri = context.getContentResolver().insert(writeMessageUri,messageValues);
+			msgUri = context.getContentResolver().insert(writeMessageUri, messageValues);
 			successfulSave = true;
+		} catch (Exception ex) {
+
 		}
-		catch (Exception ex) {
-			
-		}
-		
-		if(successfulSave) {		
+
+		if (successfulSave) {
 			Intent broadcast = new Intent("org.rapidandroid.intents.SMS_SAVED");
 			broadcast.putExtra("from", mesg.getOriginatingAddress());
 			broadcast.putExtra("body", mesg.getMessageBody());
 			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-			//DeleteSMSFromInbox(context,mesg);
+			// DeleteSMSFromInbox(context,mesg);
 			context.sendBroadcast(broadcast);
 		}
 	}
-	
-	private void DeleteSMSFromInbox(Context context, SmsMessage mesg) {		
+
+	private void DeleteSMSFromInbox(Context context, SmsMessage mesg) {
 		try {
-		
-			StringBuilder sb= new StringBuilder();
+
+			StringBuilder sb = new StringBuilder();
 			sb.append("address='" + mesg.getOriginatingAddress() + "',");
-			sb.append("body='" + mesg.getMessageBody()+ "'");
-			//sb.append("time='" + mesg.getTimestamp() + "'");	//doesn't seem to be supported
-		Cursor c = context.getContentResolver().query(uriSms, null, sb.toString(), null,null);			
-		c.moveToFirst();
-		//String id = c.getString(0);
-		int thread_id = c.getInt(1);
-		context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id),null, null);
-		c.close();
-		} catch(Exception ex) {
+			sb.append("body='" + mesg.getMessageBody() + "'");
+			// sb.append("time='" + mesg.getTimestamp() + "'"); //doesn't seem
+			// to be supported
+			Cursor c = context.getContentResolver().query(uriSms, null, sb.toString(), null, null);
+			c.moveToFirst();
+			// String id = c.getString(0);
+			int thread_id = c.getInt(1);
+			context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id), null, null);
+			c.close();
+		} catch (Exception ex) {
 			Log.d("SmsReceiver", "Error deleting sms from inbox: " + ex.getMessage());
 		}
 	}
@@ -114,7 +116,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			String message = msgs[i].getDisplayMessageBody();
 
 			if (message != null && message.length() > 0) {
-				Log.i("MessageListener:", message);
+				Log.d("MessageListener", message);
 
 				// //Our trigger message must be generic and human redable
 				// because it will end up

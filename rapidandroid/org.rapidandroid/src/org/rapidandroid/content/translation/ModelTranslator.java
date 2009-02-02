@@ -46,6 +46,13 @@ public class ModelTranslator {
 	private static SmsDbHelper mDbHelper;
 
 
+	/**
+	 * Pre save check to see if a form with given criteria is already in existence.  This is to prevent dupe formnames and prefixes from existing in the DB.
+	 * @param context
+	 * @param prefixCandidate
+	 * @param nameCandidate
+	 * @return
+	 */
 	public static boolean doesFormExist(Context context, String prefixCandidate, String nameCandidate) {
 		// next let's see if this form is unique
 		Uri formExistUri = RapidSmsDBConstants.Form.CONTENT_URI;
@@ -65,6 +72,10 @@ public class ModelTranslator {
 	}
 
 	/**
+	 * Add a form to to the rapidandroid_form table, inserting new fields as well.
+	 * <br><br>
+	 * Upon form insert, the formdata_[prefix] table will be generated.
+	 *
 	 * @param f
 	 * @param fields
 	 * @param crform
@@ -122,22 +133,24 @@ public class ModelTranslator {
 		generateFormTable(f);
 	}
 	
-	
+	/**
+	 * Startup procedure to give this class access to the main DBHelper.
+	 * @param helper
+	 * @param context
+	 */
 	public static void setDbHelper(SmsDbHelper helper, Context context) {
 		mDbHelper = helper;		
 		mContext = context;
 	}	
-	
-	// dmyung 1/19/2009
-	// this method will have the eventual parse results populate a contentvalues
-	// object for eventual insertion of a parsed message into the DB for a given
-	// message for a form.
-	public static void SetContentValues(ContentValues cv, IParseResult results) {
-		throw new IllegalArgumentException("not implemented yet");
-	}
 
-	//public static Form[] getAllForms(ContentProvider provider) {	//hack way
-	public static Form[] getAllForms() {	//real way
+
+	/**
+	 * Query all the model tables and generate the fully fleshed out Form objects.
+	 * <br>
+	 * This call will return ALL forms in the system.
+	 * @return
+	 */
+	public static Form[] getAllForms() {
 		Uri getFormsUri = RapidSmsDBConstants.Form.CONTENT_URI;
 		
 		Cursor allformsCursor = mContext.getContentResolver().query(getFormsUri,null,null,null,null); //real way
@@ -189,26 +202,26 @@ public class ModelTranslator {
 		return ret;		
 	}
 	
-	// dmyung 1/19/2009
-	// NOTE, passing the ContextProvider is a seriously BAD hack right now to
-	// get the ContentProvider tests
-	// accessing this to pass.
-	// in reality you should only be able to pass the context and must use the
-	// GetContentResolver() to access any resources via URIs!!!!
-
+	/**
+	 * Get a fully defined form object by the integer id (rapidandroid_form._id)
+	 * @param id
+	 * @return
+	 */
 	public static Form getFormById(int id) {
 		return getFormFromUri(Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id));
 	}
 	
+	/**
+	 * Get a fully defined form object by the integer id (rapidandroid_form._id) as part of a URI string
+	 * @param id
+	 * @return
+	 */
 	public static Form getFormFromUri(Uri formUri) {
 
 		Integer formid = Integer.valueOf(formUri.getPathSegments().get(1));
 		if (formIdCache.containsKey(formid)) {
 			return formIdCache.get(formid);
 		}
-
-		//Cursor formCursor = provider.query(formUri, null, null, null, null); // hack
-																				// way
 		
 		Cursor formCursor = mContext.getContentResolver().query(formUri,null,null,null,null); //real way
 		if (formCursor.getCount() != 1) {
@@ -247,6 +260,11 @@ public class ModelTranslator {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param formId
+	 * @return
+	 */
 	 public static Field[] getFieldsForForm(int formId) {
 	// //real way
 	//public static Field[] getFieldsForForm(ContentProvider provider, int formId) { // hack
@@ -298,7 +316,13 @@ public class ModelTranslator {
 		return newfields;
 	}
 	 
-	 public static ITokenParser[] getFieldTypes() {
+	 /**
+	  * This is more a helper class to get all known field types in the system.
+	  * Right now these are statically defined in the database and will need to be added via an exteranl process.
+	  * @return
+	  */
+
+	public static ITokenParser[] getFieldTypes() {
 		Uri typesUri = RapidSmsDBConstants.FieldType.CONTENT_URI;
 		Cursor typeCursor = mContext.getContentResolver().query(typesUri, null, null, null, null);
 
@@ -389,6 +413,14 @@ public class ModelTranslator {
 		}
 	}
 
+	/**
+	 * Debug/bootstrap testing method to blow away all data in the core model tables
+	 * <br>
+	 * <br>rapidandroid_form
+	 * <br>rapidandroid_field
+	 * <br>rapidandroid_fieldtype
+	 *  
+	 */
 	public static void ClearFormTables() {
 
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -400,7 +432,11 @@ public class ModelTranslator {
 		Log.v("dimagi", "wiped the form/field/fieldtype/formdata table for debug purposes");
 	}
 	
-	
+	/**
+	 * Generate the fully typed out table that parsed data will be inserted into when SMS messages come in.
+	 * 
+	 * @param form
+	 */
 	public static void generateFormTable(Form form) {
 		// dmyung: 1/19/2009
 		// For the intial run through this is a bit hacky.

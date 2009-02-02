@@ -40,6 +40,8 @@ import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.service.ParsingService;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -55,12 +57,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * 
+ * Activity for reviewing a form and doing form specific activities.
+ * Namely, CSV report output, HTTP upload, and a "hint" for how to compose the form in an SMS message using. 
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 12, 2009
- * 
- *          Activity window for editing a Form.
  * 
  */
 
@@ -196,6 +197,23 @@ public class FormReviewer extends Activity {
 		}
 		return true;
 	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		super.onCreateDialog(id);
+
+		String title = "Sample submission";
+
+		if (mForm == null) {
+			return null;
+		}
+
+		StringBuilder sb = generateRandomMessage();
+
+		return new AlertDialog.Builder(FormReviewer.this).setTitle(title).setMessage(sb.toString().trim())
+															.setPositiveButton("OK", null).create();
+
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
@@ -260,7 +278,7 @@ public class FormReviewer extends Activity {
 					File f = new File(filename);
 
 					HttpPost httpost = new HttpPost(
-							"http://192.168.2.114:8160/upload/upload");
+							"http://192.168.7.127:8160/upload/upload");
 					MultipartEntity entity = new MultipartEntity();
 					entity.addPart("myIdentifier", new StringBody("somevalue"));
 					entity.addPart("myFile", new FileBody(f));

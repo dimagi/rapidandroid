@@ -22,6 +22,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 /**
  * An activity that lets you choose a date range with two sliders.
  * 
+ * To call the activity, you must supply a start date (recent) and end date (point in the past)
+ * To set as the boundaries of the daterange you want to pick.
+ * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 30, 2009
  * 
@@ -184,12 +187,12 @@ public class DateRange extends Activity {
 			seekStart.setSecondaryProgress(seekEnd.getProgress());			
 			
 			txvStartDate = (TextView) findViewById(R.id.txv_startdate);
-			txvStartDate.setText(Message.DisplayDateFormat.format(mStartNow
+			txvStartDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
 					.getTime()
 					- (seekStart.getProgress() * increment)));
 
 			txvEndDate = (TextView) findViewById(R.id.txv_enddate);
-			txvEndDate.setText(Message.DisplayDateFormat.format(delta.getTimeInMillis()));
+			txvEndDate.setText(Message.DisplayDateTimeFormat.format(delta.getTimeInMillis()));
 			
 		}
 	}
@@ -205,12 +208,12 @@ public class DateRange extends Activity {
 		
 		if (increment > 0) {
 			txvStartDate = (TextView) findViewById(R.id.txv_startdate);
-			txvStartDate.setText(Message.DisplayDateFormat.format(mStartNow
+			txvStartDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
 					.getTime()
 					- (seekStart.getProgress() * increment)));
 
 			txvEndDate = (TextView) findViewById(R.id.txv_enddate);
-			txvEndDate.setText(Message.DisplayDateFormat.format(mStartNow
+			txvEndDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
 					.getTime()
 					- (seekEnd.getProgress() * increment)));
 		}

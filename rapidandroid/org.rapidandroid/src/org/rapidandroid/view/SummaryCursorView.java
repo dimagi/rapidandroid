@@ -107,8 +107,12 @@ public class SummaryCursorView extends TableLayout {
 	
 	private void setMessageTop(Cursor cr) {
 		mMsg = MessageTranslator.GetMessage(getContext(), cr.getInt(1));
-        mMessageSummary.setText("ID: " + mMsg.getID() + " :: " + Message.DisplayDateFormat.format(mMsg.getTimestamp()));          
-        mMonitorString.setText(mMsg.getMonitor().getPhone());       
+        mMessageSummary.setText("ID: " + mMsg.getID() + " :: " + Message.DisplayDateTimeFormat.format(mMsg.getTimestamp()));          
+        if(mMsg.getMonitor() == null) {
+        	mMonitorString.setText("null");
+        } else {
+        	mMonitorString.setText(mMsg.getMonitor().getPhone());
+        }
         mRawMessageRow.setText(mMsg.getMessageText());        
 	}
 	

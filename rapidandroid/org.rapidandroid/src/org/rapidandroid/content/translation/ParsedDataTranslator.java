@@ -18,15 +18,26 @@ import android.database.Cursor;
 import android.net.Uri;
 
 /**
+ * Helper class to simplify the insertion and querying of parsed form data from
+ * the content provider
+ * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 21, 2009
  * 
- *          Helper class to simplify the insertion and querying of parsed form
- *          data from the content provider
  */
 
 public class ParsedDataTranslator {
 
+	/**
+	 * Called after a message is parsed.
+	 * For a given form, the results are put into a ParseResult for each field, typed out according to the fieldtype
+	 * 
+	 * @param context
+	 * @param f
+	 * @param message_id
+	 * @param results
+	 * @return
+	 */
 	public static boolean InsertFormData(Context context, Form f,
 			int message_id, Vector<IParseResult> results) {
 
@@ -53,6 +64,13 @@ public class ParsedDataTranslator {
 		return true;
 	}
 
+	/**
+	 * An expensive call to get all parsed messages for a given Form.  Loads it all into memory.
+	 * @deprecated
+	 * @param context
+	 * @param f
+	 * @return
+	 */
 	public static HashMap<Message, IParseResult[]> getParsedMessagesForForm(
 			Context context, Form f) {
 

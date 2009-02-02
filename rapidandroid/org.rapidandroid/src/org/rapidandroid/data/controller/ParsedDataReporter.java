@@ -65,6 +65,9 @@ public class ParsedDataReporter {
 		mContext = context;
 	}
 	
+	public void done() {
+		mHelper.close();
+	}
 	public void exportFormDataToCSV(Form f, Calendar startDate, Calendar endDate) {
 
 		//build the query

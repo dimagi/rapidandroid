@@ -1,6 +1,7 @@
 package org.rapidandroid.activity.chart.monitor;
 
-import java.util.Calendar;
+
+import java.util.Date;
 
 import org.rapidandroid.activity.chart.IChartBroker;
 
@@ -47,7 +48,7 @@ public class MonitorDataBroker implements IChartBroker {
 		
 	}
 
-	public void setRange(Calendar startTime, Calendar endTime) {
+	public void setRange(Date startTime, Date endTime) {
 		// TODO Auto-generated method stub
 		
 	}

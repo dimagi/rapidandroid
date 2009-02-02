@@ -36,15 +36,14 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
+ * Activity window for creating a new form.
  * 
+ * Goal is to create all this form in memory for the user to interact with.
+ * 
+ * Creation of org.rapidsms.core.model.Form object for insertion into database is the goal.
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 12, 2009
- * 
- *          Activity window for creating a new form.
- * 
- *          Its structure should reflect the properties of
- *          org.rapidsms.java.core.model.Form
  * 
  */
 

@@ -111,7 +111,7 @@ public class ParsedMessageView extends TableLayout {
 	
 	
 	private void setMessageTop(Message mesg) {		        
-        mMessageSummary.setText("ID: " + mesg.getID() + " :: " + Message.DisplayDateFormat.format(mesg.getTimestamp()));          
+        mMessageSummary.setText("ID: " + mesg.getID() + " :: " + Message.DisplayDateTimeFormat.format(mesg.getTimestamp()));          
         mMonitorString.setText(mesg.getMonitor().getPhone());       
         mRawMessageRow.setText(mesg.getMessageText());        
 	}

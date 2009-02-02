@@ -10,6 +10,7 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidsms.java.core.model.Field;
@@ -43,6 +44,7 @@ public class ModelBootstrap {
 		if(isFieldTypeTableEmpty()) {
 			applicationInitialFormFieldTypesBootstrap();
 		}
+		MessageTranslator.updateMonitorHash(context);
 	}
 	
 	private static boolean isFieldTypeTableEmpty() {

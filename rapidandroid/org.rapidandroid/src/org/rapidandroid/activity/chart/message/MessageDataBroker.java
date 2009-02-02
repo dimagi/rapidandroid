@@ -1,6 +1,5 @@
 package org.rapidandroid.activity.chart.message;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.json.JSONArray;
@@ -8,12 +7,14 @@ import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Message;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -25,13 +26,18 @@ public class MessageDataBroker implements IChartBroker {
 	SmsDbHelper rawDB;
 	private String[] variables;
 	private int variablechosen = 0;
-
-	public MessageDataBroker(WebView appView) {
+	private Date mStartDate = Constants.NULLDATE;
+	private Date mEndDate = Constants.NULLDATE;
+	
+	public MessageDataBroker(WebView appView, Date startDate, Date endDate) {
 		this.mAppView = appView;
 		this.rawDB = new SmsDbHelper(appView.getContext());
 
 		this.variables = new String[] { "Trends by day", "Receipt time of day" };
 
+		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.", Toast.LENGTH_LONG);
+		mStartDate = startDate;
+		mEndDate= endDate;
 	}
 
 	/*
@@ -80,12 +86,19 @@ public class MessageDataBroker implements IChartBroker {
 		JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
-		String rawQuery = "select time, count(*) from rapidandroid_message group by date(time) order by time ASC";
+		StringBuilder rawQuery = new StringBuilder();
+		rawQuery.append("select time, count(*) from rapidandroid_message ");
+
+		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+		}
+		
+		rawQuery.append(" group by date(time) order by time ASC");
 
 		// the string value is column 0
 		// the magnitude is column 1
 
-		Cursor cr = db.rawQuery(rawQuery, null);
+		Cursor cr = db.rawQuery(rawQuery.toString(), null);
 		int barCount = cr.getCount();
 
 		if (barCount == 0) {
@@ -115,7 +128,6 @@ public class MessageDataBroker implements IChartBroker {
 				result.put("lines", getShowTrue());
 				result.put("points", getShowTrue());
 				result.put("xaxis", getDateOptions());
-				
 
 			} catch (Exception ex) {
 
@@ -154,7 +166,6 @@ public class MessageDataBroker implements IChartBroker {
 				result.put("label", "Messages");
 				result.put("data", prepareData(yVals));
 				result.put("bars", getShowTrue());
-				
 
 			} catch (Exception ex) {
 
@@ -262,9 +273,9 @@ public class MessageDataBroker implements IChartBroker {
 
 	}
 
-	public void setRange(Calendar startTime, Calendar endTime) {
-		// TODO Auto-generated method stub
-		
+	public void setRange(Date startTime, Date endTime) {
+		mStartDate = startTime;
+		mEndDate= endTime;
 	}
 
 }

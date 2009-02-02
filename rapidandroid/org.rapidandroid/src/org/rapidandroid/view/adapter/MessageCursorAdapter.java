@@ -91,10 +91,10 @@ public class MessageCursorAdapter extends CursorAdapter {
 				sb.append("[In] >>> " );
 			}
 			
-			sb.append(Message.DisplayDateFormat.format(timestamp) + " [");
+			sb.append(Message.DisplayDateTimeFormat.format(timestamp) + " [");
 			Monitor m = MessageTranslator.GetMonitor(getContext(), monitorID);
 			sb.append(m.getPhone() + "]");			
-			//txvHeader.setText(Message.DisplayDateFormat.format(timestamp));
+			//txvHeader.setText(Message.DisplayDateTimeFormat.format(timestamp));
 			txvHeader.setText(sb.toString());
 			
 			txvMessage.setText(message);

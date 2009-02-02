@@ -56,9 +56,15 @@ public class ContentBootstrapTests extends AndroidTestCase {
         
     }
 	
+//	public void test000BootstrapFieldTypes() {
+//		String types = loadAssetFile("definitions/fieldtypes.json");
+//		HashMap<Integer, SimpleFieldType> typeHash = new HashMap<Integer,SimpleFieldType>();
+//		
+//		parseFieldTypes(types, typeHash);
+//	}
+	
 	//First level bootstrap of Form definitions into DB.
-	public void test000BootstrapFormsAndInsertIntoDB() {
-				
+	public void test000BootstrapFormsAndInsertIntoDB() {				
 		ModelTranslator.ClearFormTables();
 		
 		String fields =   loadAssetFile("definitions/fields.json");//"[{\"pk\": 1, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Location of distribution center\", \"name\": \"Location\", \"form\": 1, \"sequence\": 1}}, {\"pk\": 2, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets received\", \"name\": \"received\", \"form\": 1, \"sequence\": 2}}, {\"pk\": 3, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that have been handed out\", \"name\": \"given\", \"form\": 1, \"sequence\": 3}}, {\"pk\": 4, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 2, \"prompt\": \"Number of bednets that remain in balance\", \"name\": \"balance\", \"form\": 1, \"sequence\": 4}}, {\"pk\": 5, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 1, \"prompt\": \"Child Identifier (6 digits)\", \"name\": \"child_id\", \"form\": 2, \"sequence\": 1}}, {\"pk\": 6, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 3, \"prompt\": \"weight\", \"name\": \"weight\", \"form\": 2, \"sequence\": 2}}, {\"pk\": 7, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 4, \"prompt\": \"height\", \"name\": \"height\", \"form\": 2, \"sequence\": 3}}, {\"pk\": 8, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 5, \"prompt\": \"ratio\", \"name\": \"ratio\", \"form\": 2, \"sequence\": 4}}, {\"pk\": 9, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 6, \"prompt\": \"muac\", \"name\": \"muac\", \"form\": 2, \"sequence\": 5}}, {\"pk\": 10, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"Does child suffer from oedema\", \"name\": \"oedema\", \"form\": 2, \"sequence\": 6}}, {\"pk\": 11, \"model\": \"rapidandroid.field\", \"fields\": {\"fieldtype\": 7, \"prompt\": \"does the child suffer from diarrhoea\", \"name\": \"diarrhoea\", \"form\": 2, \"sequence\": 7}}]";
@@ -84,6 +90,54 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 		insertFormsIntoDb(allforms);
 	}	
+
+	public void test004GetFormsFromDBAndPutIntoModel() {
+		//Regenerate the form definitions
+		test000BootstrapFormsAndInsertIntoDB();
+		
+		Log.d("dimagi","************ getting forms from the db");
+		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
+		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
+		assertEquals(2, cr.getCount());
+		
+		//next get the ids
+		
+		
+		cr.moveToFirst();
+		
+		do {
+			int id = cr.getInt(0);	//presumably the id
+			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
+			Log.d("dimagi", "Querying for form: " + directUri);
+			Form f = ModelTranslator.getFormFromUri(directUri);
+			
+			assertNotNull(f);
+			assertNotNull(f.getFields());
+		} while (cr.moveToNext());		
+		cr.close();
+	}
+
+	public void test005RegenerateTablesForForms() {
+		//todo:  blow away the formdata tables
+		//recreate the tables from the form definition					
+		
+		test000BootstrapFormsAndInsertIntoDB();
+					
+		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
+		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
+		cr.moveToFirst();
+		
+		do {
+			int id = cr.getInt(0);	//presumably the id
+			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
+			
+			Form f = ModelTranslator.getFormFromUri(directUri);
+			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
+			ModelTranslator.generateFormTable(f);			
+		} while (cr.moveToNext());		
+		//mProv.ClearFormDataDebug();	//see if this crashes
+		cr.close();
+	}
 
 	/**
 	 * @param forms
@@ -339,56 +393,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 		
 	}
 	
-	public void test004GetFormsFromDBAndPutIntoModel() {
-		//Regenerate the form definitions
-		test000BootstrapFormsAndInsertIntoDB();
-		
-		Log.d("dimagi","************ getting forms from the db");
-		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
-		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
-		assertEquals(2, cr.getCount());
-		
-		//next get the ids
-		
-		
-		cr.moveToFirst();
-		
-		do {
-			int id = cr.getInt(0);	//presumably the id
-			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
-			Log.d("dimagi", "Querying for form: " + directUri);
-			Form f = ModelTranslator.getFormFromUri(directUri);
-			
-			assertNotNull(f);
-			assertNotNull(f.getFields());
-		} while (cr.moveToNext());		
-		cr.close();
-	}
-	
-	public void test005RegenerateTablesForForms() {
-		//todo:  blow away the formdata tables
-		//recreate the tables from the form definition					
-		
-		test000BootstrapFormsAndInsertIntoDB();
-					
-		Uri query = RapidSmsDBConstants.Form.CONTENT_URI;
-		Cursor cr = getContext().getContentResolver().query(query, null, null, null, null);
-		cr.moveToFirst();
-		
-		do {
-			int id = cr.getInt(0);	//presumably the id
-			Uri directUri = Uri.parse(RapidSmsDBConstants.Form.CONTENT_URI_STRING + id);
-			
-			Form f = ModelTranslator.getFormFromUri(directUri);
-			Log.d("dimagi", "Generating formData table for form: " + f.getFormName());
-			ModelTranslator.generateFormTable(f);			
-		} while (cr.moveToNext());		
-		//mProv.ClearFormDataDebug();	//see if this crashes
-		cr.close();
-	}
-	
-	
-	private void test006InsertDummyFormData() {
+	public void test006InsertDummyFormData() {
 		
 		test005RegenerateTablesForForms();
 		

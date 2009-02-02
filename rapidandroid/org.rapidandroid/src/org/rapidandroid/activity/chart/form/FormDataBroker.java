@@ -1,6 +1,5 @@
 package org.rapidandroid.activity.chart.form;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
@@ -9,6 +8,7 @@ import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -16,6 +16,7 @@ import org.rapidsms.java.core.model.Message;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 public class FormDataBroker implements IChartBroker {
 	private WebView mAppView;
@@ -32,9 +33,12 @@ public class FormDataBroker implements IChartBroker {
 	private Field fieldToPlot;
 	private int mPlotMethod;
 
+	private Date mStartDate = Constants.NULLDATE;
+	private Date mEndDate = Constants.NULLDATE;
+	
 	private String[] variables;
 
-	public FormDataBroker(WebView appView, Form form) {
+	public FormDataBroker(WebView appView, Form form, Date startDate, Date endDate) {
 		this.mAppView = appView;
 		mForm = form;
 		// by default, do all messages for form
@@ -47,6 +51,10 @@ public class FormDataBroker implements IChartBroker {
 			Field f = mForm.getFields()[i];
 			variables[i] = f.getName();
 		}
+		
+		mStartDate = startDate;
+		mEndDate = endDate;
+		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.",Toast.LENGTH_LONG );
 	}
 
 	public void loadGraph() {
@@ -94,6 +102,10 @@ public class FormDataBroker implements IChartBroker {
 				+ mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
+		
+		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+		}
 
 		rawQuery.append(" order by rapidandroid_message.time ASC");
 
@@ -173,6 +185,18 @@ public class FormDataBroker implements IChartBroker {
 		rawQuery.append(", count(*) from ");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
 				+ mForm.getPrefix());
+		
+		rawQuery.append(" join rapidandroid_message on (");
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
+				+ mForm.getPrefix());
+		rawQuery.append(".message_id = rapidandroid_message._id");
+		rawQuery.append(") ");
+		
+		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+		}
+
+		
 		rawQuery.append(" group by " + fieldcol);
 		rawQuery.append(" order by " + fieldcol);
 
@@ -330,8 +354,8 @@ public class FormDataBroker implements IChartBroker {
 
 	}
 
-	public void setRange(Calendar startTime, Calendar endTime) {
-		// TODO Auto-generated method stub
-		
+	public void setRange(Date startTime, Date endTime) {
+		mStartDate = startTime;
+		mEndDate= endTime;
 	}
 }

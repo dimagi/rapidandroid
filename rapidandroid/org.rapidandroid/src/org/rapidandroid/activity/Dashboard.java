@@ -4,10 +4,8 @@
 package org.rapidandroid.activity;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
-import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
@@ -16,20 +14,16 @@ import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidandroid.view.SingleRowHeaderView;
 import org.rapidandroid.view.adapter.FormDataCursorAdapter;
 import org.rapidandroid.view.adapter.MessageCursorAdapter;
-import org.rapidandroid.view.adapter.InefficientParsedMessageViewAdapter;
 import org.rapidandroid.view.adapter.SummaryCursorAdapter;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -210,8 +204,8 @@ public class Dashboard extends Activity {
 		case ACTIVITY_DATERANGE:
 				if (extras != null) {
 					try {
-						this.mStartDate = Message.DisplayDateFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-						this.mEndDate = Message.DisplayDateFormat
+						this.mStartDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+						this.mEndDate = Message.DisplayDateTimeFormat
 																.parse(extras
 																				.getString(DateRange.ResultParams.RESULT_END_DATE));
 					} catch (ParseException e) {
@@ -274,9 +268,8 @@ public class Dashboard extends Activity {
 		
 		MenuItem editMenu = menu.findItem(MENU_FORM_REVIEW_ID);
 		editMenu.setEnabled(formOptionsEnabled);
-
 		MenuItem viewMenu = menu.findItem(MENU_CHARTS_ID);
-
+		
 		return true;
 	}
 
@@ -303,8 +296,15 @@ public class Dashboard extends Activity {
 	}
 	private void startDateRangeActivity() {		
 		Intent i = new Intent(this, DateRange.class);
+		//Date endDate = java.sql.Date.
 		Date endDate = new Date();
-		
+		if(mChosenForm != null) {
+			ParsedDataReporter pdr = new ParsedDataReporter(this);
+			endDate = pdr.getOldestMessage(this.mChosenForm);
+			pdr.done();
+		} else {
+			endDate = MessageDataReporter.getOldestMessageDate(this);
+		}
 		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_ENDDATE, Message.SQLDateFormatter.format(endDate));
 		startActivityForResult(i, ACTIVITY_DATERANGE);	
 		
@@ -336,6 +336,8 @@ public class Dashboard extends Activity {
 		} else if (mShowMonitors && !mShowAllMessages) {
 			//show all the monitrors
 		}		
+		i.putExtra(ChartData.CallParams.START_DATE, Message.SQLDateFormatter.format(mStartDate));
+		i.putExtra(ChartData.CallParams.END_DATE, Message.SQLDateFormatter.format(mEndDate));
 		startActivityForResult(i, ACTIVITY_CHARTS);
 	}
 
@@ -401,7 +403,7 @@ public class Dashboard extends Activity {
     
     private void finishListViewReload() {
     	TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
-    	lbl_recents.setText("Messages: " + Message.DisplayDateFormat.format(mEndDate) + " to " + Message.DisplayDateFormat.format(mStartDate));
+    	lbl_recents.setText("Messages: " + Message.DisplayShortDateFormat.format(mEndDate) + " to " + Message.DisplayShortDateFormat.format(mStartDate));
     	
     	ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
 		

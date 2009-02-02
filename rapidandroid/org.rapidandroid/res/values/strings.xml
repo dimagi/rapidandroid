@@ -36,4 +36,8 @@
 <string name="range_btn_lastmonth">Last Month</string>
 <string name="range_btn_lastday">Last Day</string>
 
+<string name="lbl_totaldaterange">Total Daterange:</string>
+<string name="lbl_chart_chartsubject">Chart Subject:</string>
+<string name="lbl_chart_datasummary">Data Summary:</string>
+<string name="lbl_chart_totalmessages">Total Messages:</string>
 </resources>

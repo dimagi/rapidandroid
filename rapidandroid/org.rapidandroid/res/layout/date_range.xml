@@ -5,24 +5,33 @@
 	<TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content"
 		android:layout_width="fill_parent">
 		<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
-			android:text="@string/lbl_startdate"
-			android:layout_height="wrap_content"></TextView>
-		<TextView android:id="@+id/txv_startdate" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"></TextView>
-</TableRow>
-<SeekBar android:layout_height="wrap_content" android:id="@+id/range_startseek" android:layout_width="fill_parent" android:progress="0" android:secondaryProgress="100"></SeekBar>
+			android:text="@string/lbl_startdate" android:layout_height="wrap_content"></TextView>
+		<TextView android:id="@+id/txv_startdate"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	</TableRow>
+	<SeekBar android:id="@+id/range_startseek"
+		android:layout_width="fill_parent" android:secondaryProgress="100" android:layout_height="50px" android:paddingLeft="8px" android:paddingRight="8px"></SeekBar>
 
 	<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content"
-		android:layout_width="fill_parent">		
+		android:layout_width="fill_parent">
 		<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/lbl_enddate"
-			></TextView>
+			android:layout_height="wrap_content" android:text="@string/lbl_enddate"></TextView>
 		<TextView android:id="@+id/txv_enddate" android:layout_width="wrap_content"
 			android:layout_height="wrap_content"></TextView>
 	</TableRow>
-<SeekBar android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/range_endseek" android:progress="100"></SeekBar>
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastday" android:text="@string/range_btn_lastday"></Button>
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastweek" android:text="@string/range_btn_lastweek"></Button>
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_month" android:text="@string/range_btn_lastmonth"></Button>
+	<SeekBar android:layout_width="fill_parent" android:id="@+id/range_endseek"
+		android:progress="100" android:layout_height="50px" android:paddingRight="8px" android:paddingLeft="8px"></SeekBar>
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+		android:layout_height="20px" android:text=" " ></TextView>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/range_btn_lastday"
+		android:text="@string/range_btn_lastday">
+	</Button>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/range_btn_lastweek"
+			android:text="@string/range_btn_lastweek"></Button>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/range_btn_last_month"
+			android:text="@string/range_btn_lastmonth"></Button>
+
 </TableLayout>

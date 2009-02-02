@@ -22,7 +22,17 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
+/**
+ * Simple text based file browser activity to search the SD card.
+ * 
+ * Source taken from http://www.anddev.org/android_filebrowser__v20-t101.html
+ * (using version 1 code which is in this link)
+ *  
+ * @author Daniel Myung dmyung@dimagi.com
+ * @created 1/31/2009
+ * 
+ *   
+ */
 public class FileBrowser extends ListActivity {
 	private enum DISPLAYMODE {
 		ABSOLUTE, RELATIVE;
