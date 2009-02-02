@@ -35,7 +35,8 @@ public class Message {
 	 * Format the timestamp to a displayable format in the UI
 	 * HH:mm MM/dd/yy
 	 */
-	public static DateFormat DisplayDateFormat = new SimpleDateFormat("HH:mm MM/dd/yyyy");
+	public static DateFormat DisplayDateTimeFormat = new SimpleDateFormat("HH:mm MM/dd/yyyy");
+	public static DateFormat DisplayShortDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	
 	public Message(int id, String message, Date timestamp, Monitor monitor) {
 		this.mId = id;

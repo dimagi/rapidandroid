@@ -14,6 +14,7 @@ public class Monitor {
 	public static final int COL_PHONE = 4;
 	public static final int COL_EMAIL = 5;
 	public static final int COL_MESSAGECOUNT = 6;
+	public static final int COL_RECEIVE_REPLY = 7;
 	
 	/**
 	 * @param id
@@ -25,7 +26,7 @@ public class Monitor {
 	 * @param incomingMessages
 	 */
 	public Monitor(int id, String firstName, String lastName, String alias,
-			String phone, String email, int incomingMessages) {
+			String phone, String email, int incomingMessages, boolean receiveReply) {
 		super();
 		mId = id;
 		mFirstName = firstName;
@@ -34,6 +35,8 @@ public class Monitor {
 		mPhone = phone;
 		mEmail = email;
 		mIncomingMessages = incomingMessages;
+		mReceiveReply = receiveReply;
+		
 	}
 
 	private int mId;
@@ -43,6 +46,7 @@ public class Monitor {
 	private String mPhone;
 	private String mEmail;
 	private int mIncomingMessages;
+	private boolean mReceiveReply = false;
 	
 	/**
 	 * @return the mId
@@ -85,6 +89,13 @@ public class Monitor {
 	 */
 	public int getIncomingMessages() {
 		return mIncomingMessages;
+	}
+	
+	/**
+	 * @return the reply preference
+	 */
+	public boolean getReplyPreference() {
+		return mReceiveReply;
 	}
 	
 	

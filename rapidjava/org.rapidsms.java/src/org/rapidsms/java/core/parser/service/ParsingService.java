@@ -7,6 +7,9 @@ import org.rapidsms.java.core.parser.IParseResult;
 import org.rapidsms.java.core.parser.SimpleRegexParser;
 
 /**
+ * 
+ * Static parsing service to marshall out different parsing methods.
+ * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 21, 2009
  * 
@@ -17,7 +20,12 @@ public class ParsingService {
 	
 	private static SimpleRegexParser simpleRegexParser = new SimpleRegexParser();
 	
-	
+	/**
+	 * For a given message, call the appropriate parsing class and return the parse results.
+	 * @param form
+	 * @param message
+	 * @return
+	 */
 	public static Vector<IParseResult> ParseMessage(Form form, String message) {
 		switch(form.getParserType()) {
 			case SIMPLEREGEX:
