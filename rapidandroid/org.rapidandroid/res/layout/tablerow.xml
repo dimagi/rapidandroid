@@ -4,14 +4,14 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 	<TableRow android:id="@+id/TableRow01" android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<TextView android:id="@+id/TextView01" android:layout_height="wrap_content" android:text="asdfdasfasfaffdffdfdaadsf" android:layout_weight="1" android:layout_gravity="left"></TextView>
-			<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="qwerqwrqrqrqr" android:layout_weight="1"></TextView>
-			<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="ZXCZXCczCczcCZCC" android:layout_weight="1"></TextView>
-			<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="rutyututuytu" android:layout_weight="1"></TextView>
-			<TextView android:id="@+id/TextView01" android:layout_height="wrap_content" android:text="fghjfjfjfhjfj" android:layout_weight="1"></TextView>
-			<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="1" android:text="2345235235243535"></TextView>
+		<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
+		          android:layout_height="wrap_content" android:text="qwerqwrqrqrqr" android:layout_weight="1"></TextView>
+		<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
+		          android:layout_height="wrap_content" android:text="ZXCZXCczCczcCZCC" android:layout_weight="1"></TextView>
+		<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
+		          android:layout_height="wrap_content" android:text="rutyututuytu" android:layout_weight="1"></TextView>
+		<TextView android:id="@+id/TextView01" android:layout_height="wrap_content" android:text="fghjfjfjfhjfj" android:layout_weight="1"></TextView>
+		<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
+                  android:layout_height="wrap_content" android:layout_weight="1" android:text="2345235235243535"></TextView>
 	</TableRow>
 </TableLayout>

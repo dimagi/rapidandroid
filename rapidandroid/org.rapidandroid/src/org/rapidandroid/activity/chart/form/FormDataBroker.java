@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.Random;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
+import org.rapidandroid.activity.chart.JSONGraphData;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
@@ -75,23 +77,32 @@ public class FormDataBroker implements IChartBroker {
 		}
 		height = height - 50;
 
-		JSONArray arr = new JSONArray();
-
+		JSONArray data = getEmptyData();
+		JSONObject options = new JSONObject();
+		JSONGraphData allData  = null;
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
-			arr.put(loadMessageOverTimeHistogram());
+			allData = loadMessageOverTimeHistogram();
 		} else if (fieldToPlot.getFieldType().getItemType().equals("word")) {
-			arr.put(loadHistogramFromField());
+			allData = loadHistogramFromField(); 
 		} else {
-			arr.put(loadNumericLine());
+			allData = loadNumericLine(); 
+			//data.put(loadNumericLine());
 		}
-
+		if (allData != null) {
+			data = allData.getData();
+			options = allData.getOptions();
+		} 
+		System.out.println(data.toString());
+		System.out.println(options.toString());
+		
 		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height
 				+ "px\")");
-		mAppView.loadUrl("javascript:GotGraph(" + arr.toString() + ")");
+		mAppView.loadUrl("javascript:GotGraph(" + data.toString() + "," + options.toString() + ")");
 	}
 
-	private JSONObject loadNumericLine() {
+	
+	private JSONGraphData loadNumericLine() {
 		JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
@@ -123,7 +134,6 @@ public class FormDataBroker implements IChartBroker {
 
 		if (barCount == 0) {
 			cr.close();
-			return result;
 		} else {
 			Date[] xVals = new Date[barCount];
 			int[] yVals = new int[barCount];
@@ -143,19 +153,35 @@ public class FormDataBroker implements IChartBroker {
 			// [Math.PI * 3/2, "3\u03c0/2"], [Math.PI * 2, "2\u03c0"]]},
 
 			try {
-				result.put("label", fieldToPlot.getName());
-				result.put("data", prepareDateData(xVals, yVals));
-				result.put("label", fieldToPlot.getName());
-				result.put("lines", getShowTrue());
-				result.put("points", getShowTrue());
-				result.put("xaxis", getDateOptions());
+//				result.put("label", fieldToPlot.getName());
+//				result.put("data", prepareDateData(xVals, yVals));
+//				result.put("label", fieldToPlot.getName());
+//				result.put("lines", getShowTrue());
+//				result.put("points", getShowTrue());
+//				result.put("xaxis", getDateOptions());
+				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals) );
 			} catch (Exception ex) {
 
 			}
-			cr.close();
-			return result;
+			finally {
+				if (!cr.isClosed()) {
+					cr.close();
+				}
+			}
+			
 		}
+		// either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());	
+	}
 
+	
+	private JSONArray getEmptyData() {
+		JSONArray toReturn = new JSONArray();
+		JSONArray innerArray = new JSONArray();
+		innerArray.put(0);
+		innerArray.put(0);
+		toReturn.put(innerArray);
+		return toReturn;
 	}
 
 	private JSONObject getDateOptions() {
@@ -170,19 +196,20 @@ public class FormDataBroker implements IChartBroker {
 	}
 
 	private JSONArray prepareDateData(Date[] xvals, int[] yvals) {
-		JSONArray arr = new JSONArray();
+		JSONArray outerArray = new JSONArray();
+		JSONArray innerArray = new JSONArray();
 		int datalen = xvals.length;
 		for (int i = 0; i < datalen; i++) {
 			JSONArray elem = new JSONArray();
 			elem.put(xvals[i].getTime());
 			elem.put(yvals[i]);
-			arr.put(elem);
+			innerArray.put(elem);
 		}
-		return arr;
+		outerArray.put(innerArray);
+		return outerArray;
 	}
 	
-	private JSONObject loadMessageOverTimeHistogram() {
-		JSONObject result = new JSONObject();
+	private JSONGraphData loadMessageOverTimeHistogram() {
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 		Calendar startCal = Calendar.getInstance();
 		startCal.setTime(mStartDate);
@@ -245,7 +272,6 @@ public class FormDataBroker implements IChartBroker {
 
 		if (barCount == 0) {
 			cr.close();
-			return result;
 		} else {
 			String[] xVals = new String[barCount];
 			int[] yVals = new int[barCount];
@@ -258,24 +284,43 @@ public class FormDataBroker implements IChartBroker {
 			} while (cr.moveToNext());
 
 			try {
+				//result.put("label", fieldToPlot.getName());
+				//result.put("data", prepareData(xVals, yVals));
+				//result.put("bars", getShowTrue());
+				//result.put("xaxis", getXaxisOptions(xVals));
+				// todo 
+				JSONObject result = new JSONObject();
+				//return new JSONGraphData(prepareHistogramData(xVals, yVals),loadOptionsForHistogram(xVals) );
+				
 				result.put("label", legend);
 				result.put("data", prepareData(yVals));
 				result.put("bars", getShowTrue());
 				result.put("points", getShowFalse());
 				result.put("xaxis", getXaxisOptions(xVals));
+				JSONArray values = new JSONArray();
+				values.put(result);
+				return new JSONGraphData(values, new JSONObject());
 
 			} catch (Exception ex) {
 
+			} finally {
+				if (!cr.isClosed()) {
+					cr.close();
+				}
 			}
-			cr.close();
-			return result;
 		}
-
+		// either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());	
 	}
 	
 
-	private JSONObject loadHistogramFromField() {
-		JSONObject result = new JSONObject();
+	/**
+	 * Should return a two element array - the first element is the data, 
+	 * the second are the options
+	 * @return
+	 */
+	private JSONGraphData loadHistogramFromField() {
+		//JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
 		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX
@@ -306,9 +351,7 @@ public class FormDataBroker implements IChartBroker {
 		Cursor cr = db.rawQuery(rawQuery.toString(), null);
 		int barCount = cr.getCount();
 
-		if (barCount == 0) {
-			return result;
-		} else {
+		if (barCount != 0) {
 			String[] xVals = new String[barCount];
 			int[] yVals = new int[barCount];
 			cr.moveToFirst();
@@ -323,18 +366,66 @@ public class FormDataBroker implements IChartBroker {
 			// [Math.PI * 3/2, "3\u03c0/2"], [Math.PI * 2, "2\u03c0"]]},
 
 			try {
-				result.put("label", fieldToPlot.getName());
-				result.put("data", prepareData(yVals));
-				result.put("bars", getShowTrue());
-				result.put("xaxis", getXaxisOptions(xVals));
-
+				//result.put("label", fieldToPlot.getName());
+				//result.put("data", prepareData(xVals, yVals));
+				//result.put("bars", getShowTrue());
+				//result.put("xaxis", getXaxisOptions(xVals));
+				return new JSONGraphData(prepareHistogramData(xVals, yVals),loadOptionsForHistogram(xVals) );
 			} catch (Exception ex) {
 
+			} finally {
+				if (!cr.isClosed()) {
+					cr.close();
+				}
 			}
-			cr.close();
-			return result;
 		}
+		// either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());
+	}
 
+	private JSONArray prepareHistogramData(String[] names, int[] counts) throws JSONException {
+		// TODO Auto-generated method stub
+		JSONArray arr = new JSONArray();
+		int datalen = names.length;
+		for (int i = 0; i < datalen; i++) {
+			
+			JSONObject elem = new JSONObject();
+			// values will just be an array of length 1 with a single value
+			JSONArray values = new JSONArray();
+			JSONArray value = new JSONArray();
+			value.put(i);
+			value.put(counts[i]);
+			values.put(value);
+			elem.put("data", values);
+			elem.put("bars", getShowTrue());
+			elem.put("label", names[i]);
+			arr.put(elem);
+		}
+		return arr;
+	}
+
+	private JSONObject loadOptionsForDateGraph(Date[] vals) throws JSONException {
+
+		JSONObject toReturn = new JSONObject();
+		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
+		toReturn.put("bars", getShowTrue());
+		toReturn.put("points", getShowFalse());
+		toReturn.put("xaxis", getXaxisOptionsForDate());
+		return toReturn;
+	}
+	
+	private JSONObject getXaxisOptionsForDate() throws JSONException {
+		JSONObject toReturn = new JSONObject();
+		toReturn.put("mode", "time");
+		toReturn.put("timeformat", "%m/%d/%y");
+		return toReturn;
+	}
+
+	private JSONObject loadOptionsForHistogram(String[] labels) throws JSONException {
+		
+		JSONObject toReturn = new JSONObject();
+		toReturn.put("xaxis", this.getXaxisOptions(labels));
+		return toReturn;
 	}
 
 	// puts the yvalues into the json array for the given x values (defined by

@@ -20,8 +20,8 @@ function SetGraph(gwidth, gheight) {
 	graphObj.style.width = gwidth;
 	graphObj.style.height = gheight;	
 }
-function GotGraph(gdata) {	
-	$.plot($("#placeholder"), gdata);
+function GotGraph(gData, gOptions) {	
+	$.plot($("#placeholder"), gData, gOptions);
 	window.graphdata.finishGraph();
 	}
 </script>
