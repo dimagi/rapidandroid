@@ -57,7 +57,7 @@
 <activity android:name=".activity.ChartData"></activity>
 <activity android:name=".activity.AddField" android:theme="@android:style/Theme.Dialog"></activity>
 <activity android:name=".activity.FileBrowser"></activity>
-<activity android:name=".activity.DateRange" android:theme="@android:style/Theme.Dialog"></activity>
+<activity android:name=".activity.DateRange"></activity>
 <receiver android:name=".receiver.SmsReplyReceiver">
 <intent-filter><action android:name="org.rapidandroid.intents.SMS_REPLY"></action>
 </intent-filter>

@@ -91,7 +91,7 @@ public class SummaryCursorView extends TableLayout {
 			mFieldLabels[i] = txvFieldName;
 			
 			TextView txvFieldData = new TextView(getContext());
-			txvFieldData.setGravity(Gravity.RIGHT);
+			txvFieldData.setGravity(Gravity.LEFT);
 			txvFieldData.setTextSize(14);			
 			mFieldValues[i] = txvFieldData;
 			
@@ -101,8 +101,11 @@ public class SummaryCursorView extends TableLayout {
 			mParsedDataRows[i] = row;
 			
 			this.addView(row, new TableRow.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			
 		}
 		
+		this.setColumnStretchable(0, true);
+		this.setColumnStretchable(1, true);
 		//this.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		setMessageTop(formDataCursor);
 		setParsedBottom(formDataCursor);

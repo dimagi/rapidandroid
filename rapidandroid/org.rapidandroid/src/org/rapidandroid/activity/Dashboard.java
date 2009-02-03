@@ -12,18 +12,23 @@ import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.controller.MessageDataReporter;
 import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidandroid.view.SingleRowHeaderView;
-import org.rapidandroid.view.adapter.FormDataCursorAdapter;
+import org.rapidandroid.view.adapter.FormDataGridCursorAdapter;
 import org.rapidandroid.view.adapter.MessageCursorAdapter;
 import org.rapidandroid.view.adapter.SummaryCursorAdapter;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +57,7 @@ public class Dashboard extends Activity {
 	
 	private SingleRowHeaderView headerView;
 	private SummaryCursorAdapter summaryView; 
-	private FormDataCursorAdapter rowView;
+	private FormDataGridCursorAdapter rowView;
 	private MessageCursorAdapter messageCursorAdapter;
 	
 	//private ProgressDialog mLoadingDialog;
@@ -101,6 +106,7 @@ public class Dashboard extends Activity {
 	
 	private Date mStartDate;
 	private Date mEndDate;
+	private int mScreenWidth;
 	
 	
 	@Override
@@ -145,7 +151,10 @@ public class Dashboard extends Activity {
 		// add some events to the listview
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 
-		
+		DisplayMetrics dm = new DisplayMetrics();
+	    getWindowManager().getDefaultDisplay().getMetrics(dm);
+	    mScreenWidth = dm.widthPixels - 8;
+	    
 		lsv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		
 		// bind a context menu
@@ -172,9 +181,9 @@ public class Dashboard extends Activity {
 		});	
 		
 		//by default on startup:
-		mStartDate = new Date();
 		mEndDate = new Date();
-		mEndDate.setDate(mStartDate.getDate() - 1);
+		mStartDate = new Date();
+		mStartDate.setDate(mEndDate.getDate() - 1);
 	}
 
 	@Override
@@ -191,23 +200,27 @@ public class Dashboard extends Activity {
 		switch (requestCode) {
 		case ACTIVITY_CREATE:
 			// we should do an update of the view
-			loadFormSpinner();
+			loadFormSpinner();		
+			resetCursor = true;
+			beginListViewReload();
 			break;
 		case ACTIVITY_FORM_REVIEW:
 //			dialogMessage = "Activity Done";
 //			showDialog(12);
+			resetCursor = true;
+			beginListViewReload();
 			break;
 		case ACTIVITY_CHARTS:
 //			dialogMessage = "Activity Done";
 //			showDialog(13);
+			resetCursor = true;
+			beginListViewReload();
 			break;
 		case ACTIVITY_DATERANGE:
 				if (extras != null) {
 					try {
-						this.mStartDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-						this.mEndDate = Message.DisplayDateTimeFormat
-																.parse(extras
-																				.getString(DateRange.ResultParams.RESULT_END_DATE));
+						mStartDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+						mEndDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -299,17 +312,20 @@ public class Dashboard extends Activity {
 		//Date endDate = java.sql.Date.
 		Date endDate = new Date();
 		if(mChosenForm != null) {
-			ParsedDataReporter pdr = new ParsedDataReporter(this);
-			if(this.mListviewCursor.getCount() == 0) {
-				
-			} else {
-				endDate = pdr.getOldestMessage(this.mChosenForm);
+			endDate = ParsedDataReporter.getOldestMessageDate(this,mChosenForm);		
+			if(endDate.equals(Constants.NULLDATE)) {
+				Builder noDateDialog = new AlertDialog.Builder(this);
+				noDateDialog.setPositiveButton("Ok", null);
+				noDateDialog.setTitle("Alert");
+				noDateDialog.setMessage("This form has no messages or data to chart");
+				noDateDialog.show();
+				return;
 			}
-			pdr.done();
-		} else {
+		}
+		else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);
 		}
-		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_ENDDATE, Message.SQLDateFormatter.format(endDate));
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, Message.SQLDateFormatter.format(endDate));
 		startActivityForResult(i, ACTIVITY_DATERANGE);	
 		
 	}
@@ -331,14 +347,27 @@ public class Dashboard extends Activity {
 	
 	private void startActivityChart() {
 		Intent i = new Intent(this, ChartData.class);
-		
-		if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
-			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());			
-		} else if(mShowAllMessages && !mShowMonitors) {
-			//show the messages
+
+		// we want to chart for a form
+		if (mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+			Date endDate = new Date();
+			endDate = ParsedDataReporter.getOldestMessageDate(this,mChosenForm);	
+			if(endDate.equals(Constants.NULLDATE)) {
+				Builder noDateDialog = new AlertDialog.Builder(this);
+				noDateDialog.setPositiveButton("Ok", null);
+				noDateDialog.setTitle("Alert");
+				noDateDialog.setMessage("This form has no messages or data to chart");
+				noDateDialog.show();
+				return;
+			}
+
+			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm
+							.getFormId());
+		} else if (mShowAllMessages && !mShowMonitors) {
+			// Chart for messages
 			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
 		} else if (mShowMonitors && !mShowAllMessages) {
-			//show all the monitrors
+			//Chart for monitors
 		}		
 		i.putExtra(ChartData.CallParams.START_DATE, Message.SQLDateFormatter.format(mStartDate));
 		i.putExtra(ChartData.CallParams.END_DATE, Message.SQLDateFormatter.format(mEndDate));
@@ -407,7 +436,7 @@ public class Dashboard extends Activity {
     
     private void finishListViewReload() {
     	TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
-    	lbl_recents.setText("Messages: " + Message.DisplayShortDateFormat.format(mEndDate) + " to " + Message.DisplayShortDateFormat.format(mStartDate));
+    	lbl_recents.setText("Messages: " + Message.DisplayShortDateFormat.format(mStartDate) + "-" + Message.DisplayShortDateFormat.format(mEndDate));
     	
     	ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
 		
@@ -450,11 +479,11 @@ public class Dashboard extends Activity {
     private void fillCursorInBackground() {
     	if(mListviewCursor == null) {
 	    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
-	    		String whereclause = " rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "'";
+	    		String whereclause = " rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "'";
 	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,whereclause,null,null);
 	    		
 	    	} else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
-	    		String whereclause = "time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "'";
+	    		String whereclause = "time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "'";
 	    		mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, whereclause, null, "time DESC");
 	    		
 	    	} else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {
@@ -497,7 +526,7 @@ join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message
 					this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);						
 					lsv.setAdapter(summaryView);
 				} else if(this.formViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
-					rowView = new FormDataCursorAdapter(this, mChosenForm, mListviewCursor);
+					rowView = new FormDataGridCursorAdapter(this, mChosenForm, mListviewCursor, mScreenWidth);
 					lsv.setAdapter(rowView);					
 				}
 			}

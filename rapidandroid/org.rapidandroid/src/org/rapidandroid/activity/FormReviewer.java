@@ -32,6 +32,7 @@ import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.controller.ParsedDataReporter;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -42,6 +43,7 @@ import org.rapidsms.java.core.parser.service.ParsingService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -185,6 +187,15 @@ public class FormReviewer extends Activity {
 			showDialog(0);
 			return true;
 		case MENU_DUMP_CSV:
+			if(ParsedDataReporter.getOldestMessageDate(this, mForm).equals(Constants.NULLDATE)) {
+				Builder noDateDialog = new AlertDialog.Builder(this);
+				noDateDialog.setPositiveButton("Ok", null);
+				noDateDialog.setTitle("Alert");
+				noDateDialog.setMessage("This form has no messages or data to output");
+				noDateDialog.show();
+				return true;
+			}
+			
 			outputCSV();
 			break;
 		case MENU_HTTP_UPLOAD:
@@ -320,14 +331,12 @@ public class FormReviewer extends Activity {
 		// the UI thread
 		Thread t = new Thread() {
 			public void run() {
-				ParsedDataReporter pdr = new ParsedDataReporter(
-						getBaseContext());
 				Calendar now = Calendar.getInstance();
-				Calendar then = Calendar.getInstance();
+				Calendar then = Calendar.getInstance();								
 				then.set(Calendar.YEAR, 1990);
-
-				pdr.exportFormDataToCSV(mForm, then, now);
+				ParsedDataReporter.exportFormDataToCSV(getBaseContext(), mForm, then, now);
 				mDebugHandler.post(mCsvSaveCompleted);
+				
 			}
 		};
 		t.start();

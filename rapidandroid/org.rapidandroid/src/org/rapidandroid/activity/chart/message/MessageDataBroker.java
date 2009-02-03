@@ -90,7 +90,7 @@ public class MessageDataBroker implements IChartBroker {
 		rawQuery.append("select time, count(*) from rapidandroid_message ");
 
 		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+			rawQuery.append(" WHERE time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 		
 		rawQuery.append(" group by date(time) order by time ASC");

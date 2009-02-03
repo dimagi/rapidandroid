@@ -30,4 +30,5 @@
     <color name="solid_yellow">#ffffff00</color>
 
 <color name="background_red">#C14747</color>
+<color name="background_gray">#636363</color>
 </resources>

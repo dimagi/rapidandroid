@@ -172,14 +172,12 @@ public class ChartData extends Activity {
 		Intent i = new Intent(this, DateRange.class);
 		Date endDate = new Date();
 		if(mForm != null) {
-			ParsedDataReporter pdr = new ParsedDataReporter(this);
-			endDate = pdr.getOldestMessage(mForm);		
-			pdr.done();
+			endDate = ParsedDataReporter.getOldestMessageDate(this,mForm);			
 		} else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);
 		}
 		
-		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_ENDDATE, Message.SQLDateFormatter.format(endDate));
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, Message.SQLDateFormatter.format(endDate));
 		startActivityForResult(i, ACTIVITY_DATERANGE);	
 		
 	}
@@ -198,8 +196,8 @@ public class ChartData extends Activity {
 		case ACTIVITY_DATERANGE:
 			if(extras != null) {
 				try {
-					Date startDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-					Date endDate = Message.DisplayDateTimeFormat.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
+					Date startDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
+					Date endDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
 					mBroker.setRange(startDate, endDate);
 					mBroker.loadGraph();
 				} catch (ParseException e) {

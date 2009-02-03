@@ -15,6 +15,7 @@ import java.util.zip.GZIPOutputStream;
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
+import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
@@ -32,12 +33,10 @@ import android.util.Log;
  */
 public class ParsedDataReporter {
 
-	SmsDbHelper mHelper;
-	Context mContext;
-	
 	private String[] messageColumns = new String[] {"message_time", "monitor_id", "monitor_phone", "message_text"};
 	
-	public Date getOldestMessage(Form f) {
+	public synchronized static Date getOldestMessageDate(Context context, Form f) {
+		SmsDbHelper mHelper = new SmsDbHelper(context);
 		StringBuilder query = new StringBuilder();
 		query.append("select min(rapidandroid_message.time) ");		
 		query.append(" from " + RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
@@ -47,8 +46,21 @@ public class ParsedDataReporter {
 		query.append(") ");
 		
 		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
+		if(cr.getCount() == 0) {
+			mHelper.close();
+			cr.close();
+			return Constants.NULLDATE;
+			
+		}
 		cr.moveToFirst();
 		String dateString = cr.getString(0);
+		
+		if(dateString == null) {
+			mHelper.close();
+			cr.close();
+			return Constants.NULLDATE;
+		}
+		
 		Date ret = new Date();
 		try {
 			ret = Message.SQLDateFormatter.parse(dateString);
@@ -57,19 +69,12 @@ public class ParsedDataReporter {
 			e.printStackTrace();
 		}		
 		cr.close();
+		mHelper.close();
 		return ret;
 	}
 	
-	public ParsedDataReporter(Context context) {
-		mHelper = new SmsDbHelper(context);
-		mContext = context;
-	}
-	
-	public void done() {
-		mHelper.close();
-	}
-	public void exportFormDataToCSV(Form f, Calendar startDate, Calendar endDate) {
-
+	public synchronized static void exportFormDataToCSV(Context context, Form f, Calendar startDate, Calendar endDate) {
+		SmsDbHelper mHelper = new SmsDbHelper(context);
 		//build the query
 		StringBuilder query = new StringBuilder();
 		query.append("select " + RapidSmsDBConstants.FormData.TABLE_PREFIX);
@@ -132,6 +137,7 @@ public class ParsedDataReporter {
 		}
 		finally {
 			cr.close();
+			mHelper.close();
 			if(fOut != null) {
 				try {
 					fOut.close();

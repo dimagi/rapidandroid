@@ -13,7 +13,7 @@ import android.widget.TextView;
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 27, 2009
- * Summary:
+ * @deprecated
  */
 public class SingleRowHeaderView extends TableLayout {
 private int mColCount;

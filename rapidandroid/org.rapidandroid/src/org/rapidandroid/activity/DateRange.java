@@ -8,6 +8,9 @@ import org.rapidsms.java.core.model.Message;
 import org.rapidsms.java.core.model.SimpleFieldType;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -36,7 +40,7 @@ public class DateRange extends Activity {
 		/**
 		 * How far back does this dataset go back in time.
 		 */
-		public static final String ACTIVITY_ARG_ENDDATE = "enddate";
+		public static final String ACTIVITY_ARG_STARTDATE = "startdate";
 	
 	}
 	
@@ -54,17 +58,29 @@ public class DateRange extends Activity {
 	public static final int ACTIVITYRESULT_DATERANGE = 1970;
 	
 
-	private Date mStartNow;
-	private Date mAbsoluteEndDate;
+	private Date mStartDate;
+	private Date mEndDate;
 	
-	private SeekBar seekEnd;
-	private SeekBar seekStart;
-
 	private TextView txvStartDate;
 	private TextView txvEndDate;
 
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CANCEL = Menu.FIRST + 1;
+	
+
+    private int mStartYear;
+    private int mStartMonth;
+    private int mStartDay;
+
+    private int mEndYear;
+    private int mEndMonth;
+    private int mEndDay;
+    
+ 
+
+	
+	static final int DATE_DIALOG_START_ID = 0;
+	static final int DATE_DIALOG_END_ID = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,65 +92,126 @@ public class DateRange extends Activity {
 		Bundle extras = getIntent().getExtras();
 
 		if (extras != null) {
-			if(!extras.containsKey(CallParams.ACTIVITY_ARG_ENDDATE)) {
-				throw new IllegalArgumentException("This activity must be called with an appropriate enddate");
+			if(!extras.containsKey(CallParams.ACTIVITY_ARG_STARTDATE)) {
+				throw new IllegalArgumentException("This activity must be called with an appropriate startdate in the past.");
 			}
-			String datestring = extras.getString(CallParams.ACTIVITY_ARG_ENDDATE);
+			String datestring = extras.getString(CallParams.ACTIVITY_ARG_STARTDATE);
 			try {
-				mStartNow = new Date();
-				mAbsoluteEndDate = Message.SQLDateFormatter.parse(datestring);
+				mStartDate =  Message.SQLDateFormatter.parse(datestring);
+				mEndDate = new Date();	//now
 
 			} catch (Exception ex) {
 
 			}
 		} 
-		setSliders();
+		
+		txvStartDate = (TextView)findViewById(R.id.txv_startdate);
+		txvEndDate = (TextView)findViewById(R.id.txv_enddate);
+		Calendar s = Calendar.getInstance();
+		s.setTime(mStartDate);
+		Calendar e = Calendar.getInstance();
+		e.setTime(mEndDate);
+		
+		
+        setUpdateCalendar(s,e);
+	}
+	
+	private void setUpdateCalendar(Calendar s, Calendar e) {		
+		mStartYear = s.get(Calendar.YEAR);
+		mStartMonth = s.get(Calendar.MONTH);
+		mStartDay = s.get(Calendar.DAY_OF_MONTH);		
+		
+		mEndYear = e.get(Calendar.YEAR);
+		mEndMonth = e.get(Calendar.MONTH);
+		mEndDay = e.get(Calendar.DAY_OF_MONTH);
+		updateDisplay();
+	}
+	
+	
+	private void updateDisplay() {
+		txvStartDate.setText(
+	            new StringBuilder()
+	                    // Month is 0 based so add 1
+	                    .append(mStartMonth + 1).append("-")
+	                    .append(mStartDay).append("-")
+	                    .append(mStartYear));
+		
+		txvEndDate.setText(
+	            new StringBuilder()
+	                    // Month is 0 based so add 1
+	                    .append(mEndMonth + 1).append("-")
+	                    .append(mEndDay).append("-")
+	                    .append(mEndYear));
+	}
+	
+	private DatePickerDialog.OnDateSetListener mStartDateSetListener =
+        new DatePickerDialog.OnDateSetListener() {
+
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                    int dayOfMonth) {
+                mStartYear = year;
+                mStartMonth = monthOfYear;
+                mStartDay = dayOfMonth;
+                updateDisplay();
+            }
+        };
+
+        private DatePickerDialog.OnDateSetListener mEndDateSetListener =
+            new DatePickerDialog.OnDateSetListener() {
+
+                public void onDateSet(DatePicker view, int year, int monthOfYear,
+                        int dayOfMonth) {
+                    mEndYear = year;
+                    mEndMonth = monthOfYear;
+                    mEndDay = dayOfMonth;
+                    updateDisplay();
+                }
+            };
+
+        
+	@Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {           
+            case DATE_DIALOG_START_ID:
+                ((DatePickerDialog) dialog).updateDate(mStartYear, mStartMonth, mStartDay);
+                break;
+            case DATE_DIALOG_END_ID:
+                ((DatePickerDialog) dialog).updateDate(mEndYear, mEndMonth, mEndDay);
+                break;
+        }
 	}
 
-	private void setSliders() {
-
-	}
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case DATE_DIALOG_START_ID:
+			return new DatePickerDialog(this, mStartDateSetListener,
+					mStartYear, mStartMonth, mStartDay);
+		case DATE_DIALOG_END_ID:
+			return new DatePickerDialog(this, mEndDateSetListener, mEndYear,
+					mEndMonth, mEndDay);
+		}
+		return null;
+    }
 
 	
 
 	private void setEventListeners() {
-		seekEnd = (SeekBar) findViewById(R.id.range_endseek);
+		Button btnStartDate = (Button) findViewById(R.id.range_btn_startdate);
+		btnStartDate.setOnClickListener(new OnClickListener() {
 
-		seekEnd.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromTouch) {
-				updateDisplayFromSliders();
-
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				updateDisplayFromSliders();
-
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				updateDisplayFromSliders();
+			public void onClick(View v) {
+				  showDialog(DATE_DIALOG_START_ID);
 			}
 
 		});
+		
+		
+		Button btnEndDate = (Button) findViewById(R.id.range_btn_enddate);
+		btnEndDate.setOnClickListener(new OnClickListener() {
 
-		seekStart = (SeekBar) findViewById(R.id.range_startseek);
-		seekStart.setSecondaryProgress(seekEnd.getProgress());
-		seekStart.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromTouch) {
-				updateDisplayFromSliders();
-
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				updateDisplayFromSliders();
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				updateDisplayFromSliders();
+			public void onClick(View v) {
+				showDialog(DATE_DIALOG_END_ID);
 			}
 
 		});
@@ -144,10 +221,11 @@ public class DateRange extends Activity {
 
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Calendar delta = Calendar.getInstance();
-				delta.setTimeInMillis(mStartNow.getTime());
-				delta.set(Calendar.DATE, delta.get(Calendar.DATE) - 30);
-				updateDisplayFromDate(delta);
+				Calendar newEnd = Calendar.getInstance();
+				Calendar newStart = Calendar.getInstance(); 
+				newStart.set(Calendar.DATE, newEnd.get(Calendar.DATE) - 30);
+				setUpdateCalendar(newStart,newEnd);
+				
 			}
 
 		});
@@ -155,10 +233,10 @@ public class DateRange extends Activity {
 		btnOneWeek.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				Calendar delta = Calendar.getInstance();
-				delta.setTimeInMillis(mStartNow.getTime());
-				delta.set(Calendar.DATE, delta.get(Calendar.DATE) - 7);
-				updateDisplayFromDate(delta);
+				Calendar newEnd = Calendar.getInstance();
+				Calendar newStart = Calendar.getInstance(); 
+				newStart.set(Calendar.DATE, newEnd.get(Calendar.DATE) - 7);
+				setUpdateCalendar(newStart,newEnd);
 
 			}
 
@@ -167,58 +245,28 @@ public class DateRange extends Activity {
 		btnOneDay.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				Calendar delta = Calendar.getInstance();
-				delta.setTimeInMillis(mStartNow.getTime());
-				delta.set(Calendar.DATE, delta.get(Calendar.DATE) - 1);
-				updateDisplayFromDate(delta);
+				Calendar newEnd = Calendar.getInstance();
+				Calendar newStart = Calendar.getInstance(); 
+				newStart.set(Calendar.DATE, newEnd.get(Calendar.DATE) - 1);
+				setUpdateCalendar(newStart,newEnd);
+			}
+		});
+		
+		Button btnThreeMonth = (Button) findViewById(R.id.range_btn_last_threemonth);
+		btnThreeMonth.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Calendar newEnd = Calendar.getInstance();
+				Calendar newStart = Calendar.getInstance(); 
+				newStart.set(Calendar.MONTH, newEnd.get(Calendar.MONTH) - 3);
+				setUpdateCalendar(newStart,newEnd);
 			}
 		});
 	}
 
-	private void updateDisplayFromDate(Calendar delta) {
-		long tickDelta = mStartNow.getTime() - mAbsoluteEndDate.getTime();
-		long increment = tickDelta / 100;
-		long slice = mStartNow.getTime() - delta.getTimeInMillis();
+	
 
-		if (increment > 0) {
-			int ticks = (int) (slice / increment);
-			seekStart.setProgress(0);
-			seekEnd.setProgress(ticks);
-			seekStart.setSecondaryProgress(seekEnd.getProgress());			
-			
-			txvStartDate = (TextView) findViewById(R.id.txv_startdate);
-			txvStartDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
-					.getTime()
-					- (seekStart.getProgress() * increment)));
-
-			txvEndDate = (TextView) findViewById(R.id.txv_enddate);
-			txvEndDate.setText(Message.DisplayDateTimeFormat.format(delta.getTimeInMillis()));
-			
-		}
-	}
-
-	private void updateDisplayFromSliders() {
-		// Let's make sure the displays are ok
-		if (seekEnd.getProgress() < seekStart.getProgress()) {
-			seekEnd.setProgress(seekStart.getProgress());
-		}
-		seekStart.setSecondaryProgress(seekEnd.getProgress());
-		long tickDelta = mStartNow.getTime() - mAbsoluteEndDate.getTime();
-		long increment = tickDelta / 100;
-		
-		if (increment > 0) {
-			txvStartDate = (TextView) findViewById(R.id.txv_startdate);
-			txvStartDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
-					.getTime()
-					- (seekStart.getProgress() * increment)));
-
-			txvEndDate = (TextView) findViewById(R.id.txv_enddate);
-			txvEndDate.setText(Message.DisplayDateTimeFormat.format(mStartNow
-					.getTime()
-					- (seekEnd.getProgress() * increment)));
-		}
-		
-	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -237,14 +285,14 @@ public class DateRange extends Activity {
 		switch (item.getItemId()) {
 		case MENU_DONE:
 			Intent ret = new Intent();
+			Calendar finalStart = Calendar.getInstance();
+			finalStart.set(mStartYear, mStartMonth, mStartDay);
+						
+			Calendar finalEnd= Calendar.getInstance();
+			finalEnd.set(mEndYear, mEndMonth, mEndDay);
 			
-			txvStartDate = (TextView) findViewById(R.id.txv_startdate);
-			
-
-			txvEndDate = (TextView) findViewById(R.id.txv_enddate);
-			
-			ret.putExtra(ResultParams.RESULT_START_DATE, txvStartDate.getText().toString());
-			ret.putExtra(ResultParams.RESULT_END_DATE, txvEndDate.getText().toString());
+			ret.putExtra(ResultParams.RESULT_START_DATE, Message.SQLDateFormatter.format(finalStart.getTime()));
+			ret.putExtra(ResultParams.RESULT_END_DATE, Message.SQLDateFormatter.format(finalEnd.getTime()));
 			setResult(ACTIVITYRESULT_DATERANGE, ret);
 			finish();
 			return true;

@@ -2,9 +2,9 @@
 <resources>
     <string name="hello">Hello World, rapidandroid</string>
     <string name="app_name">RapidAndroid</string>
-<string name="lbl_formname">Name:</string>
-<string name="lbl_description">Description:</string>
-<string name="lbl_formprefix">Prefix:</string>
+<string name="lbl_formname">Name</string>
+<string name="lbl_description">Description</string>
+<string name="lbl_formprefix">Prefix</string>
 <string name="lbl_formchoose">Forms:</string>
 <string name="lbl_dashboardmessages">Recent Messages:</string>
 <string name="dashboard_menu_create">Create Form</string>
@@ -40,4 +40,7 @@
 <string name="lbl_chart_chartsubject">Chart Subject:</string>
 <string name="lbl_chart_datasummary">Data Summary:</string>
 <string name="lbl_chart_totalmessages">Total Messages:</string>
+<string name="btn_daterange_startdate">Start Date</string>
+<string name="btn_daterange_enddate">End Date</string>
+<string name="range_btn_lastthreemonth">End Date</string>
 </resources>

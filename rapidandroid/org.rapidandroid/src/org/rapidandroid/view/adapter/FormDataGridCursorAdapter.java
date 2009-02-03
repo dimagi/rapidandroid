@@ -1,7 +1,7 @@
 package org.rapidandroid.view.adapter;
 
 
-import org.rapidandroid.view.SingleRowView;
+import org.rapidandroid.view.SingleGridRowView;
 import org.rapidsms.java.core.model.Form;
 
 import android.content.Context;
@@ -16,19 +16,23 @@ import android.widget.CursorAdapter;
  * @created Jan 27, 2009
  * Summary:
  */
-public class FormDataCursorAdapter extends CursorAdapter {
+public class FormDataGridCursorAdapter extends CursorAdapter {
 
 	Form mForm;
 	Context mContext;
+	int mWidth;
+	int mColWidth;
 	
 	/**
 	 * @param context
 	 * @param c
 	 */
-	public FormDataCursorAdapter(Context context, Form form, Cursor c) {
+	public FormDataGridCursorAdapter(Context context, Form form, Cursor c, int screenWidth) {
 		super(context, c);
 		mForm = form;	
 		mContext = context;
+		mWidth = screenWidth;
+		mColWidth = screenWidth/(c.getColumnCount()-2);
 		
 	}
 
@@ -38,7 +42,7 @@ public class FormDataCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		if(view != null) {
-			SingleRowView srv = (SingleRowView)view;
+			SingleGridRowView srv = (SingleGridRowView)view;
 			srv.setData(cursor);
 		}
 					
@@ -49,7 +53,7 @@ public class FormDataCursorAdapter extends CursorAdapter {
 	 */
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		SingleRowView srv = new SingleRowView(context, cursor);			
+		SingleGridRowView srv = new SingleGridRowView(context, cursor, mColWidth);			
 		return srv;		
 	}
 

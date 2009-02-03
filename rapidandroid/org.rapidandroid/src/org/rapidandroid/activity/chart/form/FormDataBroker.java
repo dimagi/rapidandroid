@@ -104,7 +104,7 @@ public class FormDataBroker implements IChartBroker {
 		rawQuery.append(") ");
 		
 		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 
 		rawQuery.append(" order by rapidandroid_message.time ASC");
@@ -193,7 +193,7 @@ public class FormDataBroker implements IChartBroker {
 		rawQuery.append(") ");
 		
 		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mEndDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mStartDate) + "' ");
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 
 		

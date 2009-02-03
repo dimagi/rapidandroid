@@ -1,81 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
-android:id="@+id/widget28"
+<TableLayout
+android:id="@+id/TableLayout01"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
 android:orientation="vertical"
 xmlns:android="http://schemas.android.com/apk/res/android"
+android:stretchColumns="0,1"
 >
-<TableLayout android:id="@+id/TableLayout01"
-    android:layout_height="wrap_content" android:layout_width="fill_parent">
-    <TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="fill_parent">
-        <TextView
+<TableRow>
+<TextView
+android:id="@+id/lbl_formname"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-
 android:text="@string/lbl_formname"
-android:id="@+id/lbl_formname">
+android:padding="3dip"
+android:layout_weight="1" android:textStyle="bold">
 </TextView>
 <TextView
+android:id="@+id/lbl_formprefix"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-
 android:text="@string/lbl_formprefix"
-android:id="@+id/lbl_formprefix">
+android:padding="3dip"
+android:layout_weight="1" android:textStyle="bold">
 </TextView>
-        
-        </TableRow>
-
-
-	<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="fill_parent">
-		<TextView
+</TableRow>
+<TableRow>
+<TextView
+android:id="@+id/txv_formname"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="@+string/txv_formname"
-android:id="@+id/txv_formname">
+android:padding="3dip"
+android:layout_weight="1">
 </TextView>
 <TextView
+android:id="@+id/txv_formprefix"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="@+string/txv_formprefix"
-android:id="@+id/txv_formprefix">
+android:padding="3dip"
+android:layout_weight="1">
 </TextView>
-		
-		</TableRow>
-		
-		<TextView
+</TableRow>
+<TextView
+android:id="@+id/lbl_description"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-
 android:text="@string/lbl_description"
-android:id="@+id/lbl_description">
+android:padding="3dip"
+android:textStyle="bold">
 </TextView>
 <TextView
+android:id="@+id/txv_description"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:text="@+string/txv_description"
-android:id="@+id/txv_description">
+android:padding="3dip"
+>
 </TextView>
-</TableLayout>
-
-
 <LinearLayout
 android:id="@+id/FormFieldsLayout"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-android:orientation="vertical" >
+android:orientation="vertical"
+>
 <TextView
+android:id="@+id/lbl_fields"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-style="?android:attr/listSeparatorTextViewStyle"
 android:text="@string/lbl_fields"
-android:id="@+id/lbl_fields">
+style="?android:attr/listSeparatorTextViewStyle"
+>
 </TextView>
 <ListView
+android:id="@+id/lsv_fields"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-android:id="@+id/lsv_fields">
+>
 </ListView>
 </LinearLayout>
-</LinearLayout>
+</TableLayout>
