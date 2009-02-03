@@ -136,7 +136,7 @@ public class FormReviewer extends Activity {
 			for (int i = 0; i < len; i++) {
 				Field field = mForm.getFields()[i];
 				fields[i] = field.getName() + " ["
-						+ field.getFieldType().getItemType() + "]";
+						+ field.getFieldType().getItemType() + "]\n " + field.getDescription();
 			}
 			lsv_fields.setAdapter(new ArrayAdapter<String>(this,
 					android.R.layout.simple_list_item_1, fields));
