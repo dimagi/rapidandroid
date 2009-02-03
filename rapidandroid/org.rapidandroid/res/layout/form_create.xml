@@ -13,7 +13,7 @@
 			</TextView>
 				<EditText android:id="@+id/etx_formname"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:textSize="14sp" android:layout_weight="2"></EditText>
+				android:textSize="14sp" android:layout_weight="2" android:singleLine="true"></EditText>
 					<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="@string/lbl_formprefix" android:id="@+id/lbl_formprefix" android:layout_weight="0">
 			</TextView>
@@ -21,7 +21,7 @@
 		android:id="@+id/etx_formprefix"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-android:textSize="14sp" android:layout_weight="2"></EditText>
+android:textSize="14sp" android:layout_weight="2" android:singleLine="true"></EditText>
         
         </TableRow>
         <TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="fill_parent">
@@ -35,8 +35,7 @@ android:id="@+id/lbl_description" android:layout_weight="0">
 android:id="@+id/etx_description"
 android:layout_width="fill_parent"
 android:textSize="14sp"
-android:singleLine="false"
-android:gravity="top" android:layout_height="wrap_content" android:layout_weight="2"></EditText>		
+android:gravity="top" android:layout_height="wrap_content" android:layout_weight="2" android:singleLine="true"></EditText>		
 				
 				</TableRow>
         

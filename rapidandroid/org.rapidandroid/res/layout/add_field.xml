@@ -16,7 +16,7 @@
     </TableRow>
     <EditText android:id="@+id/etx_fieldname"
 	android:layout_width="fill_parent" android:layout_height="wrap_content"
-	android:textSize="14sp"></EditText>
+	android:textSize="14sp" android:singleLine="true"></EditText>
 
 	<TableRow android:id="@+id/TableRow03" android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
@@ -28,7 +28,7 @@
 	</TableRow>
         <EditText android:id="@+id/etx_fieldprompt"
         android:layout_width="fill_parent" android:layout_height="wrap_content"
-        android:textSize="14sp"></EditText>
+        android:textSize="14sp" android:singleLine="true"></EditText>
         <TextView android:id="@+id/lbl_fieldtypechoose"
         android:layout_width="fill_parent" android:layout_height="wrap_content"
         android:text="@string/lbl_fieldtypechoose" style="?android:attr/listSeparatorTextViewStyle">

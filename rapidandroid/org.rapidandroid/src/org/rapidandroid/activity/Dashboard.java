@@ -53,20 +53,15 @@ import android.widget.AdapterView.OnItemClickListener;
  * 
  * 
  */
-public class Dashboard extends Activity {	
-	
-	private SingleRowHeaderView headerView;
+public class Dashboard extends Activity {		
+
 	private SummaryCursorAdapter summaryView; 
 	private FormDataGridCursorAdapter rowView;
 	private MessageCursorAdapter messageCursorAdapter;
 	
-	//private ProgressDialog mLoadingDialog;
-	
+	//private ProgressDialog mLoadingDialog;	
 	
 	private Form mChosenForm = null;
-	
-		
-	private boolean mShowMonitors = false;
 	private boolean mShowAllMessages = false;
 
 	private static final int ACTIVITY_CREATE = 0;
@@ -81,8 +76,13 @@ public class Dashboard extends Activity {
 	//private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
 	// private static final int MENU_EXIT = Menu.FIRST + 3; //waitaminute, we
 	// don't want to exit this thing, do we?
-
 	
+	private static final String STATE_DATE_START = "startdate";
+	private static final String STATE_DATE_END = "enddate";
+	private static final String STATE_SPINNER_POSITION = "spinneritem";
+	private static final String STATE_SELECTED_FORM = "selectedform";
+	private static final String STATE_LSV_POSITION = "listposition";
+	private static final String STATE_LSV_VIEWMODE = "viewmode";
 	
 	private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
 	private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
@@ -103,6 +103,7 @@ public class Dashboard extends Activity {
 	
 	boolean resetCursor = true; 
 	Cursor mListviewCursor = null; 
+	private int selectedListViewPosition = -1;
 	
 	private Date mStartDate;
 	private Date mEndDate;
@@ -114,23 +115,8 @@ public class Dashboard extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setTitle("RapidAndroid :: Dashboard");		
-		setContentView(R.layout.dashboard);
-
-//		if (savedInstanceState != null) {
-//			String from = savedInstanceState.getString("from");
-//			String body = savedInstanceState.getString("body");
-//			//dialogMessage = "SMS :: " + from + " : " + body;
-//			//showDialog(160);
-//		}
-		
-//		mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_HORIZONTAL);
-//		mLoadingDialog.setMessage("Loading data...");
-//		mLoadingDialog.setTitle("Please wait");
-//		mLoadingDialog.setIndeterminate(true);
-//		mLoadingDialog.setCancelable(false);			
-
-		this.loadFormSpinner();
-
+		setContentView(R.layout.dashboard);		
+		this.initFormSpinner();
 		// Set the event listeners for the spinner and the listview
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 		spin_forms
@@ -175,15 +161,63 @@ public class Dashboard extends Activity {
 				if(adapter.getAdapter().getClass().equals(SummaryCursorAdapter.class) ) {
 					((SummaryCursorAdapter) adapter.getAdapter()).toggle(position);
 				}
-
 			}
-
 		});	
 		
 		//by default on startup:
 		mEndDate = new Date();
 		mStartDate = new Date();
-		mStartDate.setDate(mEndDate.getDate() - 1);
+		mStartDate.setDate(mEndDate.getDate() - 1);		
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(STATE_DATE_START)
+					&& savedInstanceState.containsKey(STATE_DATE_END)
+					&& savedInstanceState.containsKey(STATE_SPINNER_POSITION)
+				//	&& savedInstanceState.containsKey(STATE_LSV_POSITION)
+					&& savedInstanceState.containsKey(STATE_LSV_VIEWMODE)
+					//&& savedInstanceState.containsKey(STATE_SELECTED_FORM)
+					) {
+				
+				try {
+					mStartDate = Message.SQLDateFormatter.parse(savedInstanceState.getString(STATE_DATE_START));
+					mEndDate = Message.SQLDateFormatter.parse(savedInstanceState.getString(STATE_DATE_END));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				formViewMode = savedInstanceState.getInt(STATE_LSV_VIEWMODE);
+				
+				Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
+				spin_forms.setSelection(savedInstanceState.getInt(STATE_SPINNER_POSITION));				
+			}
+					
+			
+//			String from = savedInstanceState.getString("from");
+//			String body = savedInstanceState.getString("body");
+//			//dialogMessage = "SMS :: " + from + " : " + body;
+//			//showDialog(160);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		outState.putString(STATE_DATE_START, Message.SQLDateFormatter.format(mStartDate));
+		outState.putString(STATE_DATE_END, Message.SQLDateFormatter.format(mEndDate));
+		outState.putInt(STATE_LSV_VIEWMODE, formViewMode);
+		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
+		outState.putInt(STATE_SPINNER_POSITION,spin_forms.getSelectedItemPosition());
 	}
 
 	@Override
@@ -200,7 +234,7 @@ public class Dashboard extends Activity {
 		switch (requestCode) {
 		case ACTIVITY_CREATE:
 			// we should do an update of the view
-			loadFormSpinner();		
+			initFormSpinner();		
 			resetCursor = true;
 			beginListViewReload();
 			break;
@@ -349,7 +383,7 @@ public class Dashboard extends Activity {
 		Intent i = new Intent(this, ChartData.class);
 
 		// we want to chart for a form
-		if (mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+		if (mChosenForm != null && !mShowAllMessages) {
 			Date endDate = new Date();
 			endDate = ParsedDataReporter.getOldestMessageDate(this,mChosenForm);	
 			if(endDate.equals(Constants.NULLDATE)) {
@@ -363,12 +397,10 @@ public class Dashboard extends Activity {
 
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm
 							.getFormId());
-		} else if (mShowAllMessages && !mShowMonitors) {
+		} else if (mShowAllMessages) {
 			// Chart for messages
 			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
-		} else if (mShowMonitors && !mShowAllMessages) {
-			//Chart for monitors
-		}		
+		} 	
 		i.putExtra(ChartData.CallParams.START_DATE, Message.SQLDateFormatter.format(mStartDate));
 		i.putExtra(ChartData.CallParams.END_DATE, Message.SQLDateFormatter.format(mEndDate));
 		startActivityForResult(i, ACTIVITY_CHARTS);
@@ -376,7 +408,7 @@ public class Dashboard extends Activity {
 
 
 	// This is a call to the DB to get all the forms that this form can support.
-	private void loadFormSpinner() {
+	private void initFormSpinner() {
 		// The steps:
 		// get the spinner control from the layouts
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
@@ -384,7 +416,7 @@ public class Dashboard extends Activity {
 		// in the current iteration, it's mForms
 		this.mAllForms = ModelTranslator.getAllForms();
 
-		String[] monitors = new String[mAllForms.length + 2];
+		String[] monitors = new String[mAllForms.length + 1];
 		
 
 		for (int i = 0; i < mAllForms.length; i++) {
@@ -392,8 +424,8 @@ public class Dashboard extends Activity {
 		}
 		
 		//add some special selections:
-		monitors[monitors.length - 2] = "Show all Messages";
-		monitors[monitors.length - 1] = "Show Monitors";
+		monitors[monitors.length - 1] = "Show all Messages";
+		//monitors[monitors.length - 1] = "Show Monitors";
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, monitors);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -406,29 +438,16 @@ public class Dashboard extends Activity {
 			// if it's forms+1, then it's ALL messages			
 			mChosenForm = null;
 			this.mShowAllMessages = true;
-			this.mShowMonitors = false;
 			resetCursor = true;
 			beginListViewReload();
-			//loadListViewWithRawMessages();
-			
+			//loadListViewWithRawMessages();			
 
-		} else if (position == mAllForms.length + 1) {
-			// then it's show all monitors			
-			mChosenForm = null;
-			this.mShowAllMessages = false;
-			this.mShowMonitors = true;
-			resetCursor = true;
-			beginListViewReload();
-			//loadListViewsWithMonitors();
-			
 		} else {
 			this.mShowAllMessages = false;
-			this.mShowMonitors = false;
 			mChosenForm = mAllForms[position];
 			resetCursor = true;
-			beginListViewReload();
-			//loadListViewWithFormData(true);
-		}		
+			beginListViewReload();			
+		}
 	}
 		
 	
@@ -440,17 +459,14 @@ public class Dashboard extends Activity {
     	
     	ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);		
 		
-    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
+    	if(mChosenForm != null && !mShowAllMessages) {
     		loadListViewWithFormData();
     	}
-    	else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
+    	else if(mShowAllMessages && mChosenForm == null) {
 			this.messageCursorAdapter = new MessageCursorAdapter(this, mListviewCursor);
 			lsv.setAdapter(messageCursorAdapter);
     	}
-    	else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {    		
-    		lsv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, new String[] {"todo"}));    		
-    		
-    	}    	
+    	
     }
     
     private void beginListViewReload() {
@@ -478,20 +494,15 @@ public class Dashboard extends Activity {
     
     private void fillCursorInBackground() {
     	if(mListviewCursor == null) {
-	    	if(mChosenForm != null && !mShowAllMessages && !mShowMonitors) {
-	    		String whereclause = " rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "'";
+	    	if(mChosenForm != null && !mShowAllMessages) {
+	    		String whereclause = " rapidandroid_message.time >= '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time <= '" + Message.SQLDateFormatter.format(mEndDate) + "'";
 	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,whereclause,null,null);
 	    		
-	    	} else if(mShowAllMessages && mChosenForm == null && !mShowMonitors) {
-	    		String whereclause = "time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "'";
+	    	} else if(mShowAllMessages && mChosenForm == null) {
+	    		String whereclause = "time >= '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time <= '" + Message.SQLDateFormatter.format(mEndDate) + "'";
 	    		mListviewCursor = getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI, null, whereclause, null, "time DESC");
 	    		
-	    	} else if(mShowMonitors && !mShowAllMessages && mChosenForm==null) {
-	    		//do something
-//	    		query.append("WHERE rapidandroid_message.time > '" + startDate.get(Calendar.YEAR) + "-" + (startDate.get(Calendar.MONTH)+1) + "-" + startDate.get(Calendar.DATE) + "' AND ");
-//	    		query.append(" rapidandroid_message.time < '" + endDate.get(Calendar.YEAR) + "-" + (1+endDate.get(Calendar.MONTH)) + "-" + endDate.get(Calendar.DATE) + "';");
-//	    	
-	    	}    	
+	    	}     	
     	}    	
     }
     
