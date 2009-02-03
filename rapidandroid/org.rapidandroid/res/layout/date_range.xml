@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout android:id="@+id/TableLayout01"
-	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:scrollbarStyle="outsideOverlay">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:scrollbarStyle="outsideOverlay" android:scrollbars="vertical" android:layout_height="fill_parent">
 	<TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content"
 		android:layout_width="fill_parent">
 		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/btn_daterange_startdate" android:id="@+id/range_btn_startdate"></Button>
@@ -29,4 +29,5 @@
 <TableRow android:id="@+id/TableRow04" android:layout_height="wrap_content" android:layout_width="fill_parent"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastday" android:text="@string/range_btn_lastday" android:layout_weight="1">
 	</Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastweek" android:text="@string/range_btn_lastweek" android:layout_weight="1"></Button></TableRow><TableRow android:id="@+id/TableRow03" android:layout_height="wrap_content" android:layout_width="fill_parent"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_month" android:text="@string/range_btn_lastmonth" android:layout_weight="1"></Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_threemonth" android:text="@string/range_btn_lastthreemonth" android:layout_weight="1"></Button></TableRow>
 <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_entire_range" android:text="@string/btn_entire_range"></Button>
+
 </TableLayout>

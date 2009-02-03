@@ -53,4 +53,12 @@ public class MonitorDataBroker implements IChartBroker {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.rapidandroid.activity.chart.IChartBroker#finishGraph()
+	 */
+	public void finishGraph() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

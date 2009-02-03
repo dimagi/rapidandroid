@@ -5,12 +5,11 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.IChartBroker;
-import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
-import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Message;
 
+import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.WebView;
@@ -28,6 +27,7 @@ public class MessageDataBroker implements IChartBroker {
 	private int variablechosen = 0;
 	private Date mStartDate = Constants.NULLDATE;
 	private Date mEndDate = Constants.NULLDATE;
+	private ProgressDialog mProgress = null;
 	
 	public MessageDataBroker(WebView appView, Date startDate, Date endDate) {
 		this.mAppView = appView;
@@ -35,7 +35,7 @@ public class MessageDataBroker implements IChartBroker {
 
 		this.variables = new String[] { "Trends by day", "Receipt time of day" };
 
-		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.", Toast.LENGTH_LONG);
+//		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.", Toast.LENGTH_LONG);
 		mStartDate = startDate;
 		mEndDate= endDate;
 	}
@@ -57,6 +57,8 @@ public class MessageDataBroker implements IChartBroker {
 	 */
 
 	public void loadGraph() {
+		mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
+		
 		int width = mAppView.getWidth();
 		int height = 0;
 		if (width == 480) {
@@ -276,6 +278,17 @@ public class MessageDataBroker implements IChartBroker {
 	public void setRange(Date startTime, Date endTime) {
 		mStartDate = startTime;
 		mEndDate= endTime;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rapidandroid.activity.chart.IChartBroker#finishGraph()
+	 */
+	public void finishGraph() {
+		if(mProgress!= null) {
+			mProgress.dismiss();
+			mProgress= null;
+		}
+		
 	}
 
 }

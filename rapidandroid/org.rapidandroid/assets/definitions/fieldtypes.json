@@ -39,7 +39,7 @@
 		"model": "rapidandroid.fieldtype", 
 		"fields": {
 			"datatype": "float", 
-			"regex": "^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct))", 
+			"regex": "^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)|(\\d+\\.\\d+))", 
 			"name": "ratio"
 		}
 	}, 

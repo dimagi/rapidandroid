@@ -386,8 +386,7 @@ public class FormReviewer extends Activity {
 			msgUri = getContentResolver()
 					.insert(writeMessageUri, messageValues);
 
-			Vector<IParseResult> results = ParsingService.ParseMessage(mForm,
-					sb.toString());
+			Vector<IParseResult> results = ParsingService.ParseMessage(mForm,sb.toString());
 			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(
 					msgUri.getPathSegments().get(1)).intValue(), results);
 		}
@@ -421,10 +420,13 @@ public class FormReviewer extends Activity {
 	private static String[] lengths = new String[] { "cm", "m", "meters",
 			"meter" };
 	private static String[] weights = new String[] { "kg", "kilos", "kilo",
-			"kg.", "kgs" };
+			"kg.", "kg" };
 	private static String[] words = new String[] { "bos", "nyc", "jfk", "lax",
 			"lun", "lhr", "asvasd", "alksjwlejrwer", "bshdkghk", "akhsdwer",
 			"tiwowuy", "xvcxbxkhcvb" };
+	
+	private static String[] floats = new String[] { "0.24", "0.54", "1.5","50%", "25 pct","33 %", "15pct", "2/3",  "3:2"};
+	
 	Random r = new Random();
 
 	/**
@@ -456,8 +458,8 @@ public class FormReviewer extends Activity {
 				sb.append(r.nextInt(200) + " "
 						+ lengths[r.nextInt(lengths.length)]);
 			} else if (type.equals("ratio")) {
-				String floatString = r.nextFloat() + "";
-				sb.append(floatString.substring(0, 4));
+				
+				sb.append(floats[r.nextInt(floats.length)]);
 			} else if (type.equals("weight")) {
 				sb.append(r.nextInt(150) + " "
 						+ weights[r.nextInt(weights.length)]);

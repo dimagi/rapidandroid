@@ -68,6 +68,7 @@ public class ChartData extends Activity {
 		setContentView(org.rapidandroid.R.layout.data_chart);
 		WebView wv = (WebView) findViewById(org.rapidandroid.R.id.wv1);
 
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			Date startDate = Constants.NULLDATE;
@@ -101,6 +102,7 @@ public class ChartData extends Activity {
         wv.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);
         wv.loadUrl(CHART_FILE);
         
+        
         wv.debugDump();
 	}
 
@@ -109,7 +111,7 @@ public class ChartData extends Activity {
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stubz
 		super.onCreateDialog(id);
 		
 		switch (id) {

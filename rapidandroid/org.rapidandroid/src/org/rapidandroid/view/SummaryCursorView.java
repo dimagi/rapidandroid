@@ -44,26 +44,29 @@ public class SummaryCursorView extends TableLayout {
 			
 		mFields = fields;
 		//*************
-		//First row, summary		
+		TableRow topRow = new TableRow(getContext());
+		//First row, summary & sender		
 		mMessageSummary = new TextView(getContext());    
-		mMessageSummary.setPadding(2, 2, 2, 2);
+		mMessageSummary.setPadding(3, 3, 3, 3);
 		mMessageSummary.setTextSize(16);
+		mMessageSummary.setGravity(Gravity.LEFT);
+		
         //addView(mMessageSummary, new TableLayout.LayoutParams());
-		addView(mMessageSummary);
-		
-		
-		 //***********
-        //Second row, sender info
+		topRow.addView(mMessageSummary);
+				
 		mMonitorString = new TextView(getContext());
-		mMonitorString.setPadding(1, 1, 1, 1);
-		mMonitorString.setTextSize(14);
-		addView(mMonitorString);
+		mMonitorString.setPadding(3, 3, 8, 3);
+		mMonitorString.setTextSize(16);
+		mMonitorString.setGravity(Gravity.RIGHT);
 		
+		topRow.addView(mMonitorString);
+		addView(topRow);
 		 //***********
         //Third row, actual message        
 		mRawMessageRow = new TextView(getContext());
-		mRawMessageRow.setPadding(1, 1, 1, 1);
+		mRawMessageRow.setPadding(2, 2, 8, 2);
 		mRawMessageRow.setTextSize(12);
+		mRawMessageRow.setBackgroundColor(R.color.solid_green);
 		// addView(mRawMessageRow, new TableLayout.LayoutParams());
 		addView(mRawMessageRow);
 		
@@ -89,11 +92,13 @@ public class SummaryCursorView extends TableLayout {
 			txvFieldName.setTextSize(14);
 			txvFieldName.setBackgroundColor(R.color.background_red);
 			txvFieldName.setGravity(Gravity.LEFT);
+			txvFieldName.setPadding(10, 2, 2, 2);
 			mFieldLabels[i] = txvFieldName;
 			
 			TextView txvFieldData = new TextView(getContext());
 			txvFieldData.setGravity(Gravity.LEFT);
-			txvFieldData.setTextSize(14);			
+			txvFieldData.setTextSize(14);	
+			txvFieldData.setPadding(2, 2, 2, 2);
 			txvFieldData.setBackgroundColor(R.color.background_red);
 			mFieldValues[i] = txvFieldData;
 			
@@ -130,8 +135,7 @@ public class SummaryCursorView extends TableLayout {
         int lenresults = mFields.length;        
         for(int i = 0; i < lenresults; i++) {        	
         	mFieldLabels[i].setText(mFields[i]);        	
-        	mFieldValues[i].setText(cr.getString(i+2));
-        	
+        	mFieldValues[i].setText(cr.getString(i+2));        	
         }        	
 	}	
 	

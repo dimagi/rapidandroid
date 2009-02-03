@@ -1,5 +1,6 @@
 package org.rapidandroid.activity.chart.form;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
@@ -13,6 +14,8 @@ import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.WebView;
@@ -38,6 +41,8 @@ public class FormDataBroker implements IChartBroker {
 	
 	private String[] variables;
 
+	private ProgressDialog mProgress;
+
 	public FormDataBroker(WebView appView, Form form, Date startDate, Date endDate) {
 		this.mAppView = appView;
 		mForm = form;
@@ -45,10 +50,12 @@ public class FormDataBroker implements IChartBroker {
 		mPlotMethod = PLOT_ALL_MESSAGES_FOR_FORM;
 		// mAppView.getGlobalVisibleRect(r)
 		this.rawDB = new SmsDbHelper(appView.getContext());
+		Context c = appView.getContext();		
 
-		this.variables = new String[mForm.getFields().length];
-		for (int i = 0; i < variables.length; i++) {
-			Field f = mForm.getFields()[i];
+		this.variables = new String[mForm.getFields().length+1];
+		variables[0] = "Messages over time";
+		for (int i = 1; i < variables.length; i++) {
+			Field f = mForm.getFields()[i-1];
 			variables[i] = f.getName();
 		}
 		
@@ -58,7 +65,7 @@ public class FormDataBroker implements IChartBroker {
 	}
 
 	public void loadGraph() {
-
+		mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
 		int width = mAppView.getWidth();
 		int height = 0;
 		if (width == 480) {
@@ -71,10 +78,9 @@ public class FormDataBroker implements IChartBroker {
 		JSONArray arr = new JSONArray();
 
 		if (fieldToPlot == null) {
-			return;
-		}
-
-		if (fieldToPlot.getFieldType().getItemType().equals("word")) {
+			//we're going to do all messages over timereturn;
+			arr.put(loadMessageOverTimeHistogram());
+		} else if (fieldToPlot.getFieldType().getItemType().equals("word")) {
 			arr.put(loadHistogramFromField());
 		} else {
 			arr.put(loadNumericLine());
@@ -116,6 +122,7 @@ public class FormDataBroker implements IChartBroker {
 		int barCount = cr.getCount();
 
 		if (barCount == 0) {
+			cr.close();
 			return result;
 		} else {
 			Date[] xVals = new Date[barCount];
@@ -173,6 +180,99 @@ public class FormDataBroker implements IChartBroker {
 		}
 		return arr;
 	}
+	
+	private JSONObject loadMessageOverTimeHistogram() {
+		JSONObject result = new JSONObject();
+		SQLiteDatabase db = rawDB.getReadableDatabase();
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(mStartDate);
+		
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTime(mEndDate);
+		String legend = "";
+				
+		String selectionArg = "";
+		if (endCal.get(Calendar.YEAR) == startCal.get(Calendar.YEAR) &&
+				   endCal.get(Calendar.MONTH) == startCal.get(Calendar.MONTH) &&
+				   endCal.get(Calendar.DATE) - startCal.get(Calendar.DATE) < 3) {
+			//within 3 days, we do it by hour. with day shading
+			selectionArg = "  strftime('%H',time) ";
+			legend = "Hourly count";
+			
+		} 
+		
+		else if (endCal.get(Calendar.YEAR) == startCal.get(Calendar.YEAR) &&
+				   endCal.get(Calendar.MONTH) - startCal.get(Calendar.MONTH) < 3) {
+			//within 3 months, we break it down by day with week & month shading?
+			selectionArg = " strftime('%d', time) ";
+			legend = "Daily count";
+			
+		}
+		else if (endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) < 2) {
+			//within 2 years, we break it down by week with month shading
+			selectionArg = " strftime('%W', time) ";
+			legend = "Weekly count";
+			
+		}
+		else if (endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) < 4) {
+			// 2-4 years break it down by month with year shading
+			selectionArg = " strftime('%m',time) ";
+			legend = "Monthly count";
+			
+		} else if(endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) >= 4) {
+			//we need to break it down by year. with year shading
+			selectionArg = " strftime('%Y',time) ";
+			legend = "Annual count";
+		} 
+		StringBuilder rawQuery = new StringBuilder();
+		
+		rawQuery.append("select ").append(selectionArg).append(", count(*) from  ");
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
+		
+		rawQuery.append(" join rapidandroid_message on (");
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
+		rawQuery.append(".message_id = rapidandroid_message._id");
+		rawQuery.append(") ");
+		rawQuery.append(" group by ").append(selectionArg);		
+		rawQuery.append("order by ").append(selectionArg).append(" ASC");
+		
+	
+		// the X date value is column 0
+		// the y value magnitude is column 1
+
+		Cursor cr = db.rawQuery(rawQuery.toString(), null);
+		int barCount = cr.getCount();
+
+		if (barCount == 0) {
+			cr.close();
+			return result;
+		} else {
+			String[] xVals = new String[barCount];
+			int[] yVals = new int[barCount];
+			cr.moveToFirst();
+			int i = 0;
+			do {
+				xVals[i] = cr.getString(0);
+				yVals[i] = cr.getInt(1);
+				i++;
+			} while (cr.moveToNext());
+
+			try {
+				result.put("label", legend);
+				result.put("data", prepareData(yVals));
+				result.put("bars", getShowTrue());
+				result.put("points", getShowFalse());
+				result.put("xaxis", getXaxisOptions(xVals));
+
+			} catch (Exception ex) {
+
+			}
+			cr.close();
+			return result;
+		}
+
+	}
+	
 
 	private JSONObject loadHistogramFromField() {
 		JSONObject result = new JSONObject();
@@ -350,12 +450,26 @@ public class FormDataBroker implements IChartBroker {
 
 	public void setVariable(int id) {
 		// TODO Auto-generated method stub
-		this.fieldToPlot = mForm.getFields()[id];
-
+		if(id == 0) {
+			this.fieldToPlot = null;
+		} else {
+			this.fieldToPlot = mForm.getFields()[id-1];
+		}
 	}
 
 	public void setRange(Date startTime, Date endTime) {
 		mStartDate = startTime;
 		mEndDate= endTime;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rapidandroid.activity.chart.IChartBroker#finishGraph()
+	 */
+	public void finishGraph() {
+		if(mProgress!= null) {
+			mProgress.dismiss();
+			mProgress= null;
+		}
+		
 	}
 }

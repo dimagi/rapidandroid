@@ -18,6 +18,7 @@ public interface IChartBroker {
 	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
 	 */
 	void loadGraph();
+	void finishGraph();
 	String getGraphTitle();
 	String[] getVariables();
 	void setVariable(int id);
