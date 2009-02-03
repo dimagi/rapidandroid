@@ -16,20 +16,20 @@ public class Field {
 	private int fieldId;
 	private int sequenceId;
 	private String name;
-	private String prompt;
+	private String description;
 	private ITokenParser fieldType;
 	
-	public Field(int id, int sequence, String name, String prompt, ITokenParser ftype) {
+	public Field(int id, int sequence, String name, String description, ITokenParser ftype) {
 		this.fieldId = id;
 		this.sequenceId = sequence;
 		this.name = name;
-		this.prompt = prompt;
+		this.description = description;
 		this.fieldType = ftype;	
 	}
 	
 	public Field() {
 		fieldId = -1;
-		prompt = "";
+		description = "";
 		sequenceId = -1;
 		fieldType = null;
 	}
@@ -71,16 +71,16 @@ public class Field {
 		this.name = name;
 	}
 	/**
-	 * @return the prompt
+	 * @return the description
 	 */
-	public String getPrompt() {
-		return prompt;
+	public String getDescription() {
+		return description;
 	}
 	/**
-	 * @param prompt the prompt to set
+	 * @param description the description to set
 	 */
-	public void setPrompt(String prompt) {
-		this.prompt = prompt;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	/**
 	 * @return the fieldType
