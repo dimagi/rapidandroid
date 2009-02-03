@@ -42,5 +42,6 @@
 <string name="lbl_chart_totalmessages">Total Messages:</string>
 <string name="btn_daterange_startdate">Start Date</string>
 <string name="btn_daterange_enddate">End Date</string>
-<string name="range_btn_lastthreemonth">End Date</string>
+<string name="range_btn_lastthreemonth">Three Months</string>
+<string name="btn_entire_range">Entire Range</string>
 </resources>

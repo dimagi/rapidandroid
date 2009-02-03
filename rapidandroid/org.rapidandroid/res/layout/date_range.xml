@@ -5,31 +5,28 @@
 	<TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content"
 		android:layout_width="fill_parent">
 		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/btn_daterange_startdate" android:id="@+id/range_btn_startdate"></Button>
-		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txv_startdate" android:layout_weight="2" android:textSize="16sp"></TextView>
+		
 	
-</TableRow>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/btn_daterange_enddate" android:id="@+id/range_btn_enddate"></Button></TableRow>
 	
 
 	<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content"
-		android:layout_width="fill_parent">
+		android:layout_width="fill_parent"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txv_startdate" android:textSize="16sp" android:layout_gravity="center_horizontal" android:layout_weight="1"></TextView>
 		
 		<TextView android:id="@+id/txv_enddate" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="2" android:textSize="16sp"></TextView>
-	<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/btn_daterange_enddate" android:id="@+id/range_btn_enddate"></Button>
+			android:layout_height="wrap_content" android:textSize="16sp" android:layout_gravity="center_horizontal" android:layout_weight="1"></TextView>
+	
 </TableRow>
 	
 	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
 		android:layout_height="20px" android:text=" " ></TextView>
-	<Button android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/range_btn_lastday"
-		android:text="@string/range_btn_lastday">
-	</Button>
-		<Button android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/range_btn_lastweek"
-			android:text="@string/range_btn_lastweek"></Button>
-		<Button android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/range_btn_last_month"
-			android:text="@string/range_btn_lastmonth"></Button>
+	
+		
+		
 
-<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_threemonth" android:text="@string/range_btn_lastthreemonth"></Button>
+
+
+<TableRow android:id="@+id/TableRow04" android:layout_height="wrap_content" android:layout_width="fill_parent"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastday" android:text="@string/range_btn_lastday" android:layout_weight="1">
+	</Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_lastweek" android:text="@string/range_btn_lastweek" android:layout_weight="1"></Button></TableRow><TableRow android:id="@+id/TableRow03" android:layout_height="wrap_content" android:layout_width="fill_parent"><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_month" android:text="@string/range_btn_lastmonth" android:layout_weight="1"></Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_last_threemonth" android:text="@string/range_btn_lastthreemonth" android:layout_weight="1"></Button></TableRow>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/range_btn_entire_range" android:text="@string/btn_entire_range"></Button>
 </TableLayout>

@@ -76,8 +76,9 @@ public class DateRange extends Activity {
     private int mEndMonth;
     private int mEndDay;
     
- 
-
+    int mStartBeginningYear;
+    int mStartBeginningMonth;
+    int mStartBeginningDay;
 	
 	static final int DATE_DIALOG_START_ID = 0;
 	static final int DATE_DIALOG_END_ID = 1;
@@ -111,6 +112,10 @@ public class DateRange extends Activity {
 		s.setTime(mStartDate);
 		Calendar e = Calendar.getInstance();
 		e.setTime(mEndDate);
+		
+		mStartBeginningYear = s.get(Calendar.YEAR);
+		mStartBeginningMonth = s.get(Calendar.MONTH);
+		mStartBeginningDay = s.get(Calendar.DAY_OF_MONTH);		
 		
 		
         setUpdateCalendar(s,e);
@@ -259,6 +264,19 @@ public class DateRange extends Activity {
 				Calendar newEnd = Calendar.getInstance();
 				Calendar newStart = Calendar.getInstance(); 
 				newStart.set(Calendar.MONTH, newEnd.get(Calendar.MONTH) - 3);
+				setUpdateCalendar(newStart,newEnd);
+			}
+		});
+		
+		Button btnAll = (Button) findViewById(R.id.range_btn_entire_range);
+		btnAll.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Calendar newEnd = Calendar.getInstance();
+				Calendar newStart = Calendar.getInstance();
+				newStart.set(Calendar.YEAR, mStartBeginningYear);
+				newStart.set(Calendar.MONTH, mStartBeginningMonth);
+				newStart.set(Calendar.DATE, mStartBeginningDay);
 				setUpdateCalendar(newStart,newEnd);
 			}
 		});

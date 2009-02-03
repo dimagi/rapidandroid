@@ -87,12 +87,14 @@ public class SummaryCursorView extends TableLayout {
 			
 			TextView txvFieldName = new TextView(getContext());			
 			txvFieldName.setTextSize(14);
+			txvFieldName.setBackgroundColor(R.color.background_red);
 			txvFieldName.setGravity(Gravity.LEFT);
 			mFieldLabels[i] = txvFieldName;
 			
 			TextView txvFieldData = new TextView(getContext());
 			txvFieldData.setGravity(Gravity.LEFT);
 			txvFieldData.setTextSize(14);			
+			txvFieldData.setBackgroundColor(R.color.background_red);
 			mFieldValues[i] = txvFieldData;
 			
 			
