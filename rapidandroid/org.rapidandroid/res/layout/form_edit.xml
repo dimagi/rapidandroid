@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
 android:id="@+id/widget28"
 android:layout_width="fill_parent"
@@ -6,41 +7,47 @@ android:layout_height="fill_parent"
 android:orientation="vertical"
 xmlns:android="http://schemas.android.com/apk/res/android"
 >
-<LinearLayout
-android:id="@+id/FormProperties"
-android:layout_width="fill_parent"
+<TableLayout android:id="@+id/TableLayout01"
+    android:layout_height="wrap_content" android:layout_width="fill_parent">
+    <TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="fill_parent">
+        <TextView
+android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:orientation="vertical" >
-<TextView
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-style="?android:attr/listSeparatorTextViewStyle"
+
 android:text="@string/lbl_formname"
 android:id="@+id/lbl_formname">
 </TextView>
 <TextView
-android:layout_width="fill_parent"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+
+android:text="@string/lbl_formprefix"
+android:id="@+id/lbl_formprefix">
+</TextView>
+        
+        </TableRow>
+
+
+	<TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="fill_parent">
+		<TextView
+android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="@+string/txv_formname"
 android:id="@+id/txv_formname">
 </TextView>
 <TextView
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-style="?android:attr/listSeparatorTextViewStyle"
-android:text="@string/lbl_formprefix"
-android:id="@+id/lbl_formprefix">
-</TextView>
-<TextView
-android:layout_width="fill_parent"
+android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="@+string/txv_formprefix"
 android:id="@+id/txv_formprefix">
 </TextView>
-<TextView
-android:layout_width="fill_parent"
+		
+		</TableRow>
+		
+		<TextView
+android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-style="?android:attr/listSeparatorTextViewStyle"
+
 android:text="@string/lbl_description"
 android:id="@+id/lbl_description">
 </TextView>
@@ -50,7 +57,9 @@ android:layout_height="wrap_content"
 android:text="@+string/txv_description"
 android:id="@+id/txv_description">
 </TextView>
-</LinearLayout>
+</TableLayout>
+
+
 <LinearLayout
 android:id="@+id/FormFieldsLayout"
 android:layout_width="fill_parent"

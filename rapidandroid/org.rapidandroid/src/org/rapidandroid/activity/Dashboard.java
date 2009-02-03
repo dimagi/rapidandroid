@@ -300,7 +300,11 @@ public class Dashboard extends Activity {
 		Date endDate = new Date();
 		if(mChosenForm != null) {
 			ParsedDataReporter pdr = new ParsedDataReporter(this);
-			endDate = pdr.getOldestMessage(this.mChosenForm);
+			if(this.mListviewCursor.getCount() == 0) {
+				
+			} else {
+				endDate = pdr.getOldestMessage(this.mChosenForm);
+			}
 			pdr.done();
 		} else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);

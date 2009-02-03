@@ -16,7 +16,7 @@
 <string name="dashboard_menu_show_reports">Reports</string>
 <string name="menu_done">Finished</string>
 <string name="lbl_fieldname">Name:</string>
-<string name="lbl_fieldprompt">Prompt:</string>
+<string name="lbl_fieldprompt">Description:</string>
 <string name="lbl_fieldtypechoose">Field Type:</string>
 <string name="lbl_fields">Fields:</string>
 
@@ -27,7 +27,7 @@
 <string name="formreview_menu_format">Show Example</string>
 <string name="chart_menu_done">Done</string>
 <string name="chart_menu_change_variable">Change Variable</string>
-<string name="chart_menu_change_parameters">Change Parameters</string>
+<string name="chart_menu_change_parameters">Date Range</string>
 <string name="formreview_dump_csv">Output CSV</string>
 <string name="formreview_upload_csv">Upload Report</string>
 <string name="lbl_enddate">End date:</string>

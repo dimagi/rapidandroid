@@ -42,6 +42,7 @@ public class MessageTranslator {
 		Cursor monitorCursor = context.getContentResolver().query(RapidSmsDBConstants.Monitor.CONTENT_URI, null, null,
 																	null, null);
 		if (monitorCursor.getCount() == 0) {
+			monitorCursor.close();
 			return;
 		}
 

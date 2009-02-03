@@ -47,7 +47,7 @@ public class AddField extends Activity {
 
 	public class ResultConstants {
 		public static final String RESULT_KEY_FIELDNAME = "fieldname";
-		public static final String RESULT_KEY_PROMPT  = "fieldname";
+		public static final String RESULT_KEY_DESCRIPTION  = "description";
 		public static final String RESULT_KEY_FIELDTYPE_ID = "fieldtypeid";	
 	}
 	
@@ -77,9 +77,9 @@ public class AddField extends Activity {
 			EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
 			Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
 			
-			etxName.setText(savedInstanceState.getString("name"));
-			etxPrompt.setText(savedInstanceState.getString("prompt"));
-			int position = savedInstanceState.getInt("type");
+			etxName.setText(savedInstanceState.getString(ResultConstants.RESULT_KEY_FIELDNAME));
+			etxPrompt.setText(savedInstanceState.getString(ResultConstants.RESULT_KEY_DESCRIPTION));
+			int position = savedInstanceState.getInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID);
 			if(position >= 0) {
 				spinnerFieldTypes.setSelection(position);
 			}
@@ -97,9 +97,9 @@ public class AddField extends Activity {
 		EditText etxPrompt = (EditText)findViewById(R.id.etx_fieldprompt);
 		Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
 		
-		outState.putString("name", etxName.getText().toString());
-		outState.putString("prompt", etxPrompt.getText().toString());
-		outState.putInt("type", spinnerFieldTypes.getSelectedItemPosition());
+		outState.putString(ResultConstants.RESULT_KEY_FIELDNAME, etxName.getText().toString());
+		outState.putString(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt.getText().toString());
+		outState.putInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID, spinnerFieldTypes.getSelectedItemPosition());
 	}
 	private void loadFieldTypes() {
 		Spinner spinnerFieldTypes = (Spinner)findViewById(R.id.cbx_fieldtype);
@@ -139,7 +139,7 @@ public class AddField extends Activity {
 				
 				Intent ret = new Intent();
 				ret.putExtra(ResultConstants.RESULT_KEY_FIELDNAME, etxName.getText().toString());
-				ret.putExtra(ResultConstants.RESULT_KEY_PROMPT, etxPrompt.getText().toString());
+				ret.putExtra(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt.getText().toString());
 				int pos = spinnerFieldTypes.getSelectedItemPosition();
 				int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos]).getId();					
 				ret.putExtra(ResultConstants.RESULT_KEY_FIELDTYPE_ID, fieldTypeIdHack);

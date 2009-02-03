@@ -1,5 +1,6 @@
 package org.rapidandroid.view;
 
+import org.rapidandroid.R;
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
@@ -28,7 +29,7 @@ public class SummaryCursorView extends TableLayout {
 
 	TextView mRawMessageRow;
 //	TableRow mParsedSummaryRow;
-	TextView mParsedSummaryRow;
+//TextView mParsedSummaryRow;
 	
 	TableRow[] mParsedDataRows;	
 	TextView[] mFieldLabels;
@@ -68,12 +69,12 @@ public class SummaryCursorView extends TableLayout {
 		
 		
 		//*************
-		//First row, parsed data
-		mParsedSummaryRow = new TextView(getContext());        
-		mParsedSummaryRow.setPadding(2, 2, 2, 2);
-		mParsedSummaryRow.setTextSize(16);               
-        //this.addView(mParsedSummaryRow, new TableLayout.LayoutParams());
-		addView(mParsedSummaryRow);
+//		//First row, parsed data
+//		mParsedSummaryRow = new TextView(getContext());        
+//		mParsedSummaryRow.setPadding(2, 2, 2, 2);
+//		mParsedSummaryRow.setTextSize(16);               
+//        //this.addView(mParsedSummaryRow, new TableLayout.LayoutParams());
+//		addView(mParsedSummaryRow);
 
 		int lenresults = fields.length;
 		mParsedDataRows = new TableRow[lenresults];
@@ -82,6 +83,7 @@ public class SummaryCursorView extends TableLayout {
 
 		for (int i = 0; i < lenresults; i++) {
 			TableRow row = new TableRow(getContext());
+			row.setBackgroundColor(R.color.background_red);
 			
 			TextView txvFieldName = new TextView(getContext());			
 			txvFieldName.setTextSize(14);
@@ -93,6 +95,7 @@ public class SummaryCursorView extends TableLayout {
 			txvFieldData.setTextSize(14);			
 			mFieldValues[i] = txvFieldData;
 			
+			
 			row.addView(txvFieldName, 0);
 			row.addView(txvFieldData, 1);
 			mParsedDataRows[i] = row;
@@ -100,6 +103,7 @@ public class SummaryCursorView extends TableLayout {
 			this.addView(row, new TableRow.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		}
 		
+		//this.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		setMessageTop(formDataCursor);
 		setParsedBottom(formDataCursor);
 		setExpanded(expanded);
@@ -107,17 +111,17 @@ public class SummaryCursorView extends TableLayout {
 	
 	private void setMessageTop(Cursor cr) {
 		mMsg = MessageTranslator.GetMessage(getContext(), cr.getInt(1));
-        mMessageSummary.setText("ID: " + mMsg.getID() + " :: " + Message.DisplayDateTimeFormat.format(mMsg.getTimestamp()));          
+        mMessageSummary.setText(Message.DisplayDateTimeFormat.format(mMsg.getTimestamp()));          
         if(mMsg.getMonitor() == null) {
         	mMonitorString.setText("null");
         } else {
-        	mMonitorString.setText(mMsg.getMonitor().getPhone());
+        	mMonitorString.setText("  " + mMsg.getMonitor().getPhone());
         }
         mRawMessageRow.setText(mMsg.getMessageText());        
 	}
 	
 	private void setParsedBottom(Cursor cr) {		
-		mParsedSummaryRow.setText("Parsed Data");
+		//mParsedSummaryRow.setText("Parsed Data");
         int lenresults = mFields.length;        
         for(int i = 0; i < lenresults; i++) {        	
         	mFieldLabels[i].setText(mFields[i]);        	
@@ -133,7 +137,7 @@ public class SummaryCursorView extends TableLayout {
 	
 	public void setExpanded(boolean expanded) {		
 		mRawMessageRow.setVisibility(expanded ? VISIBLE : GONE);
-		mParsedSummaryRow.setVisibility(expanded ? VISIBLE : GONE);
+		//mParsedSummaryRow.setVisibility(expanded ? VISIBLE : GONE);
 		int rowLen = mParsedDataRows.length;
 		for(int i = 0; i < rowLen; i++) {
 			mParsedDataRows[i].setVisibility(expanded ? VISIBLE : GONE);

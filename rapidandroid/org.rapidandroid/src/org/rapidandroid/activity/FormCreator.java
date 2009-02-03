@@ -185,7 +185,7 @@ public class FormCreator extends Activity {
 
 				Bundle fieldBundle = new Bundle();
 				fieldBundle.putString(AddField.ResultConstants.RESULT_KEY_FIELDNAME, f.getName());
-				fieldBundle.putString(AddField.ResultConstants.RESULT_KEY_PROMPT, f.getPrompt());
+				fieldBundle.putString(AddField.ResultConstants.RESULT_KEY_DESCRIPTION, f.getDescription());
 				fieldBundle.putInt(AddField.ResultConstants.RESULT_KEY_FIELDTYPE_ID, ((SimpleFieldType) f.getFieldType()).getId());
 				outState.putBundle("Field" + i, fieldBundle);
 			}
@@ -227,7 +227,7 @@ public class FormCreator extends Activity {
 		Field newField = new Field();
 		newField.setFieldId(-1);
 		newField.setName(extras.getString(ResultConstants.RESULT_KEY_FIELDNAME));
-		newField.setPrompt(extras.getString(ResultConstants.RESULT_KEY_PROMPT));
+		newField.setDescription(extras.getString(ResultConstants.RESULT_KEY_DESCRIPTION));
 		int fieldTypeID = extras.getInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID);
 		ITokenParser fieldtype = ModelTranslator.getFieldType(fieldTypeID);
 		newField.setFieldType(fieldtype);
@@ -258,7 +258,8 @@ public class FormCreator extends Activity {
 				StringBuilder sb = new StringBuilder();
 				Field f = mCurrentFields.get(i);
 				sb.append(f.getName());
-				sb.append(" [" + f.getFieldType().getTokenName() + "]");
+				sb.append(" [" + f.getFieldType().getTokenName() + "]\n");
+				sb.append(" " + f.getDescription());
 				fieldStrings[i] = sb.toString();
 			}
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fieldStrings));

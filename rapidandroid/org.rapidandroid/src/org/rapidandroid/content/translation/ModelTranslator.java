@@ -117,7 +117,7 @@ public class ModelTranslator {
 				}
 				fieldcv.put(RapidSmsDBConstants.Field.NAME, thefield.getName());
 				fieldcv.put(RapidSmsDBConstants.Field.FORM, f.getFormId());
-				fieldcv.put(RapidSmsDBConstants.Field.PROMPT, thefield.getPrompt());
+				fieldcv.put(RapidSmsDBConstants.Field.PROMPT, thefield.getDescription());
 				fieldcv.put(RapidSmsDBConstants.Field.SEQUENCE, thefield.getSequenceId());
 
 				fieldcv.put(RapidSmsDBConstants.Field.FIELDTYPE, ((SimpleFieldType) (thefield.getFieldType())).getId());

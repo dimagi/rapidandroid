@@ -366,7 +366,7 @@ public class ContentBootstrapTests extends AndroidTestCase {
 					typecv.put(RapidSmsDBConstants.Field._ID, thefield.getFieldId());
 					typecv.put(RapidSmsDBConstants.Field.NAME, thefield.getName());
 					typecv.put(RapidSmsDBConstants.Field.FORM, f.getFormId());
-					typecv.put(RapidSmsDBConstants.Field.PROMPT, thefield.getPrompt());
+					typecv.put(RapidSmsDBConstants.Field.PROMPT, thefield.getDescription());
 					typecv.put(RapidSmsDBConstants.Field.SEQUENCE, thefield.getSequenceId());
 					
 					typecv.put(RapidSmsDBConstants.Field.FIELDTYPE, ((SimpleFieldType) (thefield.getFieldType())).getId());
