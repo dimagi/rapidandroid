@@ -105,8 +105,8 @@ public class Dashboard extends Activity {
 	Cursor mListviewCursor = null; 
 	private int selectedListViewPosition = -1;
 	
-	private Date mStartDate;
-	private Date mEndDate;
+	private Date mStartDate = Constants.NULLDATE;
+	private Date mEndDate = Constants.NULLDATE;
 	private int mScreenWidth;
 	
 	
@@ -167,7 +167,7 @@ public class Dashboard extends Activity {
 		//by default on startup:
 		mEndDate = new Date();
 		mStartDate = new Date();
-		mStartDate.setDate(mEndDate.getDate() - 1);		
+		mStartDate.setDate(mEndDate.getDate() - 7);		
 	}
 	
 	/* (non-Javadoc)
@@ -495,8 +495,13 @@ public class Dashboard extends Activity {
     private void fillCursorInBackground() {
     	if(mListviewCursor == null) {
 	    	if(mChosenForm != null && !mShowAllMessages) {
-	    		String whereclause = " rapidandroid_message.time >= '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time <= '" + Message.SQLDateFormatter.format(mEndDate) + "'";
-	    		mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,whereclause,null,null);
+	    		String whereclause = " rapidandroid_message.time >= '"
+							+ Message.SQLDateFormatter.format(mStartDate) + "' AND time <= '"
+							+ Message.SQLDateFormatter.format(mEndDate) + "'";
+					mListviewCursor = getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX + mChosenForm.getFormId()), null,whereclause,null,null);
+	    		
+	    		
+	    		
 	    		
 	    	} else if(mShowAllMessages && mChosenForm == null) {
 	    		String whereclause = "time >= '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time <= '" + Message.SQLDateFormatter.format(mEndDate) + "'";

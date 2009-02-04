@@ -365,7 +365,7 @@ public class FormReviewer extends Activity {
 		for (int i = 0; i < 100; i++) {
 
 			// first, let's get the
-			String token = Long.toString(Math.abs(r.nextLong()), 36);
+			String token = phones[r.nextInt(phones.length)];//Long.toString(Math.abs(r.nextLong()), 36);
 			Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(this, token);
 			
 			Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
@@ -395,15 +395,16 @@ public class FormReviewer extends Activity {
 
 	private Date getRandomDate() {
 		Calendar cdr = Calendar.getInstance();
-		cdr.set(1999, 1, 1);
-		cdr.set(Calendar.HOUR_OF_DAY, 6);
+		//cdr.set(1999, 1, 1);
+		cdr.set(Calendar.MONTH,cdr.get(Calendar.MONTH) -3);
+		cdr.set(Calendar.HOUR_OF_DAY, 0);
 		cdr.set(Calendar.MINUTE, 0);
 		cdr.set(Calendar.SECOND, 0);
 		long val1 = cdr.getTimeInMillis();
 
-		cdr.set(2009, 1, 29);
+		cdr = Calendar.getInstance();
 		cdr.set(Calendar.HOUR_OF_DAY, 23);
-		cdr.set(Calendar.MINUTE, 0);
+		cdr.set(Calendar.MINUTE, 59);
 		cdr.set(Calendar.SECOND, 0);
 		long val2 = cdr.getTimeInMillis();
 
@@ -424,6 +425,7 @@ public class FormReviewer extends Activity {
 	private static String[] words = new String[] { "bos", "nyc", "jfk", "lax",
 			"lun", "lhr", "asvasd", "alksjwlejrwer", "bshdkghk", "akhsdwer",
 			"tiwowuy", "xvcxbxkhcvb" };
+	private static String[] phones = new String[] {"5558675309","6175803100", "2128246918", "2123267768", "6175803103"};
 	
 	private static String[] floats = new String[] { "0.24", "0.54", "1.5","50%", "25 pct","33 %", "15pct", "2/3",  "3:2"};
 	

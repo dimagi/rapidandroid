@@ -102,8 +102,7 @@ public class ChartData extends Activity {
         wv.getSettings().setJavaScriptEnabled(true);
         wv.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);
         wv.loadUrl(CHART_FILE);
-        
-        
+        //mBroker.loadGraph();        
         wv.debugDump();
 	}
 
