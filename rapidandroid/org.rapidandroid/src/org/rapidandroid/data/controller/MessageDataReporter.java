@@ -9,6 +9,7 @@ import org.rapidsms.java.core.model.Message;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class MessageDataReporter {
 
@@ -17,8 +18,8 @@ public class MessageDataReporter {
 		query.append("select min(time) ");		
 		query.append(" from rapidandroid_message");
 		SmsDbHelper mHelper = new SmsDbHelper(context);
-		
-		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
+		SQLiteDatabase db = mHelper.getReadableDatabase();
+		Cursor cr = db.rawQuery(query.toString(), null);
 		cr.moveToFirst();
 		String dateString = cr.getString(0);
 		Date ret = new Date();
@@ -29,6 +30,8 @@ public class MessageDataReporter {
 			e.printStackTrace();
 		}		
 		cr.close();
+		db.close();
+		mHelper.close();
 		return ret;
 	}
 	

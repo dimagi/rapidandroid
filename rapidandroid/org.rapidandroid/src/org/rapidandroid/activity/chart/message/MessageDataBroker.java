@@ -9,9 +9,11 @@ import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Message;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -28,10 +30,20 @@ public class MessageDataBroker implements IChartBroker {
 	private Date mStartDate = Constants.NULLDATE;
 	private Date mEndDate = Constants.NULLDATE;
 	private ProgressDialog mProgress = null;
+	private Activity mParentActivity;
 	
-	public MessageDataBroker(WebView appView, Date startDate, Date endDate) {
+	final Handler mTitleHandler = new Handler();
+	final Runnable mUpdateActivityTitle = new Runnable() {
+		public void run() {
+			mParentActivity.setTitle(variables[variablechosen]);
+		}
+	};
+	
+	public MessageDataBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
+		this.mParentActivity = activity;
 		this.mAppView = appView;
 		this.rawDB = new SmsDbHelper(appView.getContext());
+		
 
 		this.variables = new String[] { "Trends by day", "Receipt time of day" };
 
@@ -288,6 +300,8 @@ public class MessageDataBroker implements IChartBroker {
 			mProgress.dismiss();
 			mProgress= null;
 		}
+		
+		mTitleHandler.post(mUpdateActivityTitle);
 		
 	}
 

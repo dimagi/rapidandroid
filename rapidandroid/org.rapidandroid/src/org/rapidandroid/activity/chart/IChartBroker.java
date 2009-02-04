@@ -2,6 +2,8 @@ package org.rapidandroid.activity.chart;
 
 import java.util.Date;
 
+import android.app.Activity;
+
 
 /**
  * Interface for simple chart display.
@@ -22,6 +24,5 @@ public interface IChartBroker {
 	String getGraphTitle();
 	String[] getVariables();
 	void setVariable(int id);
-	void setRange(Date startTime, Date endTime);
-	
+	void setRange(Date startTime, Date endTime);	
 }

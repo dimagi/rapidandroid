@@ -91,13 +91,14 @@ public class ChartData extends Activity {
 				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
 				mBroker= new FormDataBroker(wv, mForm, startDate,endDate);
 			} else if(extras.containsKey(CallParams.CHART_MESSAGES)) {
-				mBroker= new MessageDataBroker(wv,startDate,endDate);
+				mBroker= new MessageDataBroker(this,wv,startDate,endDate);
 			} else if(extras.containsKey(CallParams.CHART_MONITORS)) {
 				
 			}
 			
 			
-		}        
+		}
+
         wv.getSettings().setJavaScriptEnabled(true);
         wv.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);
         wv.loadUrl(CHART_FILE);

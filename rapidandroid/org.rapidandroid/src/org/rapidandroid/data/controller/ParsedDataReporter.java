@@ -21,6 +21,7 @@ import org.rapidsms.java.core.model.Message;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -45,9 +46,11 @@ public class ParsedDataReporter {
 		query.append(".message_id = rapidandroid_message._id");
 		query.append(") ");
 		
-		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
+		SQLiteDatabase db = mHelper.getReadableDatabase();
+		Cursor cr = db.rawQuery(query.toString(), null);
 		if(cr.getCount() == 0) {
 			cr.close();
+			db.close();
 			mHelper.close();
 			return Constants.NULLDATE;
 			
@@ -55,20 +58,36 @@ public class ParsedDataReporter {
 		cr.moveToFirst();
 		String dateString = cr.getString(0);
 		
-		if(dateString == null) {
+		if (dateString == null) {
 			cr.close();
-			mHelper.close();			
+			db.close();
+			mHelper.close();
 			return Constants.NULLDATE;
 		}
-		
+
 		Date ret = new Date();
 		try {
 			ret = Message.SQLDateFormatter.parse(dateString);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
+
 			e.printStackTrace();
-		}		
+			try {
+				if (cr != null) {
+					cr.close();
+				}
+				if(db!=null) {
+					db.close();
+				}
+				if (mHelper != null) {
+					mHelper.close();
+				}
+			} catch (Exception ex2) {
+
+			}
+		}
 		cr.close();
+		db.close();
 		mHelper.close();
 		return ret;
 	}
