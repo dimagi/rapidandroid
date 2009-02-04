@@ -47,8 +47,8 @@ public class ParsedDataReporter {
 		
 		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
 		if(cr.getCount() == 0) {
-			mHelper.close();
 			cr.close();
+			mHelper.close();
 			return Constants.NULLDATE;
 			
 		}
@@ -56,8 +56,8 @@ public class ParsedDataReporter {
 		String dateString = cr.getString(0);
 		
 		if(dateString == null) {
-			mHelper.close();
 			cr.close();
+			mHelper.close();			
 			return Constants.NULLDATE;
 		}
 		
