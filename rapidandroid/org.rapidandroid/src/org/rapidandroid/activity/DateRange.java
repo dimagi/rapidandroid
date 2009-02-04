@@ -96,14 +96,10 @@ public class DateRange extends Activity {
 			if(!extras.containsKey(CallParams.ACTIVITY_ARG_STARTDATE)) {
 				throw new IllegalArgumentException("This activity must be called with an appropriate startdate in the past.");
 			}
-			String datestring = extras.getString(CallParams.ACTIVITY_ARG_STARTDATE);
-			try {
-				mStartDate =  Message.SQLDateFormatter.parse(datestring);
-				mEndDate = new Date();	//now
-
-			} catch (Exception ex) {
-
-			}
+			
+			mStartDate = new Date(extras.getLong(CallParams.ACTIVITY_ARG_STARTDATE));
+			mEndDate = new Date();	//now
+			
 		} 
 		
 		txvStartDate = (TextView)findViewById(R.id.txv_startdate);
@@ -309,8 +305,8 @@ public class DateRange extends Activity {
 			Calendar finalEnd= Calendar.getInstance();
 			finalEnd.set(mEndYear, mEndMonth, mEndDay);
 			
-			ret.putExtra(ResultParams.RESULT_START_DATE, Message.SQLDateFormatter.format(finalStart.getTime()));
-			ret.putExtra(ResultParams.RESULT_END_DATE, Message.SQLDateFormatter.format(finalEnd.getTime()));
+			ret.putExtra(ResultParams.RESULT_START_DATE, finalStart.getTime().getTime());
+			ret.putExtra(ResultParams.RESULT_END_DATE, finalEnd.getTime().getTime());
 			setResult(ACTIVITYRESULT_DATERANGE, ret);
 			finish();
 			return true;

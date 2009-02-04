@@ -68,6 +68,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		}
 		mExpanded = new HashMap<Integer, Boolean>();
 		
+		
 	}
 
 	/*
@@ -78,13 +79,6 @@ public class SummaryCursorAdapter extends CursorAdapter {
 	 */
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		
-		if(mLoadViewCount < 10) {
-		
-		} else {
-		
-		}
-		
 		SummaryCursorView pmcv = (SummaryCursorView) view;
 		pmcv.setData(cursor);
 		Integer intpos = Integer.valueOf(cursor.getPosition());

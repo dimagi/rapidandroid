@@ -7,28 +7,23 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rapidandroid.activity.chart.IChartBroker;
+import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.activity.chart.JSONGraphData;
 import org.rapidandroid.data.RapidSmsDBConstants;
-import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.webkit.WebView;
-import android.widget.Toast;
 
-public class FormDataBroker implements IChartBroker {
-	private WebView mAppView;
-
-	SmsDbHelper rawDB;
-
-	public static final int PLOT_ALL_MESSAGES_FOR_FORM = 0;
+public class FormDataBroker extends ChartBroker {
+		public static final int PLOT_ALL_MESSAGES_FOR_FORM = 0;
 	public static final int PLOT_NUMERIC_FIELD_VALUE = 1;
 	public static final int PLOT_NUMERIC_FIELD_ADDITIVE = 2;
 	public static final int PLOT_WORD_HISTOGRAM = 3;
@@ -38,47 +33,28 @@ public class FormDataBroker implements IChartBroker {
 	private Field fieldToPlot;
 	private int mPlotMethod;
 
-	private Date mStartDate = Constants.NULLDATE;
-	private Date mEndDate = Constants.NULLDATE;
+	
 	
 	private String[] variables;
 
 	private ProgressDialog mProgress;
 
-	public FormDataBroker(WebView appView, Form form, Date startDate, Date endDate) {
-		this.mAppView = appView;
+	public FormDataBroker(Activity parentActivity, WebView appView, Form form, Date startDate, Date endDate) {
+		super(parentActivity,appView,startDate,endDate);
 		mForm = form;
 		// by default, do all messages for form
 		mPlotMethod = PLOT_ALL_MESSAGES_FOR_FORM;
-		// mAppView.getGlobalVisibleRect(r)
-		this.rawDB = new SmsDbHelper(appView.getContext());
-		Context c = appView.getContext();		
 
 		this.variables = new String[mForm.getFields().length+1];
 		variables[0] = "Messages over time";
 		for (int i = 1; i < variables.length; i++) {
 			Field f = mForm.getFields()[i-1];
 			variables[i] = f.getName();
-		}
-		
-		mStartDate = startDate;
-		mEndDate = endDate;
-		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.",Toast.LENGTH_LONG );
+		}		
 	}
 
-	public void loadGraph() {
+	public void doLoadGraph() {
 		mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
-		int width = mAppView.getWidth();
-		int height = 0;
-		if (width == 480) {
-			height = 320;
-		} else if (width == 320) {
-			height = 480;
-		}
-		height = height - 50;
-
-		JSONArray data = getEmptyData();
-		JSONObject options = new JSONObject();
 		JSONGraphData allData  = null;
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
@@ -90,15 +66,11 @@ public class FormDataBroker implements IChartBroker {
 			//data.put(loadNumericLine());
 		}
 		if (allData != null) {
-			data = allData.getData();
-			options = allData.getOptions();
+			mGraphData = allData.getData();
+			mGraphOptions = allData.getOptions();
 		} 
-		System.out.println(data.toString());
-		System.out.println(options.toString());
-		
-		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height
-				+ "px\")");
-		mAppView.loadUrl("javascript:GotGraph(" + data.toString() + "," + options.toString() + ")");
+		Log.d("FormDataBroker",mGraphData.toString());
+		Log.d("FormDataBroker",mGraphOptions.toString());		
 	}
 
 	
@@ -253,7 +225,7 @@ public class FormDataBroker implements IChartBroker {
 		} 
 		StringBuilder rawQuery = new StringBuilder();
 		
-		rawQuery.append("select ").append(selectionArg).append(", count(*) from  ");
+		rawQuery.append("select time, count(*) from  ");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		
 		rawQuery.append(" join rapidandroid_message on (");
@@ -517,26 +489,10 @@ public class FormDataBroker implements IChartBroker {
 		return "my line baby";
 	}
 
-	// THIS ALSO WORKS!!
-	public String getGraphTitle(String arg, int intarg) {
-		return "my line baby: " + arg.length() * intarg;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#getVariables()
-	 */
-
-	public String[] getVariables() {
-		// TODO Auto-generated method stub
-		return variables;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#setVariable(int)
+	 * @see org.rapidandroid.activity.chart.ChartBroker#setVariable(int)
 	 */
 
 	public void setVariable(int id) {
@@ -547,20 +503,11 @@ public class FormDataBroker implements IChartBroker {
 			this.fieldToPlot = mForm.getFields()[id-1];
 		}
 	}
-
-	public void setRange(Date startTime, Date endTime) {
-		mStartDate = startTime;
-		mEndDate= endTime;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.rapidandroid.activity.chart.IChartBroker#finishGraph()
+/* (non-Javadoc)
+	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */
-	public void finishGraph() {
-		if(mProgress!= null) {
-			mProgress.dismiss();
-			mProgress= null;
-		}
-		
+	
+	public String getName() {
+		return "graph_form";
 	}
 }

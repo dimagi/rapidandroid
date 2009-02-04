@@ -1,6 +1,20 @@
 <LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android">
-<WebView android:id="@+id/wv1"
-            android:layout_height="fill_parent"
-            android:layout_width="fill_parent"
-            />
+<ViewSwitcher android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/chart_switcher">
+
+<WebView android:id="@+id/wv1" android:layout_height="fill_parent" android:layout_width="fill_parent" />
+
+	<TableLayout android:id="@+id/TableLayout01"
+		android:layout_width="wrap_content" android:layout_height="wrap_content">
+		<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+			<ProgressBar android:id="@+id/ProgressBar01"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:indeterminate="true"></ProgressBar>
+			<TextView android:id="@+id/TextView01" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Loading..."></TextView>
+		</TableRow>
+
+
+</TableLayout>
+</ViewSwitcher>
 </LinearLayout>

@@ -1,187 +1,266 @@
 package org.rapidandroid.activity;
 
-import java.text.ParseException;
 import java.util.Date;
 
-import org.rapidandroid.ActivityConstants;
 import org.rapidandroid.R;
-import org.rapidandroid.activity.chart.IChartBroker;
+import org.rapidandroid.R.id;
+import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.activity.chart.form.FormDataBroker;
 import org.rapidandroid.activity.chart.message.MessageDataBroker;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.controller.MessageDataReporter;
 import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.Constants;
-import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
-import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.webkit.WebView;
+import android.widget.ViewSwitcher;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
- * @created Jan 28, 2009
- * Summary:
+ * @created Jan 28, 2009 Summary:
  */
-public class ChartData extends Activity {	
+public class ChartData extends Activity {
 	public class CallParams {
 		public static final String CHART_FORM = "graph_form";
 		public static final String CHART_MESSAGES = "graph_msg";
 		public static final String CHART_MONITORS = "graph_monitor";
-		
+
 		public static final String START_DATE = "startdate";
 		public static final String END_DATE = "enddate";
 	}
-	
+
+	private static final String STATE_CHART_FOR = "charttype";
+	private static final String STATE_START_DATE = "startdate";
+	private static final String STATE_END_DATE = "enddate";
+	private static final String STATE_SELECTED_VARIABLE = "variable";
+	private static final String STATE_SELECTED_FORM = "form";
+
 	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
 	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
-	
+
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CHANGE_VARIABLE = Menu.FIRST + 1;
 	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
-	
+	private ViewSwitcher mViewSwitcher;
+
 	private static final int ACTIVITY_DATERANGE = 7;
+	private static final int THINKING_DIALOG = 160;
 	
+
+	private Date mStartDate;
+	private Date mEndDate;
+	private int mVariable;
+
 	private Form mForm;
-	IChartBroker mBroker;
-	
-	
-	/* (non-Javadoc)
+	ChartBroker mBroker;
+	private WebView mWebView;
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		//requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		//getWindow().setTitle("Viewing Some data");	//this doesn't seem to work just yet.  may need to use the com.example.android.apis.app.CustomTitle example and the title layout.  ugh.
+		// requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		// getWindow().setTitle("Viewing Some data"); //this doesn't seem to
+		// work just yet. may need to use the
+		// com.example.android.apis.app.CustomTitle example and the title
+		// layout. ugh.
 
 		setContentView(org.rapidandroid.R.layout.data_chart);
-		WebView wv = (WebView) findViewById(org.rapidandroid.R.id.wv1);
-
+		mWebView = (WebView) findViewById(org.rapidandroid.R.id.wv1);
+		mWebView.getSettings().setJavaScriptEnabled(true);
 		
+		mViewSwitcher = (ViewSwitcher) findViewById(id.chart_switcher);
+
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			Date startDate = Constants.NULLDATE;
-			Date endDate = Constants.NULLDATE;
-			
-			try {
-			if(extras.containsKey(CallParams.START_DATE)) {
-				startDate = Message.SQLDateFormatter.parse(extras.getString(CallParams.START_DATE));
-				
-			} 
-			if(extras.containsKey(CallParams.END_DATE)) {
-				endDate = Message.SQLDateFormatter.parse(extras.getString(CallParams.END_DATE));
-			} 
-			} catch(Exception ex) {
-				
-			}
-			
-			
-			if(extras.containsKey(CallParams.CHART_FORM)) {
-				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
-				mBroker= new FormDataBroker(wv, mForm, startDate,endDate);
-			} else if(extras.containsKey(CallParams.CHART_MESSAGES)) {
-				mBroker= new MessageDataBroker(this,wv,startDate,endDate);
-			} else if(extras.containsKey(CallParams.CHART_MONITORS)) {
-				
-			}
-			
-			
-		}
+			mStartDate = Constants.NULLDATE;
+			mEndDate = Constants.NULLDATE;
 
-        wv.getSettings().setJavaScriptEnabled(true);
-        wv.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);
-        wv.loadUrl(CHART_FILE);
-        //mBroker.loadGraph();        
-        wv.debugDump();
+			if (extras.containsKey(CallParams.START_DATE)) {
+				mStartDate = new Date(extras.getLong(CallParams.START_DATE));
+			}
+			if (extras.containsKey(CallParams.END_DATE)) {
+				mEndDate = new Date(extras.getLong(CallParams.END_DATE));
+			}
+			if (extras.containsKey(CallParams.CHART_FORM)) {
+				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
+				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
+			} else if (extras.containsKey(CallParams.CHART_MESSAGES)) {
+				mBroker = new MessageDataBroker(this, mViewSwitcher, mWebView, mStartDate, mEndDate);
+			} else if (extras.containsKey(CallParams.CHART_MONITORS)) {
+
+			}			
+			mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
+			mWebView.loadUrl(CHART_FILE);
+		}		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onRestoreInstanceState(savedInstanceState);
+
+		if (savedInstanceState.containsKey(STATE_SELECTED_VARIABLE) && savedInstanceState.containsKey(STATE_START_DATE)
+				&& savedInstanceState.containsKey(STATE_END_DATE) && savedInstanceState.containsKey(STATE_CHART_FOR)
+				&& savedInstanceState.containsKey(STATE_SELECTED_VARIABLE)) {
+			mVariable = savedInstanceState.getInt(STATE_SELECTED_VARIABLE);
+			mStartDate = new Date(savedInstanceState.getLong(STATE_START_DATE));
+			mEndDate = new Date(savedInstanceState.getLong(STATE_END_DATE));
+			String chartfor = savedInstanceState.getString(STATE_CHART_FOR);
+
+			if (chartfor.equals(CallParams.CHART_FORM)) {
+				mForm = ModelTranslator.getFormById(savedInstanceState.getInt(STATE_SELECTED_FORM));
+				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
+			} else if (chartfor.equals(CallParams.CHART_MESSAGES)) {
+				mBroker = new MessageDataBroker(this, mViewSwitcher, mWebView, mStartDate, mEndDate);
+			} else if (chartfor.equals(CallParams.CHART_MONITORS)) {
+
+			}
+			mBroker.setVariable(mVariable);
+		}
+		
+		mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
+		mWebView.loadUrl(CHART_FILE);
+		//mWebView.debugDump();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		outState.putLong(STATE_START_DATE, mStartDate.getTime());
+		outState.putLong(STATE_END_DATE, mEndDate.getTime());
+		outState.putInt(STATE_SELECTED_VARIABLE, mVariable);
+		outState.putString(STATE_CHART_FOR, mBroker.getName());
+		if(mForm != null) {
+			outState.putInt(STATE_SELECTED_FORM, mForm.getFormId());
+		}		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreateDialog(int)
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		// TODO Auto-generated method stubz
 		super.onCreateDialog(id);
-		
+
 		switch (id) {
 			case MENU_CHANGE_VARIABLE:
-				
-				return new AlertDialog.Builder(ChartData.this)            
-		        .setTitle("Choose Field")            
-		        .setSingleChoiceItems(mBroker.getVariables(), 0, new DialogInterface.OnClickListener() {
-		            public void onClick(DialogInterface dialog, int whichButton) {
+				return new AlertDialog.Builder(ChartData.this)
+																.setTitle("Choose Field")
+																.setSingleChoiceItems(
+																						mBroker.getVariables(),
+																						0,
+																						new DialogInterface.OnClickListener() {
+																							public void onClick(
+																									DialogInterface dialog,
+																									int whichButton) {
+																								mVariable = whichButton;
+																								mBroker.setVariable(whichButton);
+																								//dialog.dismiss();
+																							}
+																						})
+																.setPositiveButton(
+																					"Ok",
+																					new DialogInterface.OnClickListener() {
+																						public void onClick(
+																								DialogInterface dialog,
+																								int whichButton) {
 
-		            	//mField = mForm.getFields()[whichButton];
-		            	mBroker.setVariable(whichButton);
-		            }
-		        })
-		        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-		            public void onClick(DialogInterface dialog, int whichButton) {
-
-		            	mBroker.loadGraph();
-		            	//mBroker.setFieldToChart(mField);
-		            }
-		        })
-		        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		            public void onClick(DialogInterface dialog, int whichButton) {                	
-		                /* User clicked No so do some stuff */
-		            }
-		        })
-		       .create();		
+																							mBroker.loadGraph();																							
+																						}
+																					})
+																.setNegativeButton(
+																					"Cancel",
+																					new DialogInterface.OnClickListener() {
+																						public void onClick(
+																								DialogInterface dialog,
+																								int whichButton) {
+																						
+																						}
+																					}).create();
+			case THINKING_DIALOG:
+				ProgressDialog loadingDialog = new ProgressDialog(this);
+				loadingDialog.setTitle("Please wait");
+				loadingDialog.setMessage("Drawing graph...");
+				loadingDialog.setIndeterminate(true);
+				loadingDialog.setCancelable(false);				
+				return loadingDialog;				
 			default:
 				return null;
-		}		
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_DONE, 0, R.string.chart_menu_done).setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(0, MENU_CHANGE_VARIABLE, 0, R.string.chart_menu_change_variable).setIcon(android.R.drawable.ic_menu_preferences);
-		menu.add(0, MENU_CHANGE_DATERANGE, 0, R.string.chart_menu_change_parameters).setIcon(android.R.drawable.ic_menu_recent_history);
+		menu.add(0, MENU_CHANGE_VARIABLE, 0, R.string.chart_menu_change_variable)
+			.setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(0, MENU_CHANGE_DATERANGE, 0, R.string.chart_menu_change_parameters)
+			.setIcon(android.R.drawable.ic_menu_recent_history);
 		return true;
 	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
-		case MENU_DONE:
-			finish();
-			return true;
-		case MENU_CHANGE_VARIABLE:
-			showDialog(MENU_CHANGE_VARIABLE);
-			return true;
-		case MENU_CHANGE_DATERANGE:
-			startDateRangeActivity();
-			return true;
+			case MENU_DONE:
+				finish();
+				return true;
+			case MENU_CHANGE_VARIABLE:
+				showDialog(MENU_CHANGE_VARIABLE);
+				return true;
+			case MENU_CHANGE_DATERANGE:
+				startDateRangeActivity();
+				return true;
 		}
 		return true;
 	}
 
-	private void startDateRangeActivity() {		
+	private void startDateRangeActivity() {
 		Intent i = new Intent(this, DateRange.class);
 		Date endDate = new Date();
-		if(mForm != null) {
-			endDate = ParsedDataReporter.getOldestMessageDate(this,mForm);			
+		if (mForm != null) {
+			endDate = ParsedDataReporter.getOldestMessageDate(this, mForm);
 		} else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);
 		}
-		
-		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, Message.SQLDateFormatter.format(endDate));
-		startActivityForResult(i, ACTIVITY_DATERANGE);	
-		
+
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, endDate.getTime());
+		startActivityForResult(i, ACTIVITY_DATERANGE);
+
 	}
 
 	@Override
@@ -195,20 +274,15 @@ public class ChartData extends Activity {
 		}
 
 		switch (requestCode) {
-		case ACTIVITY_DATERANGE:
-			if(extras != null) {
-				try {
-					Date startDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-					Date endDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
-					mBroker.setRange(startDate, endDate);
+			case ACTIVITY_DATERANGE:
+				if (extras != null) {
+					mStartDate.setTime(extras.getLong(DateRange.ResultParams.RESULT_START_DATE));
+					mEndDate.setTime(extras.getLong(DateRange.ResultParams.RESULT_END_DATE));
+					mBroker.setRange(mStartDate, mEndDate);
 					mBroker.loadGraph();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
-			}
-			break;
-		
+				}
+				break;
+
 		}
 	}
 }

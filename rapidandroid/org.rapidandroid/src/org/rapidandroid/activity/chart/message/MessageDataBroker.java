@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.rapidandroid.activity.chart.IChartBroker;
+import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Message;
@@ -15,47 +15,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.webkit.WebView;
-import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 29, 2009 Summary:
  */
-public class MessageDataBroker implements IChartBroker {
-
-	private WebView mAppView;
-	SmsDbHelper rawDB;
-	private String[] variables;
-	private int variablechosen = 0;
-	private Date mStartDate = Constants.NULLDATE;
-	private Date mEndDate = Constants.NULLDATE;
-	private ProgressDialog mProgress = null;
-	private Activity mParentActivity;
-	
-	final Handler mTitleHandler = new Handler();
-	final Runnable mUpdateActivityTitle = new Runnable() {
-		public void run() {
-			mParentActivity.setTitle(variables[variablechosen]);
-		}
-	};
-	
-	public MessageDataBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
-		this.mParentActivity = activity;
-		this.mAppView = appView;
-		this.rawDB = new SmsDbHelper(appView.getContext());
-		
-
-		this.variables = new String[] { "Trends by day", "Receipt time of day" };
-
-//		Toast.makeText(appView.getContext(), "To see chart, load a variable with the menus below.", Toast.LENGTH_LONG);
-		mStartDate = startDate;
-		mEndDate= endDate;
+public class MessageDataBroker extends ChartBroker {
+	public MessageDataBroker(Activity activity, ViewSwitcher switcher, WebView appView, Date startDate, Date endDate) {
+		super(activity,appView,startDate,endDate);
+		mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#getGraphTitle()
+	 * @see org.rapidandroid.activity.chart.ChartBroker#getGraphTitle()
 	 */
 	public String getGraphTitle() {
 		// TODO Auto-generated method stub
@@ -65,35 +40,25 @@ public class MessageDataBroker implements IChartBroker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#loadGraph()
+	 * @see org.rapidandroid.activity.chart.ChartBroker#loadGraph()
 	 */
 
-	public void loadGraph() {
-		mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
+	public void doLoadGraph() {
+		//mParentActivity.showDialog(160);
+		//Progress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);		
+		mToggleThinkerHandler.post(mToggleThinker);
 		
-		int width = mAppView.getWidth();
-		int height = 0;
-		if (width == 480) {
-			height = 320;
-		} else if (width == 320) {
-			height = 480;
-		}
-		height = height - 50;
-
-		JSONArray arr = new JSONArray();
-
-		if (variablechosen == 0) {
+		if (mChosenVariable == 0) {
 			// this is a count of messages per day
 			// select date(time), count(*) from rapidandroid_message group by
 			// date(time)
-			arr.put(loadMessageTrends());
-		} else if (variablechosen == 1) {
-			arr.put(chartMessagesPerHour());
-
+			mGraphData.put(loadMessageTrends());
+		} else if (mChosenVariable == 1) {
+			mGraphData.put(chartMessagesPerHour());
 		}
+		mGraphOptions = new JSONObject();
 
-		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height + "px\")");
-		mAppView.loadUrl("javascript:GotGraph(" + arr.toString() + ")");
+		loadGraphFinish();
 	}
 
 	private JSONObject loadMessageTrends() {
@@ -263,46 +228,17 @@ public class MessageDataBroker implements IChartBroker {
 
 		}
 		return ret;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#getVariables()
-	 */
-
-	public String[] getVariables() {
-		// TODO Auto-generated method stub
-		return variables;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.rapidandroid.activity.chart.IChartBroker#setVariable(int)
-	 */
-
-	public void setVariable(int id) {
-		this.variablechosen = id;
-
-	}
-
-	public void setRange(Date startTime, Date endTime) {
-		mStartDate = startTime;
-		mEndDate= endTime;
-	}
-
+	}	
 	/* (non-Javadoc)
-	 * @see org.rapidandroid.activity.chart.IChartBroker#finishGraph()
+	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */
 	public void finishGraph() {
-		if(mProgress!= null) {
-			mProgress.dismiss();
-			mProgress= null;
-		}
-		
-		mTitleHandler.post(mUpdateActivityTitle);
-		
+		mToggleThinkerHandler.post(mToggleThinker);		
+		mTitleHandler.post(mUpdateActivityTitle);		
+	}
+	
+	public String getName() {
+		return "graph_msg";
 	}
 
 }

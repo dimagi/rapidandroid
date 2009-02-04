@@ -32,14 +32,10 @@ android:id="@+id/widget49"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:orientation="vertical"
->
-<TextView 
-android:id="@+id/lbl_dashboardmessages" 
-android:layout_height="wrap_content" 
-android:layout_width="fill_parent"
-android:text="@string/lbl_dashboardmessages"
-style="?android:attr/listSeparatorTextViewStyle"
-></TextView>
-<ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="fill_parent"></ListView>
+><TextView android:id="@+id/lbl_dashboardmessages" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="@string/lbl_dashboardmessages" style="?android:attr/listSeparatorTextViewStyle"></TextView>
+
+
+<ViewSwitcher android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/dashboard_switcher"><ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="fill_parent"></ListView><ProgressBar android:layout_height="wrap_content" android:id="@+id/dashboard_prg_loading" android:indeterminate="true" android:layout_width="wrap_content"></ProgressBar>
+</ViewSwitcher>
 </LinearLayout>
 </LinearLayout>

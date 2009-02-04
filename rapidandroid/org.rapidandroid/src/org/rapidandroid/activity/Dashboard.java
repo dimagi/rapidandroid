@@ -35,11 +35,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
+import android.widget.ViewSwitcher;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -58,6 +63,8 @@ public class Dashboard extends Activity {
 	private SummaryCursorAdapter summaryView; 
 	private FormDataGridCursorAdapter rowView;
 	private MessageCursorAdapter messageCursorAdapter;
+	
+	private ViewSwitcher mViewSwitcher;	
 	
 	//private ProgressDialog mLoadingDialog;	
 	
@@ -167,7 +174,14 @@ public class Dashboard extends Activity {
 		//by default on startup:
 		mEndDate = new Date();
 		mStartDate = new Date();
-		mStartDate.setDate(mEndDate.getDate() - 7);		
+		mStartDate.setDate(mEndDate.getDate() - 7);
+		
+		mViewSwitcher = (ViewSwitcher)findViewById(R.id.dashboard_switcher);
+		//mViewSwitcher.setDrawingCacheEnabled(false);
+//		Animation in = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+//		Animation out = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+//		mViewSwitcher.setInAnimation(in);
+//		mViewSwitcher.setOutAnimation(out);		
 	}
 	
 	/* (non-Javadoc)
@@ -184,14 +198,10 @@ public class Dashboard extends Activity {
 					&& savedInstanceState.containsKey(STATE_LSV_VIEWMODE)
 					//&& savedInstanceState.containsKey(STATE_SELECTED_FORM)
 					) {
-				
-				try {
-					mStartDate = Message.SQLDateFormatter.parse(savedInstanceState.getString(STATE_DATE_START));
-					mEndDate = Message.SQLDateFormatter.parse(savedInstanceState.getString(STATE_DATE_END));
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
+				mStartDate.setTime(savedInstanceState.getLong(STATE_DATE_START));
+				mEndDate.setTime(savedInstanceState.getLong(STATE_DATE_END));
+
 				formViewMode = savedInstanceState.getInt(STATE_LSV_VIEWMODE);
 				
 				Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
@@ -213,8 +223,8 @@ public class Dashboard extends Activity {
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
-		outState.putString(STATE_DATE_START, Message.SQLDateFormatter.format(mStartDate));
-		outState.putString(STATE_DATE_END, Message.SQLDateFormatter.format(mEndDate));
+		outState.putLong(STATE_DATE_START, mStartDate.getTime());
+		outState.putLong(STATE_DATE_END, mEndDate.getTime());
 		outState.putInt(STATE_LSV_VIEWMODE, formViewMode);
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 		outState.putInt(STATE_SPINNER_POSITION,spin_forms.getSelectedItemPosition());
@@ -252,17 +262,11 @@ public class Dashboard extends Activity {
 			break;
 		case ACTIVITY_DATERANGE:
 				if (extras != null) {
-					try {
-						mStartDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_START_DATE));
-						mEndDate = Message.SQLDateFormatter.parse(extras.getString(DateRange.ResultParams.RESULT_END_DATE));
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					mStartDate = new Date(extras.getLong(DateRange.ResultParams.RESULT_START_DATE));
+					mEndDate = new Date(extras.getLong(DateRange.ResultParams.RESULT_END_DATE));
 					resetCursor = true;
 					beginListViewReload();
 
-					
 				}
 				break;
 		}
@@ -359,7 +363,7 @@ public class Dashboard extends Activity {
 		else {
 			endDate = MessageDataReporter.getOldestMessageDate(this);
 		}
-		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, Message.SQLDateFormatter.format(endDate));
+		i.putExtra(DateRange.CallParams.ACTIVITY_ARG_STARTDATE, endDate.getTime());
 		startActivityForResult(i, ACTIVITY_DATERANGE);	
 		
 	}
@@ -401,8 +405,8 @@ public class Dashboard extends Activity {
 			// Chart for messages
 			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
 		} 	
-		i.putExtra(ChartData.CallParams.START_DATE, Message.SQLDateFormatter.format(mStartDate));
-		i.putExtra(ChartData.CallParams.END_DATE, Message.SQLDateFormatter.format(mEndDate));
+		i.putExtra(ChartData.CallParams.START_DATE, mStartDate.getTime());
+		i.putExtra(ChartData.CallParams.END_DATE, mEndDate.getTime());
 		startActivityForResult(i, ACTIVITY_CHARTS);
 	}
 
@@ -463,7 +467,7 @@ public class Dashboard extends Activity {
     		loadListViewWithFormData();
     	}
     	else if(mShowAllMessages && mChosenForm == null) {
-			this.messageCursorAdapter = new MessageCursorAdapter(this, mListviewCursor);
+			this.messageCursorAdapter = new MessageCursorAdapter(this, mListviewCursor);			
 			lsv.setAdapter(messageCursorAdapter);
     	}
     	
@@ -471,25 +475,24 @@ public class Dashboard extends Activity {
     
     private void beginListViewReload() {
     	//mLoadingDialog = ProgressDialog.show(this,"Loading data", "Please wait");
-    	//mLoadingDialog.show();
-    	setProgressBarVisibility(true); 
+    	//mLoadingDialog.show();    	
+    	mViewSwitcher.showNext();
     	resetListAdapters();
-    	final Handler mDashboardHandler = new Handler();
+    	final Handler mDashboardHandler = new Handler();    	
     	final Runnable mUpdateResults = new Runnable() {
             public void run() {
-            	finishListViewReload();
-            	//mLoadingDialog.dismiss();
-            	setProgressBarVisibility(false); 
+            	finishListViewReload();            	
+            	mViewSwitcher.showNext();
             }
         };
     	
-    	Thread t = new Thread() {
+    	new Thread(new Runnable(){ 
             public void run() {            	
-            	fillCursorInBackground();            	            	
+            	fillCursorInBackground();   
+            	//finishListViewReload();//might puke
             	mDashboardHandler.post(mUpdateResults);
             }
-        };
-        t.start();
+        }).start();
     }
     
     private void fillCursorInBackground() {
@@ -516,6 +519,7 @@ public class Dashboard extends Activity {
 	private void loadListViewWithFormData() {
 				
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
+		
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
 													new String[] { "Select an item" }));
@@ -523,7 +527,7 @@ public class Dashboard extends Activity {
 			
 			if(mListviewCursor.getCount() == 0) {
 				lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-						new String[] { "No data" }));
+						new String[] { "No data" }));				
 				return;
 			}
 				
@@ -537,10 +541,12 @@ join rapidandroid_message on (formdata_bednets.message_id = rapidandroid_message
 //					this.headerView = new SingleRowHeaderView(this, mChosenForm);
 //					lsv.addHeaderView(headerView);
 //				
+				
 				if(this.formViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {										
 					//headerView.setVisibility(View.INVISIBLE);
 					this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);						
 					lsv.setAdapter(summaryView);
+					
 				} else if(this.formViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
 					rowView = new FormDataGridCursorAdapter(this, mChosenForm, mListviewCursor, mScreenWidth);
 					lsv.setAdapter(rowView);					
