@@ -37,13 +37,13 @@ public class SingleGridRowView extends TableLayout {
 		super(context);
 		mColWidth = colwidth;
 		
-		mColCount =  c.getColumnCount()-2;
+		mColCount =  c.getColumnCount()-5;
 		
 		mRow = new TableRow(context);
 
 		isOdd = (c.getPosition() % 2) == 1 ;
 		if(isOdd) {
-			mRow.setBackgroundColor(org.rapidandroid.R.color.background_gray);
+			//mRow.setBackgroundColor(org.rapidandroid.R.color.background_gray);
 		} else {
 			//mRow.setBackgroundColor(android.R.color.background_dark);
 		}
@@ -67,7 +67,7 @@ public class SingleGridRowView extends TableLayout {
 			coldata.setSingleLine();	//no wrapping bab!
 			coldata.setEllipsize(TruncateAt.END);	//makeit ellipsize instead of spillage!!!
 			coldata.setWidth(mColWidth);
-			coldata.setBackgroundColor(Color.TRANSPARENT);
+			//coldata.setBackgroundColor(Color.TRANSPARENT);
 			
 			coldata.setPadding(0, 4, 0, 4);
 		

@@ -10,8 +10,9 @@ android:layout_height="fill_parent">
 <RadioGroup android:id="@+id/RadioGroup01" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent" android:gravity="center_horizontal|fill"><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/dashboard_rad_100" android:text="@string/rad_last100" android:paddingRight="8px" android:checked="true"></RadioButton>
 <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/rad_last500" android:id="@+id/dashboard_rad_500" android:paddingRight="8px"></RadioButton>
 <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/dashboard_rad_all" android:text="@string/rad_all"></RadioButton>
-</RadioGroup><TextView android:id="@+id/lbl_dashboardmessages" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="@string/lbl_dashboardmessages" style="?android:attr/listSeparatorTextViewStyle"></TextView><ViewSwitcher android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/dashboard_switcher"><ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="fill_parent"></ListView>
+</RadioGroup><TextView android:id="@+id/lbl_dashboardmessages" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="@string/lbl_dashboardmessages" style="?android:attr/listSeparatorTextViewStyle"></TextView>
+
+<TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/dashboard_headertbl"></TableLayout><ViewSwitcher android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/dashboard_switcher"><ListView android:id="@+id/lsv_dashboardmessages" android:layout_width="fill_parent" android:layout_height="fill_parent"></ListView>
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/dashboard_prog_loadingtext" android:text="Loading..." android:textSize="18sp" android:padding="8dip"></TextView>
 </ViewSwitcher>
-
 </LinearLayout>

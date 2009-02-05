@@ -32,7 +32,7 @@ public class FormDataGridCursorAdapter extends CursorAdapter {
 		mForm = form;	
 		mContext = context;
 		mWidth = screenWidth;
-		mColWidth = screenWidth/(c.getColumnCount()-2);
+		mColWidth = screenWidth/(c.getColumnCount()-5);
 		
 	}
 

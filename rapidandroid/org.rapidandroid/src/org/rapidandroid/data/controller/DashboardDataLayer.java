@@ -29,12 +29,13 @@ public class DashboardDataLayer {
 		mDb = mDbHelper.getReadableDatabase();
 		StringBuilder query = new StringBuilder();
 		query.append("select " + RapidSmsDBConstants.FormData.TABLE_PREFIX);
-		query.append(f.getPrefix() + ".*");
+		query.append(f.getPrefix() + ".*, rapidandroid_message.message, rapidandroid_message.time, rapidandroid_monitor.phone ");
 		query.append(" from " + RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
 		query.append(" join rapidandroid_message on (");
 		query.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
 		query.append(".message_id = rapidandroid_message._id");
 		query.append(") ");
+		query.append(" join rapidandroid_monitor on (rapidandroid_message.monitor_id = rapidandroid_monitor._id) ");
 		query.append(" ORDER BY rapidandroid_message.time DESC LIMIT ").append(count);
 		
 		Cursor cr = mDb.rawQuery(query.toString(), null);

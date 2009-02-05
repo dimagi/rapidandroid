@@ -1,5 +1,8 @@
 package org.rapidandroid.view;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import org.rapidandroid.R;
 import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidsms.java.core.model.Form;
@@ -8,6 +11,7 @@ import org.rapidsms.java.core.parser.IParseResult;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -20,8 +24,12 @@ import android.widget.TextView;
  */
 public class SummaryCursorView extends TableLayout {
 
-	Message mMsg;
+	
 	String[] mFields;
+	
+	private int mColTime = -1;
+	private int mColMessage = -2;
+	private int mColPhone = -2;
 	
 	//TableRow mMessageSummaryRow;
 	TextView mMessageSummary;
@@ -41,6 +49,10 @@ public class SummaryCursorView extends TableLayout {
 	public SummaryCursorView(Context context, Cursor formDataCursor, String[] fields, boolean expanded) {
 		super(context);
 		// 
+		
+		mColMessage  = formDataCursor.getColumnCount() -3;
+		mColTime  = formDataCursor.getColumnCount() -2;
+		mColPhone  = formDataCursor.getColumnCount() -1;
 			
 		mFields = fields;
 		//*************
@@ -66,9 +78,10 @@ public class SummaryCursorView extends TableLayout {
 		mRawMessageRow = new TextView(getContext());
 		mRawMessageRow.setPadding(2, 2, 8, 2);
 		mRawMessageRow.setTextSize(12);
-		mRawMessageRow.setBackgroundColor(R.color.solid_green);
+		//mRawMessageRow.setBackgroundColor(R.color.solid_green);
 		// addView(mRawMessageRow, new TableLayout.LayoutParams());
 		addView(mRawMessageRow);
+		
 		
 		
 		//*************
@@ -83,14 +96,18 @@ public class SummaryCursorView extends TableLayout {
 		mParsedDataRows = new TableRow[lenresults];
 		mFieldLabels = new TextView[lenresults];
 		mFieldValues = new TextView[lenresults];
+		
 
 		for (int i = 0; i < lenresults; i++) {
 			TableRow row = new TableRow(getContext());
-			row.setBackgroundColor(R.color.background_red);
+//			row.setBackgroundColor(R.color.background_red);
+//			row.setDrawingCacheBackgroundColor(R.color.background_red);
+			//row.setBackgroundResource(android.R.drawable.)
 			
 			TextView txvFieldName = new TextView(getContext());			
 			txvFieldName.setTextSize(14);
-			txvFieldName.setBackgroundColor(R.color.background_red);
+//			txvFieldName.setBackgroundColor(R.color.background_red);
+//			txvFieldName.setDrawingCacheBackgroundColor(R.color.background_red);
 			txvFieldName.setGravity(Gravity.LEFT);
 			txvFieldName.setPadding(10, 2, 2, 2);
 			mFieldLabels[i] = txvFieldName;
@@ -120,14 +137,25 @@ public class SummaryCursorView extends TableLayout {
 	}
 	
 	private void setMessageTop(Cursor cr) {
-		mMsg = MessageTranslator.GetMessage(getContext(), cr.getInt(1));
-        mMessageSummary.setText(Message.DisplayDateTimeFormat.format(mMsg.getTimestamp()));          
-        if(mMsg.getMonitor() == null) {
-        	mMonitorString.setText("null");
-        } else {
-        	mMonitorString.setText("  " + mMsg.getMonitor().getPhone());
-        }
-        mRawMessageRow.setText(mMsg.getMessageText());        
+		Date msgDate;
+		try {
+			msgDate = Message.SQLDateFormatter.parse(cr.getString(mColTime));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			msgDate = new Date();
+		}
+		mMessageSummary.setText(Message.DisplayDateTimeFormat.format(msgDate));
+		mRawMessageRow.setText(cr.getString(mColMessage));
+		mMonitorString.setText(cr.getString(mColPhone));
+//		mMsg = MessageTranslator.GetMessage(getContext(), cr.getInt(1));
+//        mMessageSummary.setText(Message.DisplayDateTimeFormat.format(mMsg.getTimestamp()));          
+//        if(mMsg.getMonitor() == null) {
+//        	mMonitorString.setText("null");
+//        } else {
+//        	mMonitorString.setText("  " + mMsg.getMonitor().getPhone());
+//        }
+//        mRawMessageRow.setText(mMsg.getMessageText());        
 	}
 	
 	private void setParsedBottom(Cursor cr) {		
