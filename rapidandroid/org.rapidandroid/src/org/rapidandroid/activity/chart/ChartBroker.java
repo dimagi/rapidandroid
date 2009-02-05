@@ -31,6 +31,10 @@ import android.widget.ViewSwitcher;
  * 
  */
 public abstract class ChartBroker {
+
+	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
+	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
+	private static final String EMPTY_FILE = "file:///android_asset/flot/html/empty.html";
 	
 	/**
 	 * Enumeration for display types (date) for level of bucketization
@@ -79,6 +83,10 @@ public abstract class ChartBroker {
 			}			
 		}
 	};
+	
+	protected boolean mGotData;
+	private boolean mChartPageLoaded;
+	private boolean mAlreadyLoading;
 	
 	protected ChartBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
 		mParentActivity = activity;
@@ -130,13 +138,27 @@ public synchronized void setGraphOptions(String jsonobj) {
 	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
 	 */
 	public synchronized final void loadGraph() {
-		mToggleThinkerHandler.post(mToggleThinker);
-		if(mGraphData == null && mGraphOptions == null) {
-			doLoadGraph();
-		}
-		loadGraphFinish();
+		if (!mAlreadyLoading) {
+			mToggleThinkerHandler.post(mToggleThinker);
+			if(mGraphData == null && mGraphOptions == null) {
+				doLoadGraph();
+			}
+			loadGraphFinish();	
+		} 
+		mAlreadyLoading = false;
 	}
+	
 	protected void loadGraphFinish(){
+		if (!mGotData) {
+			mAppView.loadUrl(EMPTY_FILE);
+			mChartPageLoaded = false;
+			finishGraph();
+			return;
+		} 
+		else if (!mChartPageLoaded) {
+			mAlreadyLoading = true;
+			reloadChartPage();
+		}
 		int width = mAppView.getWidth();
 		int height = 0;
 		if (width == 480) {
@@ -147,6 +169,18 @@ public synchronized void setGraphOptions(String jsonobj) {
 		height = height - 50;
 		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height	+ "px\")");
 		mAppView.loadUrl("javascript:GotGraph(" + mGraphData.toString() + "," + mGraphOptions.toString() + ")");
+	}
+
+	private void reloadChartPage() {
+		// don't add the js interface
+		mAppView.loadUrl(CHART_FILE);
+		mChartPageLoaded = true;
+	}
+
+	public void loadChartPage() {
+		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);		
+		mAppView.loadUrl(CHART_FILE);
+		mChartPageLoaded = true;
 	}
 
 	/**

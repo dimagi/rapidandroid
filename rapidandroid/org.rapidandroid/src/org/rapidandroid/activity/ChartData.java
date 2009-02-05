@@ -48,9 +48,6 @@ public class ChartData extends Activity {
 	private static final String STATE_GRAPH_DATA = "graphdata";
 	private static final String STATE_GRAPH_OPTION = "graphoption";
 
-	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
-	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
-
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CHANGE_VARIABLE = Menu.FIRST + 1;
 	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
@@ -107,8 +104,7 @@ public class ChartData extends Activity {
 			} else if (extras.containsKey(CallParams.CHART_MONITORS)) {
 
 			}			
-			mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
-			mWebView.loadUrl(CHART_FILE);
+			mBroker.loadChartPage();
 			//mBroker.loadGraph();
 		}		
 	}
@@ -148,8 +144,7 @@ public class ChartData extends Activity {
 			mBroker.setGraphOptions(savedInstanceState.getString(STATE_GRAPH_OPTION));
 		}
 		
-		mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
-		mWebView.loadUrl(CHART_FILE);
+		mBroker.loadChartPage();
 		//mBroker.loadGraph();
 		//mWebView.debugDump();
 	}
@@ -274,6 +269,9 @@ public class ChartData extends Activity {
 		startActivityForResult(i, ACTIVITY_DATERANGE);
 
 	}
+	
+	
+
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {

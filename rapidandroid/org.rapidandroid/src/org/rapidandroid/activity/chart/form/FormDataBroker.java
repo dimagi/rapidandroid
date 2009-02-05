@@ -67,6 +67,11 @@ public class FormDataBroker extends ChartBroker {
 			mGraphData = allData.getData();
 			mGraphOptions = allData.getOptions();
 		} 
+		if (mGraphData.toString().equals(this.getEmptyData().toString())) {
+			this.mGotData = false;
+		} else {
+			this.mGotData = true;
+		}
 		Log.d("FormDataBroker",mGraphData.toString());
 		Log.d("FormDataBroker",mGraphOptions.toString());		
 	}
