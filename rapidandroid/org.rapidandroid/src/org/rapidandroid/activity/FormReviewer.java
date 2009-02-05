@@ -32,6 +32,7 @@ import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.content.translation.ParsedDataTranslator;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.controller.ParsedDataReporter;
+import org.rapidandroid.view.adapter.FieldViewAdapter;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
@@ -132,14 +133,11 @@ public class FormReviewer extends Activity {
 			txv_description.setText(mForm.getDescription());
 
 			int len = mForm.getFields().length;
-			String[] fields = new String[len];
-			for (int i = 0; i < len; i++) {
-				Field field = mForm.getFields()[i];
-				fields[i] = field.getName() + " ["
-						+ field.getFieldType().getItemType() + "]\n " + field.getDescription();
-			}
-			lsv_fields.setAdapter(new ArrayAdapter<String>(this,
-					android.R.layout.simple_list_item_1, fields));
+			
+			
+//			lsv_fields.setAdapter(new ArrayAdapter<String>(this,
+//					android.R.layout.simple_list_item_1, fields));
+			lsv_fields.setAdapter(new FieldViewAdapter(this,mForm.getFields()));
 
 		}
 	}

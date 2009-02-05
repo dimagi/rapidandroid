@@ -59,6 +59,23 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class Dashboard extends Activity {
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onRestart()
+	 */
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
 	private SummaryCursorAdapter summaryView;
 	private FormDataGridCursorAdapter rowView;
 	private MessageCursorAdapter messageCursorAdapter;
@@ -465,6 +482,15 @@ public class Dashboard extends Activity {
 	}
 
 	private void startActivityChart() {
+		if(mListviewCursor == null) {
+			Builder noDataDialog = new AlertDialog.Builder(this);
+			noDataDialog.setPositiveButton("Ok", null);
+			noDataDialog.setTitle("Alert");
+			noDataDialog.setMessage("There is no data to chart.");
+			noDataDialog.show();
+			return;
+		}
+		
 		Intent i = new Intent(this, ChartData.class);
 		Date now = new Date();
 		i.putExtra(ChartData.CallParams.END_DATE, now.getTime());
@@ -573,19 +599,15 @@ public class Dashboard extends Activity {
 		}
 	};
 	
-	private void beginListViewReload() {
+	private synchronized void beginListViewReload() {
 		// mLoadingDialog = ProgressDialog.show(this,"Loading data",
 		// "Please wait");
 		// mLoadingDialog.show();
 		this.mIsInitializing = true;
 		TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
 		lbl_recents.setText(TXT_WAIT);
-		mViewSwitcher.showNext();
-		
+		mViewSwitcher.showNext();		
 		resetListAdapters();
-		//fillCursorInBackground();
-		
-
 		new Thread(new Runnable() {
 			public void run() {
 				fillCursorInBackground();
@@ -596,7 +618,7 @@ public class Dashboard extends Activity {
 		}).start();
 	}
 
-	private void fillCursorInBackground() {
+	private synchronized void fillCursorInBackground() {
 		if (mListviewCursor == null) {
 			if (mChosenForm != null && !mShowAllMessages) {
 //				 String whereclause = " rapidandroid_message.time >= '"

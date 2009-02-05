@@ -8,6 +8,7 @@ import java.util.Vector;
 import org.rapidandroid.R;
 import org.rapidandroid.activity.AddField.ResultConstants;
 import org.rapidandroid.content.translation.ModelTranslator;
+import org.rapidandroid.view.adapter.FieldViewAdapter;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
@@ -250,20 +251,24 @@ public class FormCreator extends Activity {
 		if (mCurrentFields == null) {
 			mCurrentFields = new Vector<Field>();
 		}
-		int len = mCurrentFields.size();
-		if (len > 0) {
-			fieldStrings = new String[mCurrentFields.size()];
-
-			for (int i = 0; i < len; i++) {
-				StringBuilder sb = new StringBuilder();
-				Field f = mCurrentFields.get(i);
-				sb.append(f.getName());
-				sb.append(" [" + f.getFieldType().getTokenName() + "]\n");
-				sb.append(" " + f.getDescription());
-				fieldStrings[i] = sb.toString();
-			}
-			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fieldStrings));
-		}
+		
+		Field[] fieldArray = this.mCurrentFields.toArray(new Field[mCurrentFields.size()]);
+		lsv.setAdapter(new FieldViewAdapter(this,fieldArray));
+		
+//		int len = mCurrentFields.size();
+//		if (len > 0) {
+//			fieldStrings = new String[mCurrentFields.size()];
+//
+//			for (int i = 0; i < len; i++) {
+//				StringBuilder sb = new StringBuilder();
+//				Field f = mCurrentFields.get(i);
+//				sb.append(f.getName());
+//				sb.append(" [" + f.getFieldType().getTokenName() + "]\n");
+//				sb.append(" " + f.getDescription());
+//				fieldStrings[i] = sb.toString();
+//			}
+//			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fieldStrings));
+//		}
 	}
 
 	/*
