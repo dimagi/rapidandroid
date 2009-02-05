@@ -5,17 +5,14 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.ChartBroker;
-import org.rapidandroid.data.SmsDbHelper;
+import org.rapidandroid.activity.chart.JSONGraphData;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Handler;
 import android.webkit.WebView;
-import android.widget.ViewSwitcher;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -47,71 +44,51 @@ public class MessageDataBroker extends ChartBroker {
 		//mParentActivity.showDialog(160);
 		//Progress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);		
 		//isLoading..mToggleThinkerHandler.post(mToggleThinker);
-		mGraphData = new JSONArray();
+		JSONGraphData allData  = null;
 		if (mChosenVariable == 0) {
 			// this is a count of messages per day
 			// select date(time), count(*) from rapidandroid_message group by
 			// date(time)
-			mGraphData.put(loadMessageTrends());
+			allData = loadMessageTrends();
 		} else if (mChosenVariable == 1) {
 			mGraphData.put(chartMessagesPerHour());
 		}
-		mGraphOptions = new JSONObject();
+		if (allData != null) {
+			mGraphData = allData.getData();
+			mGraphOptions = allData.getOptions();
+		} else {
+			mGraphData = this.getEmptyData();
+			mGraphOptions = new JSONObject();
+		}
+
 	}
 
-	private JSONObject loadMessageTrends() {
-		JSONObject result = new JSONObject();
+	private JSONGraphData loadMessageTrends() {
 		SQLiteDatabase db = rawDB.getReadableDatabase();
-
+		
+		Date startDateToUse = mStartDate;
+//		if (firstDateFromForm.after(mStartDate)) {
+//			// first date in the form is more recent than the start date, so just go with that.
+//			startDateToUse = firstDateFromForm;
+//		}
+		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
+		
+		String selectionArg = getSelectionString(displayType);
+		
 		StringBuilder rawQuery = new StringBuilder();
 		rawQuery.append("select time, count(*) from rapidandroid_message ");
-
-		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
+		rawQuery.append(" group by ").append(selectionArg);		
+		rawQuery.append(" order by ").append(selectionArg).append(" ASC");
 		
-		rawQuery.append(" group by date(time) order by time ASC");
-
-		// the string value is column 0
-		// the magnitude is column 1
+		
+		// the X date value is column 0
+		// the y value magnitude is column 1
 
 		Cursor cr = db.rawQuery(rawQuery.toString(), null);
-		int barCount = cr.getCount();
-
-		if (barCount == 0) {
-			return result;
-		} else {
-			Date[] xVals = new Date[barCount];
-			int[] yVals = new int[barCount];
-			cr.moveToFirst();
-			int i = 0;
-			do {
-				try {
-					xVals[i] = Message.SQLDateFormatter.parse(cr.getString(0));
-					xVals[i].setHours(12);
-					xVals[i].setMinutes(0);
-					xVals[i].setSeconds(0);
-				} catch (Exception ex) {
-
-				}
-				yVals[i] = cr.getInt(1);
-
-				i++;
-			} while (cr.moveToNext());
-
-			try {
-				result.put("label", "Messages");
-				result.put("data", prepareDateData(xVals, yVals));
-				result.put("lines", getShowTrue());
-				result.put("points", getShowTrue());
-				result.put("xaxis", getDateOptions());
-
-			} catch (Exception ex) {
-
-			}
-			cr.close();
-			return result;
-		}
+		return this.getDateQuery(displayType, cr, db);
 	}
 
 	private JSONObject chartMessagesPerHour() {
@@ -147,21 +124,9 @@ public class MessageDataBroker extends ChartBroker {
 			} catch (Exception ex) {
 
 			}
-			cr.close();
+			cr.close();	
 			return result;
 		}
-	}
-
-	private JSONArray prepareDateData(Date[] xvals, int[] yvals) {
-		JSONArray arr = new JSONArray();
-		int datalen = xvals.length;
-		for (int i = 0; i < datalen; i++) {
-			JSONArray elem = new JSONArray();
-			elem.put(xvals[i].getTime());
-			elem.put(yvals[i]);
-			arr.put(elem);
-		}
-		return arr;
 	}
 
 	private JSONArray prepareData(int[] values) {
@@ -187,46 +152,7 @@ public class MessageDataBroker extends ChartBroker {
 		return rootxaxis;
 	}
 
-	private JSONObject getXaxisOptions(String[] tickvalues) {
-		JSONObject rootxaxis = new JSONObject();
-		JSONArray arr = new JSONArray();
-		int ticklen = tickvalues.length;
-
-		for (int i = 0; i < ticklen; i++) {
-			JSONArray elem = new JSONArray();
-			elem.put(i);
-			elem.put(tickvalues[i]);
-			arr.put(elem);
-		}
-
-		try {
-			rootxaxis.put("ticks", arr);
-			rootxaxis.put("tickFormatter", "string");
-		} catch (Exception ex) {
-
-		}
-		return rootxaxis;
-	}
-
-	private JSONObject getShowTrue() {
-		JSONObject ret = new JSONObject();
-		try {
-			ret.put("show", true);
-		} catch (Exception ex) {
-
-		}
-		return ret;
-	}
-
-	private JSONObject getShowFalse() {
-		JSONObject ret = new JSONObject();
-		try {
-			ret.put("show", false);
-		} catch (Exception ex) {
-
-		}
-		return ret;
-	}	
+	
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */

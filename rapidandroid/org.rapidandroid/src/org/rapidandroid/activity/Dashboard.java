@@ -534,17 +534,26 @@ public class Dashboard extends Activity {
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());
 		} else if (mShowAllMessages) {
 			// Chart for messages
-			mListviewCursor.moveToLast();
-			try {
-				Date msgtime = Message.SQLDateFormatter.parse(mListviewCursor.getString(Message.COL_TIME));
-				i.putExtra(ChartData.CallParams.START_DATE, msgtime.getTime());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Calendar cal = Calendar.getInstance();
-				cal.add(Calendar.DATE, -7);
-				i.putExtra(ChartData.CallParams.START_DATE, cal.getTimeInMillis());
+			Date startDate = null;
+			boolean setDate = false;
+			if (mListviewCursor.getCount() > 0) {
+				mListviewCursor.moveToLast();
+				try {
+					startDate = Message.SQLDateFormatter.parse(mListviewCursor.getString(Message.COL_TIME));	
+				} catch (ParseException e) {
+					setDate = true;
+				}
+			} else {
+				setDate = true;
 			} 
+			if (setDate) {
+				Calendar startCal = Calendar.getInstance();
+				startCal.add(Calendar.DATE, -7);
+				startDate = startCal.getTime();
+			}
+
+			mListviewCursor.moveToLast();
+			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());
 			
 			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
 		}

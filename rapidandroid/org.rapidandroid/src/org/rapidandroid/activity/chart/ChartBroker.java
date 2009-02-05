@@ -14,6 +14,8 @@ import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;
@@ -84,7 +86,6 @@ public abstract class ChartBroker {
 		}
 	};
 	
-	protected boolean mGotData;
 	private boolean mChartPageLoaded;
 	private boolean mAlreadyLoading;
 	
@@ -149,7 +150,7 @@ public synchronized void setGraphOptions(String jsonobj) {
 	}
 	
 	protected void loadGraphFinish(){
-		if (!mGotData) {
+		if (!hasData()) {
 			mAppView.loadUrl(EMPTY_FILE);
 			mChartPageLoaded = false;
 			finishGraph();
@@ -169,6 +170,13 @@ public synchronized void setGraphOptions(String jsonobj) {
 		height = height - 50;
 		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height	+ "px\")");
 		mAppView.loadUrl("javascript:GotGraph(" + mGraphData.toString() + "," + mGraphOptions.toString() + ")");
+	}
+
+	private boolean hasData() {
+		if (mGraphData == null || this.getEmptyData().toString().equals(mGraphData)) {
+			return false;
+		}
+		return true;
 	}
 
 	private void reloadChartPage() {
@@ -371,6 +379,176 @@ public synchronized void setGraphOptions(String jsonobj) {
 		return reallyToReturn;
 
 	}
+	
+	protected JSONGraphData getDateQuery(DateDisplayTypes displayType, Cursor cr, SQLiteDatabase db) {
+		// TODO Auto-generated method stub
+		int barCount = cr.getCount();
+
+		if (barCount == 0) {
+			db.close();
+			cr.close();
+		} else {
+			Date[] xVals = new Date[barCount];
+			int[] yVals = new int[barCount];
+			cr.moveToFirst();
+			int i = 0;
+			do {
+				xVals[i] = getDate(displayType, cr.getString(0));
+				yVals[i] = cr.getInt(1);
+				i++;
+			} while (cr.moveToNext());
+
+			try {
+				//result.put("label", fieldToPlot.getName());
+				//result.put("data", prepareData(xVals, yVals));
+				//result.put("bars", getShowTrue());
+				//result.put("xaxis", getXaxisOptions(xVals));
+				// todo 
+				String legend = this.getLegendString(displayType);
+				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),loadOptionsForDateGraph(xVals, true) );
+				
+			} catch (Exception ex) {
+
+			} finally {
+				if (!cr.isClosed()) {
+					
+					cr.close();
+				}
+				if(db.isOpen()) {
+					db.close();
+				}
+			}
+		}
+		// either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());
+	}
+
+	protected JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend) throws JSONException {
+
+		JSONObject toReturn = new JSONObject();
+		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
+		toReturn.put("bars", getShowFalse());
+		toReturn.put("lines", getShowTrue());
+		toReturn.put("points", getShowFalse());
+		toReturn.put("xaxis", getXaxisOptionsForDate());
+		if (displayLegend) {
+			toReturn.put("legend", getShowTrue());
+		} 
+		toReturn.put("grid", getJSONObject("clickable", false));
+		return toReturn;
+	}
+	
+	protected static JSONObject getShowTrue() {
+		JSONObject ret = new JSONObject();
+		try {
+			ret.put("show", true);
+		} catch (Exception ex) {
+
+		}
+		return ret;
+	}
+
+	protected JSONObject getShowFalse() {
+		JSONObject ret = new JSONObject();
+		try {
+			ret.put("show", false);
+		} catch (Exception ex) {
+
+		}
+		return ret;
+	}
+
+	protected JSONObject getXaxisOptionsForDate() throws JSONException {
+		JSONObject toReturn = new JSONObject();
+		toReturn.put("mode", "time");
+		toReturn.put("timeformat", "%m/%d/%y");
+		return toReturn;
+	}
+	
+	protected JSONObject loadOptionsForHistogram(String[] labels) throws JSONException {
+		
+		JSONObject toReturn = new JSONObject();
+		toReturn.put("xaxis", this.getXaxisOptions(labels));
+		toReturn.put("grid", getJSONObject("clickable", true));
+		return toReturn;
+	}
+	
+	protected JSONObject getXaxisOptions(String[] tickvalues) {
+		JSONObject rootxaxis = new JSONObject();
+		JSONArray arr = new JSONArray();
+		int ticklen = tickvalues.length;
+
+		for (int i = 0; i < ticklen; i++) {
+			JSONArray elem = new JSONArray();
+			elem.put(i);
+			elem.put(tickvalues[i]);
+			arr.put(elem);
+		}
+
+		try {
+			rootxaxis.put("min", 0);
+			rootxaxis.put("max", tickvalues.length + tickvalues.length / 5 + 1);
+			rootxaxis.put("ticks", arr);
+			rootxaxis.put("tickFormatter", "string");
+		} catch (Exception ex) {
+
+		}
+		return rootxaxis;
+	}
+
+	protected JSONObject getJSONObject(String string, Object o) {
+		JSONObject toReturn = new JSONObject();
+		try {
+			toReturn.put(string, o);
+		} catch (Exception ex) {
+		}
+		return toReturn;
+	}
+
+	
+
+		private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend) throws JSONException {
+		JSONArray outerArray = new JSONArray();
+		JSONArray innerArray = new JSONArray();
+		int datalen = xvals.length;
+		Date prevVal = null;
+		for (int i = 0; i < datalen; i++) {
+			Date thisVal = xvals[i];
+			if (prevVal != null) {
+				// add logic to fill in zeros
+				Date nextInSeries = getNextValue(displayType, prevVal);
+				while (isBefore(displayType, nextInSeries, thisVal))
+				{
+					JSONArray elem = new JSONArray();
+					elem.put(nextInSeries.getTime());
+					elem.put(0);
+					innerArray.put(elem);
+					nextInSeries = getNextValue(displayType, nextInSeries);
+				}
+			}
+			JSONArray elem = new JSONArray();
+			elem.put(xvals[i].getTime());
+			elem.put(yvals[i]);
+			innerArray.put(elem);
+			prevVal = thisVal;
+		}
+		JSONObject finalObj = new JSONObject();
+		finalObj.put("data", innerArray);
+		finalObj.put("label", legend);
+		outerArray.put(finalObj);
+		return outerArray;
+	}
+	
+	protected JSONArray getEmptyData() {
+		JSONArray toReturn = new JSONArray();
+		JSONArray innerArray = new JSONArray();
+		innerArray.put(0);
+		innerArray.put(0);
+		toReturn.put(innerArray);
+		return toReturn;
+	}
+
+	
 
 	public void finishGraph() {
 		mToggleThinkerHandler.post(mToggleThinker);		
