@@ -51,7 +51,7 @@ public class MessageDataBroker extends ChartBroker {
 			// date(time)
 			allData = loadMessageTrends();
 		} else if (mChosenVariable == 1) {
-			mGraphData.put(chartMessagesPerHour());
+			allData = chartMessagesPerHour();
 		}
 		if (allData != null) {
 			mGraphData = allData.getData();
@@ -91,7 +91,7 @@ public class MessageDataBroker extends ChartBroker {
 		return this.getDateQuery(displayType, cr, db);
 	}
 
-	private JSONObject chartMessagesPerHour() {
+	private JSONGraphData chartMessagesPerHour() {
 		JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
@@ -103,9 +103,7 @@ public class MessageDataBroker extends ChartBroker {
 		Cursor cr = db.rawQuery(rawQuery, null);
 		int barCount = cr.getCount();
 
-		if (barCount == 0) {
-			return result;
-		} else {
+		if (barCount != 0) {
 			String[] xVals = new String[barCount];
 			int[] yVals = new int[barCount];
 			cr.moveToFirst();
@@ -125,8 +123,12 @@ public class MessageDataBroker extends ChartBroker {
 
 			}
 			cr.close();	
-			return result;
+			JSONArray values = new JSONArray();
+			values.put(result);
+			return new JSONGraphData(values, new JSONObject());
 		}
+		//either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());
 	}
 
 	private JSONArray prepareData(int[] values) {
