@@ -393,6 +393,7 @@ public class FormDataBroker extends ChartBroker {
 		if (displayLegend) {
 			toReturn.put("legend", getShowTrue());
 		} 
+		toReturn.put("grid", getJSONObject("clickable", false));
 		return toReturn;
 	}
 	
@@ -407,6 +408,16 @@ public class FormDataBroker extends ChartBroker {
 		
 		JSONObject toReturn = new JSONObject();
 		toReturn.put("xaxis", this.getXaxisOptions(labels));
+		toReturn.put("grid", getJSONObject("clickable", true));
+		return toReturn;
+	}
+
+	private JSONObject getJSONObject(String string, Object o) {
+		JSONObject toReturn = new JSONObject();
+		try {
+			toReturn.put(string, o);
+		} catch (Exception ex) {
+		}
 		return toReturn;
 	}
 
@@ -439,6 +450,8 @@ public class FormDataBroker extends ChartBroker {
 		}
 
 		try {
+			rootxaxis.put("min", 0);
+			rootxaxis.put("max", tickvalues.length + tickvalues.length / 5 + 1);
 			rootxaxis.put("ticks", arr);
 			rootxaxis.put("tickFormatter", "string");
 		} catch (Exception ex) {

@@ -9,6 +9,21 @@
     <script language="javascript" type="text/javascript" src="../jquery.flot.js"></script>
     
     <script id="source" language="javascript" type="text/javascript">
+    
+     function showTooltip(x, y, contents) {
+        $('<div id="tooltip">' + contents + '</div>').css( {
+            position: 'absolute',
+            display: 'none',
+            top: y + 5,
+            left: x + 5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+    
 function load(){
 	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle("wassup", 5);
 	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle();
@@ -21,7 +36,18 @@ function SetGraph(gwidth, gheight) {
 	graphObj.style.height = gheight;	
 }
 function GotGraph(gData, gOptions) {	
+    $("#tooltip").remove();
+            
 	$.plot($("#placeholder"), gData, gOptions);
+	$("#placeholder").bind("plotclick", function (event, pos, item) {
+        if (item) {
+            $("#tooltip").remove();
+            var y = item.datapoint[1].toFixed(0);
+            showTooltip(item.pageX, item.pageY,
+                                item.series.label + " = " + y);
+       }
+    });
+	
 	window.graphdata.finishGraph();
 	}
 </script>
