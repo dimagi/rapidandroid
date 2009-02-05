@@ -505,11 +505,19 @@ public class Dashboard extends Activity {
 				noDateDialog.show();
 				return;
 			}
-			mListviewCursor.moveToLast();
-			int msg_id = mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
-			Message m = MessageTranslator.GetMessage(this, msg_id);
-			
-			i.putExtra(ChartData.CallParams.START_DATE, m.getTimestamp().getTime());			
+			Date startDate;
+			if (mListviewCursor.getCount() > 0) {
+				mListviewCursor.moveToLast();
+				int msg_id = mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
+				Message m = MessageTranslator.GetMessage(this, msg_id);
+				startDate = m.getTimestamp();
+			}else {
+				Calendar startCal = Calendar.getInstance();
+				startCal.add(Calendar.DATE, -7);
+				startDate = startCal.getTime();
+				
+			}
+			i.putExtra(ChartData.CallParams.START_DATE, startDate);			
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());
 		} else if (mShowAllMessages) {
 			// Chart for messages
@@ -521,7 +529,7 @@ public class Dashboard extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.DATE, -7);
+				cal.add(Calendar.DATE, -7);
 				i.putExtra(ChartData.CallParams.START_DATE, cal.getTimeInMillis());
 			} 
 			

@@ -129,7 +129,7 @@ public class FormDataBroker extends ChartBroker {
 //				result.put("lines", getShowTrue());
 //				result.put("points", getShowTrue());
 //				result.put("xaxis", getDateOptions());
-				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals) );
+				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals, false) );
 			} catch (Exception ex) {
 
 			}
@@ -165,6 +165,38 @@ public class FormDataBroker extends ChartBroker {
 		return rootxaxis;
 	}
 
+	private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend) throws JSONException {
+		JSONArray outerArray = new JSONArray();
+		JSONArray innerArray = new JSONArray();
+		int datalen = xvals.length;
+		Date prevVal = null;
+		for (int i = 0; i < datalen; i++) {
+			Date thisVal = xvals[i];
+			if (prevVal != null) {
+				// add logic to fill in zeros
+				Date nextInSeries = getNextValue(displayType, prevVal);
+				while (isBefore(displayType, nextInSeries, thisVal))
+				{
+					JSONArray elem = new JSONArray();
+					elem.put(nextInSeries.getTime());
+					elem.put(0);
+					innerArray.put(elem);
+					nextInSeries = getNextValue(displayType, nextInSeries);
+				}
+			}
+			JSONArray elem = new JSONArray();
+			elem.put(xvals[i].getTime());
+			elem.put(yvals[i]);
+			innerArray.put(elem);
+			prevVal = thisVal;
+		}
+		JSONObject finalObj = new JSONObject();
+		finalObj.put("data", innerArray);
+		finalObj.put("label", legend);
+		outerArray.put(finalObj);
+		return outerArray;
+	}
+	
 	private JSONArray prepareDateData(Date[] xvals, int[] yvals) {
 		JSONArray outerArray = new JSONArray();
 		JSONArray innerArray = new JSONArray();
@@ -236,7 +268,7 @@ public class FormDataBroker extends ChartBroker {
 				//result.put("bars", getShowTrue());
 				//result.put("xaxis", getXaxisOptions(xVals));
 				// todo 
-				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals) );
+				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),loadOptionsForDateGraph(xVals, true) );
 				
 			} catch (Exception ex) {
 
@@ -349,14 +381,18 @@ public class FormDataBroker extends ChartBroker {
 		}
 		return arr;
 	}
-
-	private JSONObject loadOptionsForDateGraph(Date[] vals) throws JSONException {
+	
+	private JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend) throws JSONException {
 
 		JSONObject toReturn = new JSONObject();
 		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
-		toReturn.put("bars", getShowTrue());
+		toReturn.put("bars", getShowFalse());
+		toReturn.put("lines", getShowTrue());
 		toReturn.put("points", getShowFalse());
 		toReturn.put("xaxis", getXaxisOptionsForDate());
+		if (displayLegend) {
+			toReturn.put("legend", getShowTrue());
+		} 
 		return toReturn;
 	}
 	

@@ -228,6 +228,72 @@ public synchronized void setGraphOptions(String jsonobj) {
 		}
 	}
 
+	protected Date getNextValue(DateDisplayTypes displayType, Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		switch (displayType) {
+		case Hourly:
+			cal.add(Calendar.HOUR, 1);
+			break;
+		case Daily:
+			cal.add(Calendar.DATE, 1);
+			break;
+		case Weekly:
+			cal.add(Calendar.WEEK_OF_YEAR, 1);
+			break;
+		case Monthly:
+			cal.add(Calendar.MONTH, 1);
+			break;
+		case Yearly:
+			cal.add(Calendar.YEAR, 1);
+			break;
+		default:
+			throw new IllegalArgumentException("Bad display type: " + displayType); 
+		}
+		return cal.getTime();
+	}
+
+	protected boolean isBefore(DateDisplayTypes displayType, Date date1, Date date2) {
+		Calendar cal1 = Calendar.getInstance();
+		cal1.setTime(date1);
+		Calendar cal2 = Calendar.getInstance();
+		cal2.setTime(date2);
+		if (cal2.before(cal1)) {
+			return false;
+		}
+		// i really feel like there should be a cleaner way to do this but it escapes me
+		if (cal1.get(Calendar.YEAR) < cal2.get(Calendar.YEAR)) {
+			return true;
+		} else if (cal1.get(Calendar.YEAR) > cal2.get(Calendar.YEAR) || displayType == DateDisplayTypes.Yearly	) {
+			return false;
+		}
+		// we know the years are the same and we're comparing less than years
+		if (cal1.get(Calendar.MONTH) < cal2.get(Calendar.MONTH)) {
+			return true;
+		} else if (cal1.get(Calendar.MONTH) > cal2.get(Calendar.MONTH) || displayType == DateDisplayTypes.Monthly) {
+			return false;
+		}
+		// we know months and years are the same and we're comparing less than months
+		if (cal1.get(Calendar.WEEK_OF_YEAR) < cal2.get(Calendar.WEEK_OF_YEAR)) {
+			return true;
+		} else if (cal1.get(Calendar.WEEK_OF_YEAR) > cal2.get(Calendar.WEEK_OF_YEAR) || displayType == DateDisplayTypes.Weekly) {
+			return false;
+		}
+		// we know months, years, and weeks are the same and we're comparing less than weeks
+		if (cal1.get(Calendar.DATE) < cal2.get(Calendar.DATE)) {
+			return true;
+		} else if (cal1.get(Calendar.DATE) > cal2.get(Calendar.DATE) || displayType == DateDisplayTypes.Daily) {
+			return false;
+		}
+		// we know months, years,weeks, and days are the same and we're comparing less than days
+		if (cal1.get(Calendar.HOUR) < cal2.get(Calendar.HOUR)) {
+			return true;
+		}  
+		// anything else is not before
+		return false;
+	}
+
+		
 	protected Date getDate(DateDisplayTypes displayType, String string) {
 		// TODO Auto-generated method stub
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
