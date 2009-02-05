@@ -169,11 +169,9 @@ public abstract class ChartBroker {
 				df = new SimpleDateFormat("MM/yyyy");
 			case Yearly:
 				df = new SimpleDateFormat("yyyy");				
-		}
-			
+		}			
 		tl.append(df.format(mStartDate)).append(" - ");
 		tl.append(df.format(mEndDate));
-
 		mGraphTitle = tl.toString();
 		
 	}

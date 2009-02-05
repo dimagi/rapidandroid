@@ -17,6 +17,7 @@ import org.rapidsms.java.core.parser.service.ParsingService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * Second level broadcast receiver. The idea is upon a successful SMS message
@@ -67,6 +68,12 @@ public class SmsParseReceiver extends BroadcastReceiver {
 		}
 		// TODO Auto-generated method stub
 		String body = intent.getStringExtra("body");
+		
+		if(body.startsWith("notifications@dimagi.com /  / ")) {
+			body = body.replace("notifications@dimagi.com /  / ", "");
+			Log.d("SmsParseReceiver","Debug, snipping out the email address");
+		}
+		
 		int msgid = intent.getIntExtra("msgid", 0);
 
 		Form form = determineForm(body);
@@ -79,13 +86,13 @@ public class SmsParseReceiver extends BroadcastReceiver {
 		} else {
 			Monitor mon = MessageTranslator.GetMonitorAndInsertIfNew(context, intent.getStringExtra("from"));			
 //			if(mon.getReplyPreference()) {
-			if(true) {
-				//for debug purposes, we'll just ack every time.
-				Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
-				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));			
-				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, "Message parse successful, thank you!");
-				context.sendBroadcast(broadcast);
-			}
+//			if(true) {
+//				//for debug purposes, we'll just ack every time.
+//				Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
+//				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));			
+//				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, "Message parse successful, thank you!");
+//				context.sendBroadcast(broadcast);
+//			}
 			
 			
 			

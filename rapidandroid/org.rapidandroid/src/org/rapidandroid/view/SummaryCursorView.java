@@ -116,7 +116,7 @@ public class SummaryCursorView extends TableLayout {
 			txvFieldData.setGravity(Gravity.LEFT);
 			txvFieldData.setTextSize(14);	
 			txvFieldData.setPadding(2, 2, 2, 2);
-			txvFieldData.setBackgroundColor(R.color.background_red);
+			//txvFieldData.setBackgroundColor(R.color.background_red);
 			mFieldValues[i] = txvFieldData;
 			
 			

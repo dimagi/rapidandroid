@@ -695,10 +695,7 @@ public class Dashboard extends Activity {
 
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
 
-		if (this.headerView != null) {
-			mHeaderTable.removeAllViews();
-			headerView = null;			
-		}
+		
 		
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
@@ -748,6 +745,12 @@ public class Dashboard extends Activity {
 	 */
 	private void resetListAdapters() {
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
+		
+		if (this.headerView != null) {
+			mHeaderTable.removeAllViews();
+			headerView = null;			
+		}
+		
 		if (rowView != null) {
 			
 			rowView = null;

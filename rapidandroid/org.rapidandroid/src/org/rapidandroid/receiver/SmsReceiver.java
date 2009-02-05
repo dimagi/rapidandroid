@@ -50,7 +50,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	 * android.content.Intent)
 	 */
 
-	Uri uriSms = Uri.parse("content://sms/conversations");
+	Uri uriSms = Uri.parse("content://sms/inbox");
 
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
 		Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
@@ -79,7 +79,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			broadcast.putExtra("from", mesg.getOriginatingAddress());
 			broadcast.putExtra("body", mesg.getMessageBody());
 			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-			// DeleteSMSFromInbox(context,mesg);
+			//DeleteSMSFromInbox(context,mesg);
 			context.sendBroadcast(broadcast);
 		}
 	}
@@ -88,7 +88,7 @@ public class SmsReceiver extends BroadcastReceiver {
 		try {
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("address='" + mesg.getOriginatingAddress() + "',");
+			sb.append("address='" + mesg.getOriginatingAddress() + "' AND ");
 			sb.append("body='" + mesg.getMessageBody() + "'");
 			// sb.append("time='" + mesg.getTimestamp() + "'"); //doesn't seem
 			// to be supported
