@@ -9,7 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.activity.chart.JSONGraphData;
+import org.rapidandroid.activity.chart.ChartBroker.DateDisplayTypes;
 import org.rapidandroid.data.RapidSmsDBConstants;
+import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
@@ -54,7 +56,7 @@ public class FormDataBroker extends ChartBroker {
 	}
 
 	public void doLoadGraph() {
-		mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
+		//mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
 		JSONGraphData allData  = null;
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
@@ -183,46 +185,18 @@ public class FormDataBroker extends ChartBroker {
 	
 	private JSONGraphData loadMessageOverTimeHistogram() {
 		SQLiteDatabase db = rawDB.getReadableDatabase();
-		Calendar startCal = Calendar.getInstance();
-		startCal.setTime(mStartDate);
 		
-		Calendar endCal = Calendar.getInstance();
-		endCal.setTime(mEndDate);
-		String legend = "";
-				
-		String selectionArg = "";
-		if (endCal.get(Calendar.YEAR) == startCal.get(Calendar.YEAR) &&
-				   endCal.get(Calendar.MONTH) == startCal.get(Calendar.MONTH) &&
-				   endCal.get(Calendar.DATE) - startCal.get(Calendar.DATE) < 3) {
-			//within 3 days, we do it by hour. with day shading
-			selectionArg = "  strftime('%H',time) ";
-			legend = "Hourly count";
-			
-		} 
+		//Date firstDateFromForm = ParsedDataReporter.getOldestMessageDate(rawDB, mForm); 
+		Date startDateToUse = mStartDate;
+//		if (firstDateFromForm.after(mStartDate)) {
+//			// first date in the form is more recent than the start date, so just go with that.
+//			startDateToUse = firstDateFromForm;
+//		}
+		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
 		
-		else if (endCal.get(Calendar.YEAR) == startCal.get(Calendar.YEAR) &&
-				   endCal.get(Calendar.MONTH) - startCal.get(Calendar.MONTH) < 3) {
-			//within 3 months, we break it down by day with week & month shading?
-			selectionArg = " strftime('%d', time) ";
-			legend = "Daily count";
-			
-		}
-		else if (endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) < 2) {
-			//within 2 years, we break it down by week with month shading
-			selectionArg = " strftime('%W', time) ";
-			legend = "Weekly count";
-			
-		}
-		else if (endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) < 4) {
-			// 2-4 years break it down by month with year shading
-			selectionArg = " strftime('%m',time) ";
-			legend = "Monthly count";
-			
-		} else if(endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) >= 4) {
-			//we need to break it down by year. with year shading
-			selectionArg = " strftime('%Y',time) ";
-			legend = "Annual count";
-		} 
+		String legend = getLegendString(displayType);
+		String selectionArg = getSelectionString(displayType);
+		
 		StringBuilder rawQuery = new StringBuilder();
 		
 		rawQuery.append("select time, count(*) from  ");
@@ -232,6 +206,10 @@ public class FormDataBroker extends ChartBroker {
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
+		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		}
+		
 		rawQuery.append(" group by ").append(selectionArg);		
 		rawQuery.append("order by ").append(selectionArg).append(" ASC");
 		
@@ -245,13 +223,13 @@ public class FormDataBroker extends ChartBroker {
 		if (barCount == 0) {
 			cr.close();
 		} else {
-			String[] xVals = new String[barCount];
+			Date[] xVals = new Date[barCount];
 			int[] yVals = new int[barCount];
 			cr.moveToFirst();
 			int i = 0;
 			do {
-				xVals[i] = cr.getString(0);
-				yVals[i] = cr.getInt(1);
+				xVals[i] = getDate(displayType, cr.getString(0));
+				yVals[i] = cr.getInt(1);=
 				i++;
 			} while (cr.moveToNext());
 
@@ -261,18 +239,8 @@ public class FormDataBroker extends ChartBroker {
 				//result.put("bars", getShowTrue());
 				//result.put("xaxis", getXaxisOptions(xVals));
 				// todo 
-				JSONObject result = new JSONObject();
-				//return new JSONGraphData(prepareHistogramData(xVals, yVals),loadOptionsForHistogram(xVals) );
+				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals) );
 				
-				result.put("label", legend);
-				result.put("data", prepareData(yVals));
-				result.put("bars", getShowTrue());
-				result.put("points", getShowFalse());
-				result.put("xaxis", getXaxisOptions(xVals));
-				JSONArray values = new JSONArray();
-				values.put(result);
-				return new JSONGraphData(values, new JSONObject());
-
 			} catch (Exception ex) {
 
 			} finally {
@@ -286,6 +254,8 @@ public class FormDataBroker extends ChartBroker {
 	}
 	
 
+	
+	
 	/**
 	 * Should return a two element array - the first element is the data, 
 	 * the second are the options

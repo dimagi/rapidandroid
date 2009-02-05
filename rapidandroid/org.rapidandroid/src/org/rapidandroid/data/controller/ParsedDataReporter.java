@@ -38,6 +38,12 @@ public class ParsedDataReporter {
 	
 	public synchronized static Date getOldestMessageDate(Context context, Form f) {
 		SmsDbHelper mHelper = new SmsDbHelper(context);
+		return getOldestMessageDate(mHelper, f);
+		
+	}
+	
+	public synchronized static Date getOldestMessageDate(SmsDbHelper mHelper, Form f) {
+		// TODO Auto-generated method stub
 		StringBuilder query = new StringBuilder();
 		query.append("select min(rapidandroid_message.time) ");		
 		query.append(" from " + RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix());
@@ -91,7 +97,7 @@ public class ParsedDataReporter {
 		mHelper.close();
 		return ret;
 	}
-	
+
 	public synchronized static void exportFormDataToCSV(Context context, Form f, Calendar startDate, Calendar endDate) {
 		SmsDbHelper mHelper = new SmsDbHelper(context);
 		//build the query

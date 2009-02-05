@@ -8,7 +8,8 @@ import org.rapidandroid.activity.chart.ChartBroker;
 /**
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 29, 2009
- * Summary:
+ * Summary: this class is unused.  It potentially could be used to plot monitor
+ * data in the future.  
  */
 public class MonitorDataBroker extends ChartBroker {
 
