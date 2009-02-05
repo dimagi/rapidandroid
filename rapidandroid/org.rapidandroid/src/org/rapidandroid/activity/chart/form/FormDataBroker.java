@@ -25,7 +25,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 public class FormDataBroker extends ChartBroker {
-		public static final int PLOT_ALL_MESSAGES_FOR_FORM = 0;
+	public static final int PLOT_ALL_MESSAGES_FOR_FORM = 0;
 	public static final int PLOT_NUMERIC_FIELD_VALUE = 1;
 	public static final int PLOT_NUMERIC_FIELD_ADDITIVE = 2;
 	public static final int PLOT_WORD_HISTOGRAM = 3;
@@ -34,11 +34,6 @@ public class FormDataBroker extends ChartBroker {
 	private Form mForm;
 	private Field fieldToPlot;
 	private int mPlotMethod;
-
-	
-	
-	private String[] variables;
-
 	private ProgressDialog mProgress;
 
 	public FormDataBroker(Activity parentActivity, WebView appView, Form form, Date startDate, Date endDate) {
@@ -47,17 +42,18 @@ public class FormDataBroker extends ChartBroker {
 		// by default, do all messages for form
 		mPlotMethod = PLOT_ALL_MESSAGES_FOR_FORM;
 
-		this.variables = new String[mForm.getFields().length+1];
-		variables[0] = "Messages over time";
-		for (int i = 1; i < variables.length; i++) {
+		mVariableStrings= new String[mForm.getFields().length+1];
+		mVariableStrings[0] = "Messages over time";
+		for (int i = 1; i < mVariableStrings.length; i++) {
 			Field f = mForm.getFields()[i-1];
-			variables[i] = f.getName();
+			mVariableStrings[i] = f.getName();
 		}		
 	}
 
 	public void doLoadGraph() {
 		//mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
 		JSONGraphData allData  = null;
+		
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
 			allData = loadMessageOverTimeHistogram();
@@ -221,6 +217,7 @@ public class FormDataBroker extends ChartBroker {
 		int barCount = cr.getCount();
 
 		if (barCount == 0) {
+			db.close();
 			cr.close();
 		} else {
 			Date[] xVals = new Date[barCount];
@@ -229,7 +226,7 @@ public class FormDataBroker extends ChartBroker {
 			int i = 0;
 			do {
 				xVals[i] = getDate(displayType, cr.getString(0));
-				yVals[i] = cr.getInt(1);=
+				yVals[i] = cr.getInt(1);
 				i++;
 			} while (cr.moveToNext());
 
@@ -245,7 +242,11 @@ public class FormDataBroker extends ChartBroker {
 
 			} finally {
 				if (!cr.isClosed()) {
+					
 					cr.close();
+				}
+				if(db.isOpen()) {
+					db.close();
 				}
 			}
 		}
@@ -318,6 +319,9 @@ public class FormDataBroker extends ChartBroker {
 			} finally {
 				if (!cr.isClosed()) {
 					cr.close();
+				}
+				if(db.isOpen()) {
+					db.close();
 				}
 			}
 		}
@@ -472,6 +476,8 @@ public class FormDataBroker extends ChartBroker {
 		} else {
 			this.fieldToPlot = mForm.getFields()[id-1];
 		}
+		this.mGraphData = null;
+		this.mGraphOptions = null;
 	}
 /* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()

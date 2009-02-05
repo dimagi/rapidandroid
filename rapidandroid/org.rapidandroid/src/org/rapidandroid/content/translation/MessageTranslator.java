@@ -29,7 +29,7 @@ public class MessageTranslator {
 
 	private static HashMap<Integer, Monitor> mMonitorHash = new HashMap<Integer, Monitor>();
 	private static HashMap<String, Monitor> mMonitorHashByPhone = new HashMap<String, Monitor>();
-
+	
 	/**
 	 * To ease DB hits on the insert of messages, the monitorhash has two hastables indexed by phone number and ID.
 	 * We need to update this thing on each new insert.
@@ -45,6 +45,7 @@ public class MessageTranslator {
 			monitorCursor.close();
 			return;
 		}
+		
 
 		monitorCursor.moveToFirst();
 

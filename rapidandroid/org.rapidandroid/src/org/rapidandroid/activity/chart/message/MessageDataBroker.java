@@ -22,7 +22,7 @@ import android.widget.ViewSwitcher;
  * @created Jan 29, 2009 Summary:
  */
 public class MessageDataBroker extends ChartBroker {
-	public MessageDataBroker(Activity activity, ViewSwitcher switcher, WebView appView, Date startDate, Date endDate) {
+	public MessageDataBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
 		super(activity,appView,startDate,endDate);
 		mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
 	}
@@ -46,8 +46,8 @@ public class MessageDataBroker extends ChartBroker {
 	public void doLoadGraph() {
 		//mParentActivity.showDialog(160);
 		//Progress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);		
-		mToggleThinkerHandler.post(mToggleThinker);
-		
+		//isLoading..mToggleThinkerHandler.post(mToggleThinker);
+		mGraphData = new JSONArray();
 		if (mChosenVariable == 0) {
 			// this is a count of messages per day
 			// select date(time), count(*) from rapidandroid_message group by
@@ -57,8 +57,6 @@ public class MessageDataBroker extends ChartBroker {
 			mGraphData.put(chartMessagesPerHour());
 		}
 		mGraphOptions = new JSONObject();
-
-		loadGraphFinish();
 	}
 
 	private JSONObject loadMessageTrends() {

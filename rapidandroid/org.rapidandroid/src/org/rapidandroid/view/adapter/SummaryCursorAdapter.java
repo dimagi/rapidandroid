@@ -24,6 +24,8 @@ import android.widget.TextView;
  */
 public class SummaryCursorAdapter extends CursorAdapter {
 
+//	private int newCount = 0;
+//	private int bindCount = 0;
 	private int mLoadViewCount = 0;
 	
 	@Override
@@ -87,6 +89,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		}
 		pmcv.setExpanded(mExpanded.get(intpos).booleanValue());
 
+//		bindCount++;
 		mLoadViewCount++;
 	}
 
@@ -101,7 +104,9 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		// TODO Auto-generated method stub
 		Integer intpos = Integer.valueOf(cursor.getPosition());
 		mExpanded.put(intpos, bFalse);
+//		newCount++;
 		return new SummaryCursorView(context, cursor, mFields, false);
+		
 	}
 
 	public void toggle(int position) {

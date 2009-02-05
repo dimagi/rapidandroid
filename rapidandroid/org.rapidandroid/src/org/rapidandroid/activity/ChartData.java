@@ -45,6 +45,8 @@ public class ChartData extends Activity {
 	private static final String STATE_END_DATE = "enddate";
 	private static final String STATE_SELECTED_VARIABLE = "variable";
 	private static final String STATE_SELECTED_FORM = "form";
+	private static final String STATE_GRAPH_DATA = "graphdata";
+	private static final String STATE_GRAPH_OPTION = "graphoption";
 
 	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
 	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
@@ -52,7 +54,6 @@ public class ChartData extends Activity {
 	private static final int MENU_DONE = Menu.FIRST;
 	private static final int MENU_CHANGE_VARIABLE = Menu.FIRST + 1;
 	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
-	private ViewSwitcher mViewSwitcher;
 
 	private static final int ACTIVITY_DATERANGE = 7;
 	private static final int THINKING_DIALOG = 160;
@@ -85,7 +86,7 @@ public class ChartData extends Activity {
 		mWebView = (WebView) findViewById(org.rapidandroid.R.id.wv1);
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		
-		mViewSwitcher = (ViewSwitcher) findViewById(id.chart_switcher);
+		
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -102,12 +103,13 @@ public class ChartData extends Activity {
 				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
 				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
 			} else if (extras.containsKey(CallParams.CHART_MESSAGES)) {
-				mBroker = new MessageDataBroker(this, mViewSwitcher, mWebView, mStartDate, mEndDate);
+				mBroker = new MessageDataBroker(this, mWebView, mStartDate, mEndDate);
 			} else if (extras.containsKey(CallParams.CHART_MONITORS)) {
 
 			}			
 			mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
 			mWebView.loadUrl(CHART_FILE);
+			//mBroker.loadGraph();
 		}		
 	}
 
@@ -123,7 +125,9 @@ public class ChartData extends Activity {
 
 		if (savedInstanceState.containsKey(STATE_SELECTED_VARIABLE) && savedInstanceState.containsKey(STATE_START_DATE)
 				&& savedInstanceState.containsKey(STATE_END_DATE) && savedInstanceState.containsKey(STATE_CHART_FOR)
-				&& savedInstanceState.containsKey(STATE_SELECTED_VARIABLE)) {
+				&& savedInstanceState.containsKey(STATE_SELECTED_VARIABLE)
+				&& savedInstanceState.containsKey(STATE_GRAPH_OPTION)
+				&& savedInstanceState.containsKey(STATE_GRAPH_DATA)) {
 			mVariable = savedInstanceState.getInt(STATE_SELECTED_VARIABLE);
 			mStartDate = new Date(savedInstanceState.getLong(STATE_START_DATE));
 			mEndDate = new Date(savedInstanceState.getLong(STATE_END_DATE));
@@ -133,15 +137,20 @@ public class ChartData extends Activity {
 				mForm = ModelTranslator.getFormById(savedInstanceState.getInt(STATE_SELECTED_FORM));
 				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
 			} else if (chartfor.equals(CallParams.CHART_MESSAGES)) {
-				mBroker = new MessageDataBroker(this, mViewSwitcher, mWebView, mStartDate, mEndDate);
+				mBroker = new MessageDataBroker(this, mWebView, mStartDate, mEndDate);
 			} else if (chartfor.equals(CallParams.CHART_MONITORS)) {
 
 			}
+			
 			mBroker.setVariable(mVariable);
+			
+			mBroker.setGraphData(savedInstanceState.getString(STATE_GRAPH_DATA));
+			mBroker.setGraphOptions(savedInstanceState.getString(STATE_GRAPH_OPTION));
 		}
 		
 		mWebView.addJavascriptInterface(mBroker, JAVASCRIPT_PROPERTYNAME);		
 		mWebView.loadUrl(CHART_FILE);
+		//mBroker.loadGraph();
 		//mWebView.debugDump();
 	}
 
@@ -158,6 +167,9 @@ public class ChartData extends Activity {
 		outState.putLong(STATE_END_DATE, mEndDate.getTime());
 		outState.putInt(STATE_SELECTED_VARIABLE, mVariable);
 		outState.putString(STATE_CHART_FOR, mBroker.getName());
+		
+		outState.putString(STATE_GRAPH_DATA, mBroker.getGraphData());
+		outState.putString(STATE_GRAPH_OPTION, mBroker.getGraphOptions());
 		if(mForm != null) {
 			outState.putInt(STATE_SELECTED_FORM, mForm.getFormId());
 		}		

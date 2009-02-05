@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
@@ -44,6 +45,7 @@ public abstract class ChartBroker {
 		Yearly
 	}
 	
+	protected boolean isLoading;
 	protected Date mStartDate = Constants.NULLDATE;
 	protected Date mEndDate = Constants.NULLDATE;
 	
@@ -82,21 +84,56 @@ public abstract class ChartBroker {
 		mParentActivity = activity;
 		mAppView = appView;
 		rawDB = new SmsDbHelper(appView.getContext());
-		mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
+		//mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
 		mStartDate = startDate;
 		mEndDate= endDate;
 	}
 	
+	public String getGraphData() {
+		if(mGraphData != null) {
+			return mGraphData.toString();
+		} else {
+			return null;
+		}
+	}
+	public synchronized void  setGraphData(String jsonarr) {
+		
+		try {
+			this.mGraphData = new JSONArray(jsonarr);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
+public synchronized void setGraphOptions(String jsonobj) {
+		
+		try {
+			this.mGraphOptions = new JSONObject(jsonobj);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public synchronized String getGraphOptions() {
+		if(mGraphOptions != null) {
+			return mGraphOptions.toString();
+		} else {
+			return null;
+		}
+	}
 	
 	protected abstract void doLoadGraph();
 	
 	/**
 	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
 	 */
-	public final void loadGraph() {
+	public synchronized final void loadGraph() {
 		mToggleThinkerHandler.post(mToggleThinker);
-		doLoadGraph();
+		if(mGraphData == null && mGraphOptions == null) {
+			doLoadGraph();
+		}
 		loadGraphFinish();
 	}
 	protected void loadGraphFinish(){
@@ -241,13 +278,18 @@ public abstract class ChartBroker {
 	}
 	public abstract String getGraphTitle();
 	
-	public void setVariable(int id) {
+	public synchronized void setVariable(int id) {
 		mChosenVariable = id;
+		mGraphData = null;
+		mGraphOptions = null;
 	}
 	
-	public void setRange(Date startTime, Date endTime) {
+	public synchronized void setRange(Date startTime, Date endTime) {
 		mStartDate = startTime;
 		mEndDate = endTime;
+		
+		mGraphData = null;
+		mGraphOptions = null;
 	}
 	
 	public String[] getVariables() {

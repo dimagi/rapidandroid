@@ -509,6 +509,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 			qb.setTables(RapidSmsDBConstants.FieldType.TABLE);
 			qb.appendWhere(BaseColumns._ID + "="
 					+ uri.getPathSegments().get(1));
+			
 			break;
 			case FORMDATA_ID:
 				// need to set the table to the FieldData + form_prefix
@@ -535,6 +536,7 @@ public class RapidSmsContentProvider extends ContentProvider {
 				SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 				Cursor c = db.rawQuery(query.toString(),null);
 				c.setNotificationUri(getContext().getContentResolver(), uri);
+				
 				return c;
 				
 			
