@@ -508,29 +508,36 @@ public class Dashboard extends Activity {
 		i.putExtra(ChartData.CallParams.END_DATE, now.getTime());
 		// we want to chart for a form
 		if (mChosenForm != null && !mShowAllMessages) {
-			Date endDate = ParsedDataReporter.getOldestMessageDate(this, mChosenForm);
-			if (endDate.equals(Constants.NULLDATE)) {
+			Date startDate = ParsedDataReporter.getOldestMessageDate(this, mChosenForm);
+			if (startDate.equals(Constants.NULLDATE)) {
 				Builder noDateDialog = new AlertDialog.Builder(this);
 				noDateDialog.setPositiveButton("Ok", null);
 				noDateDialog.setTitle("Alert");
 				noDateDialog.setMessage("This form has no messages or data to chart");
-				noDateDialog.show();
+				noDateDialog.show();				
 				return;
 			}
 						
-			Date startDate;
+			
 			if (mListviewCursor.getCount() > 0) {
 				mListviewCursor.moveToLast();
-				int msg_id = mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
-				Message m = MessageTranslator.GetMessage(this, msg_id);
-				startDate = m.getTimestamp();
-			}else {
+				//int msg_id = mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
+				String datestring = mListviewCursor.getString(mListviewCursor.getColumnCount() + Message.COL_JOINED_MESSAGE_TIME);
+				
+				try {
+					startDate = Message.SQLDateFormatter.parse(datestring);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//Message m = MessageTranslator.GetMessage(this, msg_id);
+				
+			} else {
 				Calendar startCal = Calendar.getInstance();
 				startCal.add(Calendar.DATE, -7);
-				startDate = startCal.getTime();
-				
+				startDate = startCal.getTime();				
 			}
-			i.putExtra(ChartData.CallParams.START_DATE, startDate);			
+			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());			
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());
 		} else if (mShowAllMessages) {
 			// Chart for messages

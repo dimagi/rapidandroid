@@ -46,7 +46,7 @@ public class FormDataBroker extends ChartBroker {
 		mVariableStrings[0] = "Messages over time";
 		for (int i = 1; i < mVariableStrings.length; i++) {
 			Field f = mForm.getFields()[i-1];
-			mVariableStrings[i] = f.getName();
+			mVariableStrings[i] = f.getName() + "  [" + f.getFieldType().getItemType() + "]";
 		}		
 	}
 
@@ -370,6 +370,7 @@ public class FormDataBroker extends ChartBroker {
 		} else {
 			this.fieldToPlot = mForm.getFields()[id-1];
 		}
+		mChosenVariable = id;
 		this.mGraphData = null;
 		this.mGraphOptions = null;
 	}

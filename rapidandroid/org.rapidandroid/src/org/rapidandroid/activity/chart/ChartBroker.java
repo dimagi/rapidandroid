@@ -62,6 +62,7 @@ public abstract class ChartBroker {
 	protected int mChosenVariable = 0;
 	protected Activity mParentActivity;
 	protected boolean isShowing = false;
+	private String mGraphTitle = "";
 	
 	protected JSONArray mGraphData;
 	protected JSONObject mGraphOptions;
@@ -69,7 +70,7 @@ public abstract class ChartBroker {
 	protected final Handler mTitleHandler = new Handler();
 	protected final Runnable mUpdateActivityTitle = new Runnable() {
 		public void run() {
-			mParentActivity.setTitle(mVariableStrings[mChosenVariable]);
+			mParentActivity.setTitle(mGraphTitle);
 		}
 	};
 	
@@ -115,7 +116,7 @@ public abstract class ChartBroker {
 		}
 	}
 	
-public synchronized void setGraphOptions(String jsonobj) {
+	public synchronized void setGraphOptions(String jsonobj) {
 		
 		try {
 			this.mGraphOptions = new JSONObject(jsonobj);
@@ -147,6 +148,34 @@ public synchronized void setGraphOptions(String jsonobj) {
 			loadGraphFinish();	
 		} 
 		mAlreadyLoading = false;
+	}
+	
+	protected void getPrettyTitleString() {
+		StringBuilder tl = new StringBuilder();
+		tl.append(mVariableStrings[mChosenVariable]).append(" :: ");
+		DateFormat df = null;
+		//yyyy-MM-dd HH:mm:ss
+		DateDisplayTypes dtype = getDisplayType(mStartDate, mEndDate);
+		switch (dtype) {		
+			case Hourly:				
+				df = new SimpleDateFormat("MM/dd HH:mm");
+				break;
+			case Daily:
+				df = new SimpleDateFormat("MM/dd");
+				break;
+			case Weekly:
+				df = new SimpleDateFormat("MM/dd");
+			case Monthly:
+				df = new SimpleDateFormat("MM/yyyy");
+			case Yearly:
+				df = new SimpleDateFormat("yyyy");				
+		}
+			
+		tl.append(df.format(mStartDate)).append(" - ");
+		tl.append(df.format(mEndDate));
+
+		mGraphTitle = tl.toString();
+		
 	}
 	
 	protected void loadGraphFinish(){
@@ -551,6 +580,7 @@ public synchronized void setGraphOptions(String jsonobj) {
 	
 
 	public void finishGraph() {
+		getPrettyTitleString();
 		mToggleThinkerHandler.post(mToggleThinker);		
 		mTitleHandler.post(mUpdateActivityTitle);		
 	}

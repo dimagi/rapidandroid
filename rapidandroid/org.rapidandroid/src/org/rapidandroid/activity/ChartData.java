@@ -104,7 +104,9 @@ public class ChartData extends Activity {
 			} else if (extras.containsKey(CallParams.CHART_MONITORS)) {
 
 			}			
-			mBroker.loadChartPage();
+			if(savedInstanceState == null) {
+				mBroker.loadChartPage();
+			}
 			//mBroker.loadGraph();
 		}		
 	}
