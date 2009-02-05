@@ -40,19 +40,11 @@ public class SimpleRegexParser implements IMessageParser {
 	 * @see
 	 * org.rapidsms.java.core.parser.IMessageParser#CanParse(java.lang.String)
 	 */
-	
+
 	public boolean CanParse(String input) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.rapidsms.java.core.parser.IMessageParser#ParseMessage(java.lang.String
-	 * )
-	 */
 	
 	public Vector<IParseResult> ParseMessage(Form f, String input) {
 //		System.out.println("");
@@ -110,7 +102,6 @@ public class SimpleRegexParser implements IMessageParser {
 	 * 
 	 * @see org.rapidsms.java.core.parser.IMessageParser#getName()
 	 */
-	
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "simpleregex";
