@@ -25,6 +25,10 @@ public class Message {
 	public static final int COL_PARSED_MESSAGE_ID = 1;
 	public static final int COL_PARSED_FIELDS_OFFSET = 2;	
 	
+	public static final int COL_JOINED_PHONE = -1;
+	public static final int COL_JOINED_MESSAGE_TIME = -2;
+	public static final int COL_JOINED_MESSAGE= -3;
+	
 	//2009-01-29 20:44:30
 	/**
 	 * Formats the message to a string that SQLite likes:
