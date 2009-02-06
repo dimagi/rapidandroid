@@ -158,11 +158,11 @@ public class MessageDataBroker extends ChartBroker {
 	/* (non-Javadoc)
 	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */
-	public void finishGraph() {
-		mToggleThinkerHandler.post(mToggleThinker);		
-		mTitleHandler.post(mUpdateActivityTitle);		
-	}
-	
+//	public void finishGraph() {
+//		mDialogHandler.post(mToggleThinker);		
+//		mTitleHandler.post(mUpdateActivityTitle);		
+//	}
+
 	public String getName() {
 		return "graph_msg";
 	}

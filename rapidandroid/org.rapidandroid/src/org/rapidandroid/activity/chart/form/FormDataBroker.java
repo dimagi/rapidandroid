@@ -129,7 +129,7 @@ public class FormDataBroker extends ChartBroker {
 //				result.put("lines", getShowTrue());
 //				result.put("points", getShowTrue());
 //				result.put("xaxis", getDateOptions());
-				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals, false) );
+				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals, false, DateDisplayTypes.Daily ));
 			} catch (Exception ex) {
 
 			}

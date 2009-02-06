@@ -54,6 +54,7 @@ public class ChartData extends Activity {
 
 	private static final int ACTIVITY_DATERANGE = 7;
 	private static final int THINKING_DIALOG = 160;
+	private static final int NO_DATA_DIALOG = 170;
 	
 
 	private Date mStartDate;
@@ -224,6 +225,14 @@ public class ChartData extends Activity {
 				loadingDialog.setIndeterminate(true);
 				loadingDialog.setCancelable(false);				
 				return loadingDialog;				
+			case NO_DATA_DIALOG:
+				return new AlertDialog.Builder(ChartData.this).setTitle("No Data").setMessage("Sorry, there was no data for the selected variable and date range.").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					public void onClick(
+							DialogInterface dialog,
+							int whichButton) {
+					
+					}
+				}).create();
 			default:
 				return null;
 		}

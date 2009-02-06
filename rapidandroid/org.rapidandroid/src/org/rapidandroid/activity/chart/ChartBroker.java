@@ -74,21 +74,26 @@ public abstract class ChartBroker {
 		}
 	};
 	
-	protected final Handler mToggleThinkerHandler = new Handler();
-	protected final Runnable mToggleThinker = new Runnable() {
+	protected final Handler mDialogHandler = new Handler();
+	protected final Runnable mStartThinker = new Runnable() {
 		public void run() {
-			if(isShowing) {
-				mParentActivity.dismissDialog(160);
-				isShowing = false;
-			} else {
-				mParentActivity.showDialog(160);
-				isShowing = true;
-			}			
+			mParentActivity.showDialog(160);
+		}
+	};
+	protected final Runnable mStopThinker = new Runnable() {
+		public void run() {
+			mParentActivity.dismissDialog(160);
 		}
 	};
 	
-	private boolean mChartPageLoaded;
-	private boolean mAlreadyLoading;
+	protected final Runnable mEmptyData = new Runnable() {
+		public void run() {
+			mParentActivity.showDialog(170);
+			isShowing = true;
+		}
+	};
+//	private boolean mChartPageLoaded;
+//	private boolean mAlreadyLoading;
 	
 	protected ChartBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
 		mParentActivity = activity;
@@ -140,14 +145,16 @@ public abstract class ChartBroker {
 	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
 	 */
 	public synchronized final void loadGraph() {
-		if (!mAlreadyLoading) {
-			mToggleThinkerHandler.post(mToggleThinker);
+		// trying to get this to work, but it's quite annoying
+		//if (!mAlreadyLoading) {
+			mDialogHandler.post(mStartThinker);
 			if(mGraphData == null && mGraphOptions == null) {
 				doLoadGraph();
 			}
 			loadGraphFinish();	
-		} 
-		mAlreadyLoading = false;
+//		} else {
+//			mAlreadyLoading = false;
+//		}
 	}
 	
 	protected void getPrettyTitleString() {
@@ -178,15 +185,16 @@ public abstract class ChartBroker {
 	
 	protected void loadGraphFinish(){
 		if (!hasData()) {
-			mAppView.loadUrl(EMPTY_FILE);
-			mChartPageLoaded = false;
-			finishGraph();
-			return;
+			//mAppView.loadUrl(EMPTY_FILE);
+			//mChartPageLoaded = false;
+			//finishGraph();
+			//return;
+			// TODO add android popup
 		} 
-		else if (!mChartPageLoaded) {
-			mAlreadyLoading = true;
-			reloadChartPage();
-		}
+//		else if (!mChartPageLoaded) {
+//			mAlreadyLoading = true;
+//			reloadChartPage();
+//		}
 		int width = mAppView.getWidth();
 		int height = 0;
 		if (width == 480) {
@@ -200,22 +208,22 @@ public abstract class ChartBroker {
 	}
 
 	private boolean hasData() {
-		if (mGraphData == null || this.getEmptyData().toString().equals(mGraphData)) {
+		if (mGraphData == null || this.getEmptyData().toString().equals(mGraphData.toString())) {
 			return false;
 		}
 		return true;
 	}
 
-	private void reloadChartPage() {
-		// don't add the js interface
-		mAppView.loadUrl(CHART_FILE);
-		mChartPageLoaded = true;
-	}
+//	private void reloadChartPage() {
+//		// don't add the js interface
+//		mAppView.loadUrl(CHART_FILE);
+//		mChartPageLoaded = true;
+//	}
 
 	public void loadChartPage() {
 		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);		
 		mAppView.loadUrl(CHART_FILE);
-		mChartPageLoaded = true;
+		//mChartPageLoaded = true;
 	}
 
 	/**
@@ -297,6 +305,24 @@ public abstract class ChartBroker {
 		}
 	}
 
+	
+	private String getFormatString(DateDisplayTypes displayType) {
+		switch (displayType) {
+		case Hourly:
+			return "%m/%d %H:%M";
+		case Daily:
+		case Weekly:
+			return "%m/%d/%y";
+		case Monthly:
+			return "%m/%y";
+		case Yearly:
+			return "%y";
+		default:
+			return "%m/%d/%y";
+		}
+	}
+
+	
 	protected Date getNextValue(DateDisplayTypes displayType, Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -432,7 +458,7 @@ public abstract class ChartBroker {
 				//result.put("xaxis", getXaxisOptions(xVals));
 				// todo 
 				String legend = this.getLegendString(displayType);
-				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),loadOptionsForDateGraph(xVals, true) );
+				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),loadOptionsForDateGraph(xVals, true, displayType) );
 				
 			} catch (Exception ex) {
 
@@ -450,14 +476,14 @@ public abstract class ChartBroker {
 		return new JSONGraphData(getEmptyData(), new JSONObject());
 	}
 
-	protected JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend) throws JSONException {
+	protected JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend, DateDisplayTypes displayType) throws JSONException {
 
 		JSONObject toReturn = new JSONObject();
 		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
 		toReturn.put("bars", getShowFalse());
 		toReturn.put("lines", getShowTrue());
 		toReturn.put("points", getShowFalse());
-		toReturn.put("xaxis", getXaxisOptionsForDate());
+		toReturn.put("xaxis", getXaxisOptionsForDate(displayType));
 		if (displayLegend) {
 			toReturn.put("legend", getShowTrue());
 		} 
@@ -485,10 +511,10 @@ public abstract class ChartBroker {
 		return ret;
 	}
 
-	protected JSONObject getXaxisOptionsForDate() throws JSONException {
+	protected JSONObject getXaxisOptionsForDate(DateDisplayTypes displayType) throws JSONException {
 		JSONObject toReturn = new JSONObject();
 		toReturn.put("mode", "time");
-		toReturn.put("timeformat", "%m/%d/%y");
+		toReturn.put("timeformat", getFormatString(displayType));
 		return toReturn;
 	}
 	
@@ -576,11 +602,18 @@ public abstract class ChartBroker {
 	}
 
 	
-
+	/**
+	 * This gets called by the javascript file after the graph is done plotting
+	 */
 	public void finishGraph() {
 		getPrettyTitleString();
-		mToggleThinkerHandler.post(mToggleThinker);		
-		mTitleHandler.post(mUpdateActivityTitle);		
+		mDialogHandler.post(mStopThinker);		
+		mTitleHandler.post(mUpdateActivityTitle);
+		if (!hasData()) {
+			mDialogHandler.post(mEmptyData);		
+		}
+			
+		
 	}
 	public abstract String getGraphTitle();
 	
