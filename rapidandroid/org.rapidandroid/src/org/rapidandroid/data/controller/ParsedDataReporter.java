@@ -38,7 +38,9 @@ public class ParsedDataReporter {
 	
 	public synchronized static Date getOldestMessageDate(Context context, Form f) {
 		SmsDbHelper mHelper = new SmsDbHelper(context);
-		return getOldestMessageDate(mHelper, f);
+		Date toReturn =getOldestMessageDate(mHelper, f);
+		mHelper.close();
+		return toReturn;
 		
 	}
 	
@@ -57,7 +59,8 @@ public class ParsedDataReporter {
 		if(cr.getCount() == 0) {
 			cr.close();
 			db.close();
-			mHelper.close();
+			// this is the caller's responsibility
+			//mHelper.close();
 			return Constants.NULLDATE;
 			
 		}
@@ -67,7 +70,8 @@ public class ParsedDataReporter {
 		if (dateString == null) {
 			cr.close();
 			db.close();
-			mHelper.close();
+			// this is the caller's responsibility
+			//mHelper.close();
 			return Constants.NULLDATE;
 		}
 
@@ -86,7 +90,8 @@ public class ParsedDataReporter {
 					db.close();
 				}
 				if (mHelper != null) {
-					mHelper.close();
+					// this is the caller's responsibility
+					//mHelper.close();
 				}
 			} catch (Exception ex2) {
 
@@ -94,7 +99,8 @@ public class ParsedDataReporter {
 		}
 		cr.close();
 		db.close();
-		mHelper.close();
+		// this is the caller's responsibility
+		//mHelper.close();
 		return ret;
 	}
 

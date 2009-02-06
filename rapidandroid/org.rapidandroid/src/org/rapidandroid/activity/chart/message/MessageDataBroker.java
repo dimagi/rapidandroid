@@ -143,26 +143,6 @@ public class MessageDataBroker extends ChartBroker {
 		return arr;
 	}
 
-	private JSONObject getDateOptions() {
-		JSONObject rootxaxis = new JSONObject();
-
-		try {
-			rootxaxis.put("mode", "time");
-		} catch (Exception ex) {
-
-		}
-		return rootxaxis;
-	}
-
-	
-	/* (non-Javadoc)
-	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
-	 */
-//	public void finishGraph() {
-//		mDialogHandler.post(mToggleThinker);		
-//		mTitleHandler.post(mUpdateActivityTitle);		
-//	}
-
 	public String getName() {
 		return "graph_msg";
 	}

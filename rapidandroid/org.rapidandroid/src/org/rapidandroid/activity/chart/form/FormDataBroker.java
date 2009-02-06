@@ -33,15 +33,10 @@ public class FormDataBroker extends ChartBroker {
 
 	private Form mForm;
 	private Field fieldToPlot;
-	private int mPlotMethod;
-	private ProgressDialog mProgress;
-
+	
 	public FormDataBroker(Activity parentActivity, WebView appView, Form form, Date startDate, Date endDate) {
 		super(parentActivity,appView,startDate,endDate);
 		mForm = form;
-		// by default, do all messages for form
-		mPlotMethod = PLOT_ALL_MESSAGES_FOR_FORM;
-
 		mVariableStrings= new String[mForm.getFields().length+1];
 		mVariableStrings[0] = "Messages over time";
 		for (int i = 1; i < mVariableStrings.length; i++) {
@@ -73,7 +68,8 @@ public class FormDataBroker extends ChartBroker {
 
 	
 	private JSONGraphData loadNumericLine() {
-		JSONObject result = new JSONObject();
+		Date startDateToUse = getStartDate();
+		
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
 		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX
@@ -90,8 +86,8 @@ public class FormDataBroker extends ChartBroker {
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
 		
-		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 
 		rawQuery.append(" order by rapidandroid_message.time ASC");
@@ -145,18 +141,6 @@ public class FormDataBroker extends ChartBroker {
 	}
 
 	
-	private JSONObject getDateOptions() {
-		JSONObject rootxaxis = new JSONObject();
-
-		try {
-			rootxaxis.put("mode", "time");
-		} catch (Exception ex) {
-
-		}
-		return rootxaxis;
-	}
-
-	
 	private JSONArray prepareDateData(Date[] xvals, int[] yvals) {
 		JSONArray outerArray = new JSONArray();
 		JSONArray innerArray = new JSONArray();
@@ -172,17 +156,9 @@ public class FormDataBroker extends ChartBroker {
 	}
 	
 	private JSONGraphData loadMessageOverTimeHistogram() {
-		SQLiteDatabase db = rawDB.getReadableDatabase();
-		
-		//Date firstDateFromForm = ParsedDataReporter.getOldestMessageDate(rawDB, mForm); 
-		Date startDateToUse = mStartDate;
-//		if (firstDateFromForm.after(mStartDate)) {
-//			// first date in the form is more recent than the start date, so just go with that.
-//			startDateToUse = firstDateFromForm;
-//		}
+		Date startDateToUse = getStartDate();
 		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
 		
-		String legend = getLegendString(displayType);
 		String selectionArg = getSelectionString(displayType);
 		
 		StringBuilder rawQuery = new StringBuilder();
@@ -204,6 +180,7 @@ public class FormDataBroker extends ChartBroker {
 	
 		// the X date value is column 0
 		// the y value magnitude is column 1
+		SQLiteDatabase db = rawDB.getReadableDatabase();
 		Cursor cr = db.rawQuery(rawQuery.toString(), null);
 		return getDateQuery(displayType, cr, db);
 			
@@ -213,6 +190,17 @@ public class FormDataBroker extends ChartBroker {
 	
 	
 	
+	private Date getStartDate() {
+		// TODO Auto-generated method stub
+		Date firstDateFromForm = ParsedDataReporter.getOldestMessageDate(rawDB, mForm); 
+		if (firstDateFromForm.after(mStartDate)) {
+			// first date in the form is more recent than the start date, so just go with that.
+			return firstDateFromForm;
+		} else {
+			return mStartDate;
+		}
+	}
+
 	/**
 	 * Should return a two element array - the first element is the data, 
 	 * the second are the options
@@ -307,54 +295,8 @@ public class FormDataBroker extends ChartBroker {
 	}
 	
 	
-	// puts the yvalues into the json array for the given x values (defined by
-	// the array indices)
-	// so output format is [[x0,y0],[x1,y1]...etc]
-	// in reality is [[0,values[0]],[1,values[1], etc]
-	private JSONArray prepareData(int[] values) {
-		JSONArray arr = new JSONArray();
-		int datalen = values.length;
-		for (int i = 0; i < datalen; i++) {
-			JSONArray elem = new JSONArray();
-			elem.put(i);
-			elem.put(values[i]);
-			arr.put(elem);
-		}
-		return arr;
-	}
-
-	
-	private JSONArray getRandomData() {
-		Random rand = new Random();
-		JSONArray arr = new JSONArray();
-		int priorval = rand.nextInt(100);
-		for (int i = 0; i < 100; i++) {
-			JSONArray elem = new JSONArray();
-			elem.put(i);
-			if (rand.nextBoolean()) {
-				priorval += rand.nextInt(10);
-			} else {
-				priorval -= rand.nextInt(10);
-			}
-			elem.put(priorval);
-			arr.put(elem);
-		}
-		return arr;
-	}
-
-	private JSONObject getLineOptionsJSON() {
-		JSONObject ret = new JSONObject();
-		try {
-			ret.put("show", true);
-		} catch (Exception ex) {
-
-		}
-		return ret;
-	}
-
-	
 	public String getGraphTitle() {
-		return "my line baby";
+		return "Form Data";
 	}
 
 	/*
