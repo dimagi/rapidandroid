@@ -36,7 +36,8 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 	private String dbPathToUse = DATABASE_PATH_EXTERNAL;
 
 	// private static final String DATABASE_NAME = "rapidandroid.db";
-	private static final int DATABASE_VERSION = 1;
+	//private static final int DATABASE_VERSION = 1;	//version 1:  initial version 1/22/2009
+	private static final int DATABASE_VERSION = 2;		//2/6/2007, add receive_time column to message table
 
 	// Sections lifted from the originating class SqliteOpenHelper.java
 	private SQLiteDatabase mDatabase = null;
@@ -236,10 +237,20 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
-				+ ", which will destroy all old data");
+//		Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
+//				+ ", which will destroy all old data");
 		// db.execSQL("DROP TABLE IF EXISTS notes");
-		onCreate(db);
+		//onCreate(db);
+		
+		if(oldVersion == 1 && newVersion == 2) {
+			//version 1 to 2 introduced the receive_time for the message
+			String messageAlterSql = "alter table rapidandroid_message add column receive_time datetime NULL";
+			db.execSQL(messageAlterSql);
+		}
+		
+		
+		
+		
 	}
 
 }

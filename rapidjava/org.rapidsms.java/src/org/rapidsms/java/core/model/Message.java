@@ -19,7 +19,8 @@ public class Message {
 	public static final int COL_TIME = 3;
 	public static final int COL_MESSAGE = 4;
 	public static final int COL_IS_OUTGOING = 5;
-	public static final int COL_IS_VIRTUAL = 6;	
+	public static final int COL_IS_VIRTUAL = 6;
+	public static final int COL_RECEIVE_TIME = 7;	
 	
 	public static final int COL_PARSED_ID = 0;
 	public static final int COL_PARSED_MESSAGE_ID = 1;
@@ -42,11 +43,13 @@ public class Message {
 	public static DateFormat DisplayDateTimeFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
 	public static DateFormat DisplayShortDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	
-	public Message(int id, String message, Date timestamp, Monitor monitor) {
+	
+	public Message(int id, String message, Date timestamp, Monitor monitor, Date recvtime) {
 		this.mId = id;
 		this.mMessageText = message;
 		this.mMonitor = monitor;
 		this.mTimestamp = timestamp;
+		this.mReceiveTime = recvtime;
 	}
 	
 	/**
@@ -80,6 +83,6 @@ public class Message {
 	private String mMessageText;
 	private Date mTimestamp;
 	private Monitor mMonitor;
-	
+	private Date mReceiveTime;	
 
 }

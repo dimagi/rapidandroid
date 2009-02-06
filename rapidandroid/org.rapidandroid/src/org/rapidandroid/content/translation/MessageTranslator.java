@@ -120,15 +120,21 @@ public class MessageTranslator {
 			try {
 				String datestring = msgCursor.getString(Message.COL_TIME);
 				Date msgDate = Message.SQLDateFormatter.parse(datestring);
+				
+				String recvstring = msgCursor.getString(Message.COL_RECEIVE_TIME);
+				Date recvDate = msgDate;	//for old entries, should we set it to null or just copy it?
+				if(recvstring == null || recvstring == "") {
+					recvDate = Message.SQLDateFormatter.parse(datestring);
+				}
+				
 
 				Message newMessage = new Message(
 													msgCursor.getInt(Message.COL_ID),
 													msgCursor.getString(Message.COL_MESSAGE),
 													msgDate,
-													mMonitorHash
-																.get(Integer
-																			.valueOf(msgCursor
-																								.getInt(Message.COL_MONITOR))));
+													mMonitorHash.get(Integer.valueOf(msgCursor.getInt(Message.COL_MONITOR))),
+													recvDate
+				);
 				msgCursor.close();
 				return newMessage;
 			} catch (Exception ex) {
@@ -158,19 +164,24 @@ public class MessageTranslator {
 
 		msgCursor.moveToFirst();
 		for (int i = 0; i < retlen; i++) {
-			// public Message(int id, String message, Date timestamp, Monitor
-			// mMonitorString) {
-
 			try {
+				String datestring = msgCursor.getString(Message.COL_TIME);
+				Date msgDate = Message.SQLDateFormatter.parse(datestring);
+				
+				String recvstring = msgCursor.getString(Message.COL_RECEIVE_TIME);
+				Date recvDate = msgDate;	//for old entries, should we set it to null or just copy it?
+
+				if(recvstring == null || recvstring == "") {
+					recvDate = Message.SQLDateFormatter.parse(datestring);
+				}
+				
 				Message newMessage = new Message(
 													msgCursor.getInt(Message.COL_ID),
 													msgCursor.getString(Message.COL_MESSAGE),
-													DateFormat.getInstance()
-																.parse(msgCursor.getString(Message.COL_TIME)),
-													mMonitorHash
-																.get(Integer
-																			.valueOf(msgCursor
-																								.getInt(Message.COL_MONITOR))));
+													msgDate,
+													mMonitorHash.get(Integer.valueOf(msgCursor.getInt(Message.COL_MONITOR))),
+													recvDate
+													);
 				ret[i] = newMessage;
 			} catch (Exception ex) {
 				// unable to parse datetime format

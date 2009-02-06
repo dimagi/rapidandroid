@@ -51,6 +51,7 @@ public final class RapidSmsDBConstants {
 		public static final String TIME = "time";
 		public static final String IS_OUTGOING = "is_outgoing";
 		public static final String IS_VIRTUAL = "is_virtual";
+		public static final String RECEIVE_TIME = "receive_time";
 	}
 
 	/**
