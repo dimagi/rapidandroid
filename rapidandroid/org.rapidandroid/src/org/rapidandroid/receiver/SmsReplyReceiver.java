@@ -23,7 +23,7 @@ public class SmsReplyReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		SmsManager smgr = SmsManager.getDefault();
+		SmsManager smgr = SmsManager.getDefault();		
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			if (extras.containsKey(KEY_DESTINATION_PHONE) && extras.containsKey(KEY_MESSAGE)) {

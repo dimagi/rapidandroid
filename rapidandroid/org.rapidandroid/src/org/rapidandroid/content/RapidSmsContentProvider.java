@@ -436,6 +436,15 @@ public class RapidSmsContentProvider extends ContentProvider {
 					+ uri.getPathSegments().get(1)
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : "");
 			break;
+		case FORMDATA_ID:
+			// need to set the table to the FieldData + form_prefix
+			// this is possible via querying hte forms to get the
+			// formname/prefix from the form table definition
+			// and appending that to do the qb.setTables
+			String formid = uri.getPathSegments().get(1);
+			Form f = ModelTranslator.getFormById(Integer.valueOf(formid).intValue());
+			table = RapidSmsDBConstants.FormData.TABLE_PREFIX + f.getPrefix();
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}

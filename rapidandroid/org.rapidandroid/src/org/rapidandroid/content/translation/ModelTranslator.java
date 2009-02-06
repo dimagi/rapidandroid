@@ -398,13 +398,13 @@ public class ModelTranslator {
 		if (field.getFieldType().getItemType().equals("integer")) {
 			sb.append(" integer NULL");
 		} else if (field.getFieldType().getItemType().equals("number")) {
-			sb.append(" integer NULL");
+			sb.append(" float NULL");
 		} else if (field.getFieldType().getItemType().equals("boolean")) {
 			sb.append(" bool NULL");
 		} else if (field.getFieldType().getItemType().equals("word")) {
 			sb.append(" varchar(36) NULL");
 		} else if (field.getFieldType().getItemType().equals("ratio")) {
-			sb.append(" varchar(36) NULL");
+			sb.append(" float NULL");
 		} else if (field.getFieldType().getItemType().equals("datetime")) {
 			sb.append(" datetime NULL");
 		}
