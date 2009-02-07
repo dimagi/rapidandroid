@@ -29,6 +29,7 @@ public class SingleGridRowView extends TableLayout {
 	Vector<TextView> mDataCols;
 	boolean isOdd = false;
 	private int mColWidth;
+	private static final int DATA_COLUMN_OFFSET = 2; 
 	
 	/**
 	 * @param context
@@ -84,10 +85,10 @@ public class SingleGridRowView extends TableLayout {
 
 		for(int i = 0; i < mColCount; i++) {
 			TextView coldata = mDataCols.get(i);
-			if(c.getString(i+2).equals("")) {
+			if(c.getString(i+DATA_COLUMN_OFFSET).equals("")) {
 				coldata.setText("(null)");
 			} else {
-				coldata.setText(c.getString(i+2));
+				coldata.setText(c.getString(i+DATA_COLUMN_OFFSET));
 			}
 		}		
 	}

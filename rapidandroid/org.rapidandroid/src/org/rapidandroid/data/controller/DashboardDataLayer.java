@@ -22,9 +22,18 @@ public class DashboardDataLayer {
 	
 	public synchronized static Cursor getCursorForFormData(Context context, Form f, int count) {
 		if(mDb != null) {
-			mDb.close();
+			if(mDb.isOpen()) {
+				mDb.close();
+			}
 			mDb = null;
 		}
+		
+		if(mDbHelper != null) {
+			mDbHelper.close();
+			mDbHelper = null;
+		}
+		
+		
 		mDbHelper = new SmsDbHelper(context);
 		mDb = mDbHelper.getReadableDatabase();
 		StringBuilder query = new StringBuilder();
@@ -40,21 +49,28 @@ public class DashboardDataLayer {
 		
 		Cursor cr = mDb.rawQuery(query.toString(), null);
 
-		mDbHelper.close();
+		//
 		return cr;
 	}
 	
 	public synchronized static Cursor getCursorForRawMessages(Context context,int count) {		
 		if(mDb != null) {
-			mDb.close();
+			if(mDb.isOpen()) {
+				mDb.close();
+			}
 			mDb = null;
+		}
+
+		if(mDbHelper != null) {
+			mDbHelper.close();
+			mDbHelper = null;
 		}
 		mDbHelper = new SmsDbHelper(context);
 		mDb = mDbHelper.getReadableDatabase();
 		StringBuilder sb = new StringBuilder();
 		sb.append("select * from rapidandroid_message ORDER BY time DESC LIMIT " ).append(count);
 		Cursor cr = mDb.rawQuery(sb.toString(), null);
-		mDbHelper.close();
+		
 		return cr;
 	}
 	
