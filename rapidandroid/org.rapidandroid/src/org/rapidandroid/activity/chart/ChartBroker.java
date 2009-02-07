@@ -482,7 +482,13 @@ public abstract class ChartBroker {
 		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
 		toReturn.put("bars", getShowFalse());
 		toReturn.put("lines", getShowTrue());
-		toReturn.put("points", getShowFalse());
+		// if just a couple points, show them
+		if (vals.length < 10) {
+			toReturn.put("points", getShowTrue());	
+		} else {
+			toReturn.put("points", getShowFalse());
+		}
+		
 		toReturn.put("xaxis", getXaxisOptionsForDate(displayType));
 		if (displayLegend) {
 			toReturn.put("legend", getShowTrue());
@@ -560,9 +566,18 @@ public abstract class ChartBroker {
 
 	
 
-		private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend) throws JSONException {
+	private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend) throws JSONException {
 		JSONArray outerArray = new JSONArray();
-		JSONArray innerArray = new JSONArray();
+		JSONArray innerArray = getJSONArrayForValues(displayType, xvals, yvals);
+		JSONObject finalObj = new JSONObject();
+		finalObj.put("data", innerArray);
+		finalObj.put("label", legend);
+		outerArray.put(finalObj);
+		return outerArray;
+	}
+	
+	protected JSONArray getJSONArrayForValues(DateDisplayTypes displayType, Date[] xvals, int[] yvals) {
+		JSONArray toReturn = new JSONArray();
 		int datalen = xvals.length;
 		Date prevVal = null;
 		for (int i = 0; i < datalen; i++) {
@@ -575,23 +590,19 @@ public abstract class ChartBroker {
 					JSONArray elem = new JSONArray();
 					elem.put(nextInSeries.getTime());
 					elem.put(0);
-					innerArray.put(elem);
+					toReturn.put(elem);
 					nextInSeries = getNextValue(displayType, nextInSeries);
 				}
 			}
 			JSONArray elem = new JSONArray();
 			elem.put(xvals[i].getTime());
 			elem.put(yvals[i]);
-			innerArray.put(elem);
+			toReturn.put(elem);
 			prevVal = thisVal;
 		}
-		JSONObject finalObj = new JSONObject();
-		finalObj.put("data", innerArray);
-		finalObj.put("label", legend);
-		outerArray.put(finalObj);
-		return outerArray;
+		return toReturn;
 	}
-	
+
 	protected JSONArray getEmptyData() {
 		JSONArray toReturn = new JSONArray();
 		JSONArray innerArray = new JSONArray();

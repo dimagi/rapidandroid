@@ -1,7 +1,9 @@
 package org.rapidandroid.activity.chart.form;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.json.JSONArray;
@@ -41,7 +43,7 @@ public class FormDataBroker extends ChartBroker {
 		mVariableStrings[0] = "Messages over time";
 		for (int i = 1; i < mVariableStrings.length; i++) {
 			Field f = mForm.getFields()[i-1];
-			mVariableStrings[i] = f.getName() + "  [" + f.getFieldType().getItemType() + "]";
+			mVariableStrings[i] = f.getName() + "  [" + f.getFieldType().getParsedDataType() + "]";
 		}		
 	}
 
@@ -52,8 +54,10 @@ public class FormDataBroker extends ChartBroker {
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
 			allData = loadMessageOverTimeHistogram();
-		} else if (fieldToPlot.getFieldType().getItemType().equals("word")) {
+		} else if (fieldToPlot.getFieldType().getParsedDataType().equals("word")) {
 			allData = loadHistogramFromField(); 
+		} else if (fieldToPlot.getFieldType().getParsedDataType().equals("boolean")) {
+			allData = loadBooleanPlot(); 
 		} else {
 			allData = loadNumericLine(); 
 			//data.put(loadNumericLine());
@@ -67,6 +71,116 @@ public class FormDataBroker extends ChartBroker {
 	}
 
 	
+	private JSONGraphData loadBooleanPlot() {
+		
+		Date startDateToUse = getStartDate();
+		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
+		
+		String selectionArg = getSelectionString(displayType);
+		
+		StringBuilder rawQuery = new StringBuilder();
+		
+		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX+ fieldToPlot.getName();
+		
+		rawQuery.append("select time, " + fieldcol + ", count(*) from  ");
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
+		
+		rawQuery.append(" join rapidandroid_message on (");
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
+		rawQuery.append(".message_id = rapidandroid_message._id");
+		rawQuery.append(") ");
+		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		}
+		
+		rawQuery.append(" group by ").append(selectionArg).append(", "  + fieldcol );		
+		rawQuery.append(" order by ").append("time").append(" ASC");
+		
+	
+		
+		SQLiteDatabase db = rawDB.getReadableDatabase();
+		// the string value is column 0
+		// the magnitude is column 1
+		Log.d("query", rawQuery.toString());
+		Cursor cr = db.rawQuery(rawQuery.toString(), null);
+		// TODO Auto-generated method stub
+		int barCount = cr.getCount();
+		Date[] allDates = new Date[barCount];
+		if (barCount == 0) {
+			db.close();
+			cr.close();
+		} else {
+			List<Date> xValsTrue = new ArrayList<Date>();
+			//Date[] xValsTrue = new Date[barCount];
+			List<Integer> yValsTrue = new ArrayList<Integer>();
+			List<Date> xValsFalse = new ArrayList<Date>();
+			//Date[] xValsTrue = new Date[barCount];
+			List<Integer> yValsFalse= new ArrayList<Integer>();
+			cr.moveToFirst();
+			int i = 0;
+			do {
+				String trueFalse = cr.getString(1);
+				//int trueFalse2 = cr.getInt(fieldcol);
+				//String trueFalseStr = cr.getString(1);
+				
+				Date thisDate = getDate(displayType, cr.getString(0));
+				Log.d("FormDataBroker: ",cr.getString(0) + ", " + trueFalse + " , " + cr.getInt(2));
+				
+				if (trueFalse.equals("true")) {
+					xValsFalse.add(thisDate);
+					yValsFalse.add(new Integer(cr.getInt(2)));
+				}
+				else {
+					xValsTrue.add(thisDate);
+					yValsTrue.add(new Integer(cr.getInt(2)));
+				}
+				allDates[i] = thisDate;
+				i++;
+			} while (cr.moveToNext());
+
+			try {
+				String legend = this.getLegendString(displayType);
+				int[] yVals = getIntsFromList(yValsTrue); 
+				JSONArray trueArray = getJSONArrayForValues(displayType, xValsTrue.toArray(new Date[0]), yVals);
+				yVals = getIntsFromList(yValsFalse); 
+				JSONArray falseArray = getJSONArrayForValues(displayType, xValsFalse.toArray(new Date[0]), yVals);
+				JSONArray finalValues= new JSONArray();
+				JSONObject trueElem = new JSONObject();
+				trueElem.put("data", trueArray);
+				trueElem.put("label", "Yes");
+				trueElem.put("lines", getShowTrue());
+				finalValues.put(trueElem);
+				JSONObject falseElem = new JSONObject();
+				falseElem.put("data", falseArray);
+				falseElem.put("label", "No");
+				falseElem.put("lines", getShowTrue());
+				finalValues.put(falseElem);
+				return new JSONGraphData(finalValues,loadOptionsForDateGraph(allDates, true, displayType) );
+				
+			} catch (Exception ex) {
+
+			} finally {
+				if (!cr.isClosed()) {
+					
+					cr.close();
+				}
+				if(db.isOpen()) {
+					db.close();
+				}
+			}
+		}
+		// either there was no data or something bad happened
+		return new JSONGraphData(getEmptyData(), new JSONObject());
+	}
+
+	private int[] getIntsFromList(List<Integer> values) {
+		int[] toReturn = new int[values.size()];
+		for (int i =0 ; i <values.size(); i++) {
+			toReturn[i] = values.get(i);
+		}
+		return toReturn;
+	}
+
 	private JSONGraphData loadNumericLine() {
 		Date startDateToUse = getStartDate();
 		
@@ -119,12 +233,6 @@ public class FormDataBroker extends ChartBroker {
 			// [Math.PI * 3/2, "3\u03c0/2"], [Math.PI * 2, "2\u03c0"]]},
 
 			try {
-//				result.put("label", fieldToPlot.getName());
-//				result.put("data", prepareDateData(xVals, yVals));
-//				result.put("label", fieldToPlot.getName());
-//				result.put("lines", getShowTrue());
-//				result.put("points", getShowTrue());
-//				result.put("xaxis", getDateOptions());
 				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals, false, DateDisplayTypes.Daily ));
 			} catch (Exception ex) {
 
