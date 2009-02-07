@@ -37,7 +37,7 @@ public class SimpleParseResult  implements IParseResult {
 	
 	public String getSource() {
 		// TODO Auto-generated method stub
-		return fieldType.getTokenName();
+		return fieldType.getReadableName();
 	}
 
 	/* (non-Javadoc)

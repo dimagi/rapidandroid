@@ -395,17 +395,17 @@ public class ModelTranslator {
 		sb.append(" \"");
 		sb.append("col_" + field.getName());
 		sb.append("\"");
-		if (field.getFieldType().getItemType().equals("integer")) {
+		if (field.getFieldType().getParsedDataType().equals("integer")) {
 			sb.append(" integer NULL");
-		} else if (field.getFieldType().getItemType().equals("number")) {
+		} else if (field.getFieldType().getParsedDataType().equals("number")) {
 			sb.append(" float NULL");
-		} else if (field.getFieldType().getItemType().equals("boolean")) {
+		} else if (field.getFieldType().getParsedDataType().equals("boolean")) {
 			sb.append(" bool NULL");
-		} else if (field.getFieldType().getItemType().equals("word")) {
+		} else if (field.getFieldType().getParsedDataType().equals("word")) {
 			sb.append(" varchar(36) NULL");
-		} else if (field.getFieldType().getItemType().equals("ratio")) {
+		} else if (field.getFieldType().getParsedDataType().equals("ratio")) {
 			sb.append(" float NULL");
-		} else if (field.getFieldType().getItemType().equals("datetime")) {
+		} else if (field.getFieldType().getParsedDataType().equals("datetime")) {
 			sb.append(" datetime NULL");
 		}
 		if (!last) {

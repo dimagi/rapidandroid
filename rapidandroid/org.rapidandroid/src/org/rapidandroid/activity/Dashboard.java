@@ -40,6 +40,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -117,8 +118,8 @@ public class Dashboard extends Activity {
 	private static final String STATE_LSV_VIEWMODE = "viewmode";
 	private static final String STATE_RAD_INDEX = "radselected";
 
-	private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
-	private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
+//	private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
+//	private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
 	// private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
 	// private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
 
@@ -129,9 +130,13 @@ public class Dashboard extends Activity {
 	private static final int SHOW_ALL = 5000;
 	private static final CharSequence TXT_WAIT = "Please Wait...";
 
-	private int formViewMode = 0;
-
+	private int mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
+	private ImageButton mBtnViewModeSwitcher;
+	
+	
 	private Form[] mAllForms;
+	
+	
 
 	boolean mIsInitializing = false;
 	boolean resetCursor = true;
@@ -210,17 +215,17 @@ public class Dashboard extends Activity {
 
 		lsv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-		// bind a context menu
-		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-				if (mChosenForm != null) {
-					menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
-					menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
-				} else {
-					menu.clear();
-				}
-			}
-		});
+//		// bind a context menu
+//		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+//			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+//				if (mChosenForm != null) {
+//					menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
+//					menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
+//				} else {
+//					menu.clear();
+//				}
+//			}
+//		});
 
 		lsv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long row) {
@@ -255,6 +260,26 @@ public class Dashboard extends Activity {
 		// android.R.anim.fade_out);
 		// mViewSwitcher.setInAnimation(in);
 		// mViewSwitcher.setOutAnimation(out);
+		
+		this.mBtnViewModeSwitcher = (ImageButton)findViewById(R.id.btn_switch_mode);
+		mBtnViewModeSwitcher.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				// this is on click, so we want to toggle it!
+				switch(mFormViewMode) {
+					case LISTVIEW_MODE_SUMMARY_VIEW:
+						mFormViewMode= LISTVIEW_MODE_TABLE_VIEW;
+						
+						break;
+					case LISTVIEW_MODE_TABLE_VIEW:
+						mFormViewMode= LISTVIEW_MODE_SUMMARY_VIEW;
+						
+						break;
+				}						
+				resetCursor = false;
+				beginListViewReload();
+			}			
+		});
 	}
 
 	/*
@@ -294,7 +319,7 @@ public class Dashboard extends Activity {
 				}
 
 				mIsInitializing = false;
-				formViewMode = savedInstanceState.getInt(STATE_LSV_VIEWMODE);
+				mFormViewMode = savedInstanceState.getInt(STATE_LSV_VIEWMODE);
 
 				Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 				spin_forms.setSelection(savedInstanceState.getInt(STATE_SPINNER_POSITION));
@@ -329,7 +354,7 @@ public class Dashboard extends Activity {
 			chosenRadio = 2;
 		}
 		outState.putInt(STATE_RAD_INDEX, chosenRadio);
-		outState.putInt(STATE_LSV_VIEWMODE, formViewMode);
+		outState.putInt(STATE_LSV_VIEWMODE, mFormViewMode);
 		Spinner spin_forms = (Spinner) findViewById(R.id.cbx_forms);
 		outState.putInt(STATE_SPINNER_POSITION, spin_forms.getSelectedItemPosition());
 
@@ -433,30 +458,30 @@ public class Dashboard extends Activity {
 		return true;
 	}
 
-	@Override
-	// http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
-	// UGH, things changed from .9 to 1.0
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		switch (item.getItemId()) {
-			case CONTEXT_ITEM_SUMMARY_VIEW:
-				formViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
-				break;
-			case CONTEXT_ITEM_TABLE_VIEW:
-				formViewMode = LISTVIEW_MODE_TABLE_VIEW;
-				break;
-			default:
-				return super.onContextItemSelected(item);
-		}
-		this.resetCursor = false;
-		beginListViewReload();
-		return true;
-	}
+//	@Override
+//	// http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
+//	// UGH, things changed from .9 to 1.0
+//	public boolean onContextItemSelected(MenuItem item) {
+//		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+//		switch (item.getItemId()) {
+//			case CONTEXT_ITEM_SUMMARY_VIEW:
+//				mFormViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
+//				break;
+//			case CONTEXT_ITEM_TABLE_VIEW:
+//				mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
+//				break;
+//			default:
+//				return super.onContextItemSelected(item);
+//		}
+//		this.resetCursor = false;
+//		beginListViewReload();
+//		return true;
+//	}
 
 	/**
 	 * @deprecated
 	 */
-	private void startDateRangeActivity() {
+	private void startActivityDateRange() {
 		Intent i = new Intent(this, DateRange.class);
 		// Date endDate = java.sql.Date.
 		Date endDate = new Date();
@@ -643,9 +668,15 @@ public class Dashboard extends Activity {
 	};
 
 	private synchronized void beginListViewReload() {
-		// mLoadingDialog = ProgressDialog.show(this,"Loading data",
-		// "Please wait");
-		// mLoadingDialog.show();
+		switch(mFormViewMode) {
+			case LISTVIEW_MODE_SUMMARY_VIEW:
+				mBtnViewModeSwitcher.setImageResource(R.drawable.summaryview);				
+				break;
+			case LISTVIEW_MODE_TABLE_VIEW:
+				mBtnViewModeSwitcher.setImageResource(R.drawable.gridview);
+				break;
+		}		
+	
 		this.mIsInitializing = true;
 		TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
 		lbl_recents.setText(TXT_WAIT);
@@ -718,12 +749,12 @@ public class Dashboard extends Activity {
 			 */
 
 				
-			if (this.formViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {
+			if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {
 				// headerView.setVisibility(View.INVISIBLE);
 				this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);
 				lsv.setAdapter(summaryView);
 
-			} else if (this.formViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
+			} else if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
 				if (this.headerView == null) {
 					headerView = new SingleRowHeaderView(this,mChosenForm,mScreenWidth);
 					mHeaderTable.addView(headerView);

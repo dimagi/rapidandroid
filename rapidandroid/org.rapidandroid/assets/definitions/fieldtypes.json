@@ -5,7 +5,7 @@
 		"fields": {
 			"datatype": "word", 
 			"regex": "^([A-Za-z]+)($|\\s)", 
-			"name": "word"
+			"name": "Word"
 			}
 	}, 
 	{
@@ -14,7 +14,7 @@
 		"fields": {
 			"datatype": "number", 
 			"regex": "^(\\d+)($|\\s)", 
-			"name": "number"
+			"name": "Number"
 		}
 	}, 
 	{
@@ -22,8 +22,8 @@
 		"model": "rapidandroid.fieldtype", 
 		"fields": {
 			"datatype": "float", 
-			"regex": "^(\\d+)(\\s*(kg|kilo|kilos))($|\\s)", 
-			"name": "weight"
+			"regex": "^((\\d+)|(\\d+\\.\\d+))(\\s*(kg|kilo|kilos))($|\\s)", 
+			"name": "Weight"
 		}
 	}, 
 	{"pk": 4, 
@@ -31,7 +31,7 @@
 		"fields": {
 			"datatype": "integer", 
 			"regex": "^(\\d+)(\\s*(cm|m|meter|meters))($|\\s)", 
-			"name": "height"
+			"name": "Height"
 		}
 	}, 
 	{
@@ -40,7 +40,7 @@
 		"fields": {
 			"datatype": "float", 
 			"regex": "^((\\d+\\:\\d+)|(\\d+\\/\\d+)|(\\d+\\s*%)|(\\d+\\s*pct)|(\\d+\\.\\d+))", 
-			"name": "ratio"
+			"name": "Ratio"
 		}
 	}, 
 	{
@@ -49,7 +49,7 @@
 		"fields": {
 			"datatype": "integer", 
 			"regex": "^(\\d+)(\\s*(cm|m))($|\\s)", 
-			"name": "length"
+			"name": "Length"
 		}
 	}, 
 	{
@@ -58,7 +58,7 @@
 		"fields": {
 			"datatype": "boolean", 
 			"regex": "^(t|f|true|false|y|no|yes|n|n0)(\\s|$)", 
-			"name": "boolean"
+			"name": "Yes/No"
 		}
 	}
 ]

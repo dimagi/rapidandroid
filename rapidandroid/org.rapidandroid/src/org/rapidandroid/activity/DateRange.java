@@ -108,11 +108,11 @@ public class DateRange extends Activity {
 		s.setTime(mStartDate);
 		Calendar e = Calendar.getInstance();
 		e.setTime(mEndDate);
+		//e.set(Calendar.DATE, e.get(Calendar.DATE)+1);	//we want to increment this by one day to avoid against running up against boundary conditions on recent data.
 		
 		mStartBeginningYear = s.get(Calendar.YEAR);
 		mStartBeginningMonth = s.get(Calendar.MONTH);
 		mStartBeginningDay = s.get(Calendar.DAY_OF_MONTH);		
-		
 		
         setUpdateCalendar(s,e);
 	}
@@ -300,10 +300,10 @@ public class DateRange extends Activity {
 		case MENU_DONE:
 			Intent ret = new Intent();
 			Calendar finalStart = Calendar.getInstance();
-			finalStart.set(mStartYear, mStartMonth, mStartDay);
-						
+			finalStart.set(mStartYear, mStartMonth, mStartDay,0,0);
+			
 			Calendar finalEnd= Calendar.getInstance();
-			finalEnd.set(mEndYear, mEndMonth, mEndDay);
+			finalEnd.set(mEndYear, mEndMonth, mEndDay,23,59);
 			
 			ret.putExtra(ResultParams.RESULT_START_DATE, finalStart.getTime().getTime());
 			ret.putExtra(ResultParams.RESULT_END_DATE, finalEnd.getTime().getTime());

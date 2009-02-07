@@ -24,7 +24,7 @@ public class SimpleFieldType implements ITokenParser {
 	private String datatype;
 	private int id;
 	private String regex;
-	private String name;		
+	private String mReadableName;		
 	private Pattern mPattern;
 	private IParseInterpreter interpreter;
 
@@ -32,7 +32,7 @@ public class SimpleFieldType implements ITokenParser {
 		this.id = id;
 		this.datatype = datatype;
 		this.regex = regex;
-		this.name = name;
+		this.mReadableName = name;
 		
 		mPattern = Pattern.compile(this.regex);
 		
@@ -45,7 +45,7 @@ public class SimpleFieldType implements ITokenParser {
 	}
 
 	/**
-	 * @return the name
+	 * @return the mReadableName
 	 */
 	public String getDataType() {
 		return datatype;
@@ -54,8 +54,8 @@ public class SimpleFieldType implements ITokenParser {
 	
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param mReadableName
+	 *            the mReadableName to set
 	 */
 	public void setDataType(String datatype) {
 		this.datatype = datatype;
@@ -95,7 +95,7 @@ public class SimpleFieldType implements ITokenParser {
 	 * @see org.rapidsms.java.core.parser.ITokenParser#getType()
 	 */
 	
-	public String getItemType() {
+	public String getParsedDataType() {
 		// TODO Auto-generated method stub
 		return datatype;
 	}
@@ -163,9 +163,9 @@ public class SimpleFieldType implements ITokenParser {
 	/* (non-Javadoc)
 	 * @see org.rapidsms.java.core.parser.token.ITokenParser#getName()
 	 */
-	public String getTokenName() {
+	public String getReadableName() {
 		// TODO Auto-generated method stub
-		return name;
+		return mReadableName;
 	}
 
 }

@@ -98,7 +98,7 @@ public class ParsedDataTranslator {
 			for (int i = 0; i < fieldsLen; i++) {
 				ITokenParser sfieldType = formFields[i].getFieldType();
 				Object parsedValue = null;
-				String type = sfieldType.getItemType();
+				String type = sfieldType.getParsedDataType();
 
 				if (type.equals("boolean")) {
 					parsedValue = cursor.getInt(i

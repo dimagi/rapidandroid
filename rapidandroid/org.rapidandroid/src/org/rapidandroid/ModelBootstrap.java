@@ -113,12 +113,12 @@ public class ModelBootstrap {
 
 				typecv.put(BaseColumns._ID, thetype.getId());					
 				typecv.put(RapidSmsDBConstants.FieldType.DATATYPE, thetype.getDataType());
-				typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getTokenName());
+				typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getReadableName());
 				typecv.put(RapidSmsDBConstants.FieldType.REGEX, thetype.getRegex());
 				
 				Log.d("dimagi", "InsertFieldType: " + thetype.getId());
 				Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
-				Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
+				Log.d("dimagi", "InsertFieldType: " + thetype.getReadableName());
 				Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
 
 				Uri insertedTypeUri = mContext.getContentResolver().insert(RapidSmsDBConstants.FieldType.CONTENT_URI, typecv);

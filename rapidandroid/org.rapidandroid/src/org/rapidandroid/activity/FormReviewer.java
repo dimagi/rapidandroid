@@ -416,10 +416,8 @@ public class FormReviewer extends Activity {
 			"yes", "no", "y", "n" };
 	private static String[] heights = new String[] { "cm", "m", "meters",
 			"meter" };
-	private static String[] lengths = new String[] { "cm", "m", "meters",
-			"meter" };
-	private static String[] weights = new String[] { "kg", "kilos", "kilo",
-			"kg.", "kg" };
+	private static String[] lengths = new String[] { "cm", "m" };
+	private static String[] weights = new String[] { "kg", "kilos", "kilo", "kg" };
 	private static String[] words = new String[] { "bos", "nyc", "jfk", "lax",
 			"lun", "lhr", "asvasd", "alksjwlejrwer", "bshdkghk", "akhsdwer",
 			"tiwowuy", "xvcxbxkhcvb" };
@@ -443,24 +441,24 @@ public class FormReviewer extends Activity {
 		for (int i = 0; i < len; i++) {
 			Field field = fields[i];
 
-			String type = field.getFieldType().getTokenName();
+			String type = field.getFieldType().getReadableName();
 
-			if (type.equals("word")) {
+			if (type.toLowerCase().equals("word")) {
 				sb.append(words[r.nextInt(words.length)]);
-			} else if (type.equals("number")) {
+			} else if (type.toLowerCase().equals("number")) {
 				sb.append(r.nextInt(1000));
-			} else if (type.equals("height")) {
+			} else if (type.equals("Height")) {
 				sb.append(r.nextInt(200) + " "
 						+ heights[r.nextInt(heights.length)]);
-			} else if (type.equals("boolean")) {
+			} else if (type.toLowerCase().equals("boolean") || type.toLowerCase().equals("yes/no")) {
 				sb.append(bools[r.nextInt(bools.length)]);
-			} else if (type.equals("length")) {
+			} else if (type.toLowerCase().equals("length")) {
 				sb.append(r.nextInt(200) + " "
 						+ lengths[r.nextInt(lengths.length)]);
-			} else if (type.equals("ratio")) {
+			} else if (type.toLowerCase().equals("ratio")) {
 				
 				sb.append(floats[r.nextInt(floats.length)]);
-			} else if (type.equals("weight")) {
+			} else if (type.toLowerCase().equals("weight")) {
 				sb.append(r.nextInt(150) + " "
 						+ weights[r.nextInt(weights.length)]);
 			}

@@ -37,14 +37,14 @@ public class SimpleFieldView extends TableLayout {
 		
 		mFieldType = new TextView(context);
 		mFieldType.setTextSize(16);
-		mFieldType.setPadding(4, 4, 4, 4);
+		mFieldType.setPadding(4, 4, 4, 8);
 		mFieldType.setGravity(Gravity.RIGHT);
 		mTopRow.addView(mFieldName);
 		mTopRow.addView(mFieldType);
 		
 		
 		mFieldDesc = new TextView(context);
-		mFieldDesc.setPadding(4, 4, 4, 4);
+		mFieldDesc.setPadding(12, 4, 4, 12);
 		mFieldDesc.setTextSize(14);
 		this.setColumnStretchable(0, true);
 		this.setColumnStretchable(1, true);
@@ -57,7 +57,7 @@ public class SimpleFieldView extends TableLayout {
 	
 	public void setField(Field field) {
 		mFieldName.setText(field.getName());
-		mFieldType.setText("[" + field.getFieldType().getItemType() + "]");
+		mFieldType.setText("[" + field.getFieldType().getReadableName() + "]");
 		mFieldDesc.setText(field.getDescription());
 	}
 	

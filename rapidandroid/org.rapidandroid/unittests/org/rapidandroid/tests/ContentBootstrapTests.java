@@ -344,12 +344,12 @@ public class ContentBootstrapTests extends AndroidTestCase {
 
 					typecv.put(RapidSmsDBConstants.FieldType._ID, thetype.getId());					
 					typecv.put(RapidSmsDBConstants.FieldType.DATATYPE, thetype.getDataType());
-					typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getTokenName());
+					typecv.put(RapidSmsDBConstants.FieldType.NAME, thetype.getReadableName());
 					typecv.put(RapidSmsDBConstants.FieldType.REGEX, thetype.getRegex());
 					
 					Log.d("dimagi", "InsertFieldType: " + thetype.getId());
 					Log.d("dimagi", "InsertFieldType: " + thetype.getDataType());
-					Log.d("dimagi", "InsertFieldType: " + thetype.getTokenName());
+					Log.d("dimagi", "InsertFieldType: " + thetype.getReadableName());
 					Log.d("dimagi", "InsertFieldType: " + thetype.getRegex());
 
 					Uri insertedTypeUri = getContext().getContentResolver().insert(RapidSmsDBConstants.FieldType.CONTENT_URI, typecv);
@@ -424,17 +424,17 @@ public class ContentBootstrapTests extends AndroidTestCase {
 				
 				for(int i = 0; i < len; i++) {
 					Field field = fields[i];
-					if (field.getFieldType().getItemType().equals("integer")) {
+					if (field.getFieldType().getParsedDataType().equals("integer")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
-					} else if (field.getFieldType().getItemType().equals("number")) {
+					} else if (field.getFieldType().getParsedDataType().equals("number")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextInt(10000));
-					} else if (field.getFieldType().getItemType().equals("boolean")) {
+					} else if (field.getFieldType().getParsedDataType().equals("boolean")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),r.nextBoolean());
-					} else if (field.getFieldType().getItemType().equals("word")) {
+					} else if (field.getFieldType().getParsedDataType().equals("word")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
-					} else if (field.getFieldType().getItemType().equals("ratio")) {
+					} else if (field.getFieldType().getParsedDataType().equals("ratio")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),Math.random() + "");
-					} else if (field.getFieldType().getItemType().equals("datetime")) {
+					} else if (field.getFieldType().getParsedDataType().equals("datetime")) {
 						cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(),"10/31/2008 11:59");
 					}					
 				}	

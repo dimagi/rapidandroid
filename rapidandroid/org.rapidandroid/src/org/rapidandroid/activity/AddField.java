@@ -108,7 +108,7 @@ public class AddField extends Activity {
 			int typeLen = fieldTypes.length;
 			fieldTypeNames = new String[typeLen];
 			for(int i = 0; i < typeLen; i++) {
-				fieldTypeNames[i] = fieldTypes[i].getTokenName();
+				fieldTypeNames[i] = fieldTypes[i].getReadableName();
 			}
 		}
 		//simple_spinner_dropdown_item

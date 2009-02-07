@@ -14,7 +14,7 @@ import org.rapidsms.java.core.parser.IParseResult;
 public interface ITokenParser {
 	
 	IParseResult Parse(String fragment);
-	String getTokenName();	
-	String getItemType();	//this might be redundant
+	String getReadableName();	
+	String getParsedDataType();	//this might be redundant
 	IParseInterpreter getInterpreter();	
 }
