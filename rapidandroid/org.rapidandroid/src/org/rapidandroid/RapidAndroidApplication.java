@@ -2,6 +2,7 @@ package org.rapidandroid;
 
 
 import android.app.Application;
+import android.os.Debug;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -16,8 +17,7 @@ public class RapidAndroidApplication extends Application {
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		super.onCreate();
-		
+		super.onCreate();		
 		ModelBootstrap.InitApplicationDatabase(this.getApplicationContext());
 		
 	}

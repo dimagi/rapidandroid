@@ -16,6 +16,7 @@ import org.rapidsms.java.core.model.Message;
 import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;
@@ -58,6 +59,8 @@ public abstract class ChartBroker {
 	protected SmsDbHelper rawDB;
 	protected WebView mAppView;
 	
+	private int traceCount = 0;
+	
 	protected String[] mVariableStrings;
 	protected int mChosenVariable = 0;
 	protected Activity mParentActivity;
@@ -94,6 +97,7 @@ public abstract class ChartBroker {
 	};
 //	private boolean mChartPageLoaded;
 //	private boolean mAlreadyLoading;
+	private final DateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	protected ChartBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
 		mParentActivity = activity;
@@ -145,6 +149,7 @@ public abstract class ChartBroker {
 	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
 	 */
 	public synchronized final void loadGraph() {
+		//Debug.startMethodTracing("graphing_" + this.getClass().getName() + traceCount++);
 		// trying to get this to work, but it's quite annoying
 		//if (!mAlreadyLoading) {
 			mDialogHandler.post(mStartThinker);
@@ -221,6 +226,7 @@ public abstract class ChartBroker {
 //	}
 
 	public void loadChartPage() {
+		
 		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);		
 		mAppView.loadUrl(CHART_FILE);
 		//mChartPageLoaded = true;
@@ -355,7 +361,7 @@ public abstract class ChartBroker {
 		cal2.setTime(date2);
 		if (cal2.before(cal1)) {
 			return false;
-		}
+		}		
 		// i really feel like there should be a cleaner way to do this but it escapes me
 		if (cal1.get(Calendar.YEAR) < cal2.get(Calendar.YEAR)) {
 			return true;
@@ -390,11 +396,10 @@ public abstract class ChartBroker {
 
 		
 	protected Date getDate(DateDisplayTypes displayType, String string) {
-		// TODO Auto-generated method stub
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
 		Date rawDate;
 		try {
-			rawDate = format.parse(string);
+			rawDate = sqlDateFormat.parse(string);
 		} catch (ParseException e) {
 			Log.d("ChartBroker","unparseable date: " + string);
 			// this is actually a hard failure.  Just not sure what to do 
@@ -624,7 +629,7 @@ public abstract class ChartBroker {
 			mDialogHandler.post(mEmptyData);		
 		}
 			
-		
+		//Debug.stopMethodTracing();
 	}
 	public abstract String getGraphTitle();
 	

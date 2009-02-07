@@ -29,6 +29,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
@@ -91,6 +92,7 @@ public class Dashboard extends Activity {
 
 	private ViewSwitcher mViewSwitcher;
 	private TableLayout mHeaderTable;
+	private int traceCount = 0;
 
 	// private ProgressDialog mLoadingDialog;
 
@@ -650,11 +652,13 @@ public class Dashboard extends Activity {
 		if (mChosenForm != null && !mShowAllMessages) {
 			loadListViewWithFormData();
 		} else if (mShowAllMessages && mChosenForm == null) {
+			this.mBtnViewModeSwitcher.setVisibility(View.INVISIBLE);
 			this.messageCursorAdapter = new MessageCursorAdapter(this, mListviewCursor);
 			lsv.setAdapter(messageCursorAdapter);
 		}
 		// lsv.setVisibility(View.VISIBLE);
-
+		
+		//Debug.stopMethodTracing();
 	}
 
 	final Handler mDashboardHandler = new Handler();
@@ -668,6 +672,7 @@ public class Dashboard extends Activity {
 	};
 
 	private synchronized void beginListViewReload() {
+//		Debug.startMethodTracing("listview_load" + traceCount++);
 		switch(mFormViewMode) {
 			case LISTVIEW_MODE_SUMMARY_VIEW:
 				mBtnViewModeSwitcher.setImageResource(R.drawable.summaryview);				
@@ -695,27 +700,9 @@ public class Dashboard extends Activity {
 	private synchronized void fillCursorInBackground() {
 		if (mListviewCursor == null) {
 			if (mChosenForm != null && !mShowAllMessages) {
-				// String whereclause = " rapidandroid_message.time >= '"
-				// + Message.SQLDateFormatter.format(mStartDate) +
-				// "' AND time <= '"
-				// + Message.SQLDateFormatter.format(mEndDate) + "'";
-				// mListviewCursor =
-				// getContentResolver().query(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
-				// + mChosenForm.getFormId()), null,null,null,"LIMIT " +
-				// mListCount);
-				//					    		
-				mListviewCursor = DashboardDataLayer.getCursorForFormData(this, mChosenForm, mListCount);
-
+				mListviewCursor = DashboardDataLayer.getCursorForFormData(this, mChosenForm, mListCount);				
 			} else if (mShowAllMessages && mChosenForm == null) {
-				// String whereclause = "time >= '" +
-				// Message.SQLDateFormatter.format(mStartDate) +
-				// "' AND time <= '" + Message.SQLDateFormatter.format(mEndDate)
-				// + "'";
-				// mListviewCursor =
-				// getContentResolver().query(RapidSmsDBConstants.Message.CONTENT_URI,
-				// null, whereclause, null, "time DESC");
-				mListviewCursor = DashboardDataLayer.getCursorForRawMessages(this, mListCount);
-
+				mListviewCursor = DashboardDataLayer.getCursorForRawMessages(this, mListCount);				
 			}
 		}
 	}
@@ -723,11 +710,8 @@ public class Dashboard extends Activity {
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
 	private void loadListViewWithFormData() {
-
-		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-
-		
-		
+		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);	
+		this.mBtnViewModeSwitcher.setVisibility(View.VISIBLE);		
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
 													new String[] { "Select an item" }));
@@ -750,10 +734,8 @@ public class Dashboard extends Activity {
 
 				
 			if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {
-				// headerView.setVisibility(View.INVISIBLE);
 				this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);
 				lsv.setAdapter(summaryView);
-
 			} else if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
 				if (this.headerView == null) {
 					headerView = new SingleRowHeaderView(this,mChosenForm,mScreenWidth);
@@ -762,8 +744,7 @@ public class Dashboard extends Activity {
 					for(int i = 0; i < colcount; i++) {
 						mHeaderTable.setColumnShrinkable(i, true);
 					}					
-				}
-				 				
+				}				 				
 				rowView = new FormDataGridCursorAdapter(this, mChosenForm, mListviewCursor, mScreenWidth);
 				lsv.setAdapter(rowView);
 			}

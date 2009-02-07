@@ -54,6 +54,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	Uri uriSms = Uri.parse("content://sms/inbox");
 
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
+		
 		Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 		ContentValues messageValues = new ContentValues();
@@ -110,9 +111,9 @@ public class SmsReceiver extends BroadcastReceiver {
 	// source: http://www.devx.com/wireless/Article/39495/1954
 	public void onReceive(Context context, Intent intent) {
 		if (!intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {// {
-
 			return;
 		}
+		
 		SmsMessage msgs[] = getMessagesFromIntent(intent);
 
 		for (int i = 0; i < msgs.length; i++) {

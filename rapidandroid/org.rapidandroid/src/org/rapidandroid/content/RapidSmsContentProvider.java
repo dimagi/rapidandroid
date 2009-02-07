@@ -203,14 +203,14 @@ public class RapidSmsContentProvider extends ContentProvider {
 		// sanity check, see if the table exists
 		String formid = uri.getPathSegments().get(1);
 		String formprefix = ModelTranslator.getFormById(Integer.valueOf(formid).intValue()).getPrefix();
-		SQLiteDatabase dbr = mOpenHelper.getReadableDatabase();
-		Cursor table_exists = dbr.rawQuery("select count(*) from formdata_"
-				+ formprefix, null);
-		if (table_exists.getCount() != 1) {
-			throw new SQLException("Failed to insert row into " + uri
-					+ " :: table doesn't exist.");
-		}
-		table_exists.close();
+//		SQLiteDatabase dbr = mOpenHelper.getReadableDatabase();
+//		Cursor table_exists = dbr.rawQuery("select count(*) from formdata_"
+//				+ formprefix, null);
+//		if (table_exists.getCount() != 1) {
+//			throw new SQLException("Failed to insert row into " + uri
+//					+ " :: table doesn't exist.");
+//		}
+//		table_exists.close();
 
 		//doInsert doesn't apply well here.		
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();

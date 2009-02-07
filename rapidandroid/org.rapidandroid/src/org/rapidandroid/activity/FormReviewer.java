@@ -50,6 +50,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -360,6 +361,7 @@ public class FormReviewer extends Activity {
 	private void doInjection() {
 		Random r = new Random();
 
+		//Debug.startMethodTracing("injection");
 		for (int i = 0; i < 100; i++) {
 
 			// first, let's get the
@@ -388,6 +390,8 @@ public class FormReviewer extends Activity {
 			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(
 					msgUri.getPathSegments().get(1)).intValue(), results);
 		}
+		
+		Debug.stopMethodTracing();
 
 	}
 

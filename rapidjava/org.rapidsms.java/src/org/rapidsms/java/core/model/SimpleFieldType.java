@@ -107,8 +107,8 @@ public class SimpleFieldType implements ITokenParser {
 	
 	public IParseResult Parse(String fragment) {
 				
-		Pattern mPattern;
-		mPattern = Pattern.compile(regex);
+		//Pattern mPattern;
+		//mPattern = Pattern.compile(regex);
 		Matcher matcher = mPattern.matcher(fragment);
 		boolean isMatched = matcher.find();
 		int maxSize = -1;
