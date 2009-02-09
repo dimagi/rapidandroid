@@ -54,7 +54,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	Uri uriSms = Uri.parse("content://sms/inbox");
 
 	private void insertMessageToContentProvider(Context context, SmsMessage mesg) {
-		
+
 		Uri writeMessageUri = RapidSmsDBConstants.Message.CONTENT_URI;
 
 		ContentValues messageValues = new ContentValues();
@@ -65,12 +65,25 @@ public class SmsReceiver extends BroadcastReceiver {
 		Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(context, mesg.getOriginatingAddress());
 
 		messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
-		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));	//expensive string formatting operation.
-		//messageValues.put(RapidSmsDBConstants.Message.TIME, mesg.getTimestampMillis());	//longs don't store as datetimes
+		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts)); // expensive
+																									// string
+																									// formatting
+																									// operation.
+		// messageValues.put(RapidSmsDBConstants.Message.TIME,
+		// mesg.getTimestampMillis()); //longs don't store as datetimes
 		messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 		Date now = new Date();
-		messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(now));		//profile has shown this  is an expensive operation
-		//messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, now.getTime());	//but this doesn't fracking work to convert to a datetime value.
+		messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(now)); // profile
+																											// has
+																											// shown
+																											// this
+																											// is
+																											// an
+																											// expensive
+																											// operation
+		// messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME,
+		// now.getTime()); //but this doesn't fracking work to convert to a
+		// datetime value.
 		boolean successfulSave = false;
 		Uri msgUri = null;
 		try {
@@ -85,7 +98,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			broadcast.putExtra("from", mesg.getOriginatingAddress());
 			broadcast.putExtra("body", mesg.getMessageBody());
 			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-			DeleteSMSFromInbox(context,mesg);
+			DeleteSMSFromInbox(context, mesg);
 			context.sendBroadcast(broadcast);
 		}
 	}
@@ -105,8 +118,10 @@ public class SmsReceiver extends BroadcastReceiver {
 			context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id), null, null);
 			c.close();
 		} catch (Exception ex) {
-			//deletions don't work most of the time since the timing of the receipt and saving to the inbox
-			//makes it difficult to match up perfectly.  the SMS might not be in the inbox yet when this receiver triggers!
+			// deletions don't work most of the time since the timing of the
+			// receipt and saving to the inbox
+			// makes it difficult to match up perfectly. the SMS might not be in
+			// the inbox yet when this receiver triggers!
 			Log.d("SmsReceiver", "Error deleting sms from inbox: " + ex.getMessage());
 		}
 	}
@@ -117,7 +132,7 @@ public class SmsReceiver extends BroadcastReceiver {
 		if (!intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {// {
 			return;
 		}
-		
+
 		SmsMessage msgs[] = getMessagesFromIntent(intent);
 
 		for (int i = 0; i < msgs.length; i++) {

@@ -24,7 +24,7 @@ public class SimpleFieldType implements ITokenParser {
 	private String datatype;
 	private int id;
 	private String regex;
-	private String mReadableName;		
+	private String mReadableName;
 	private Pattern mPattern;
 	private IParseInterpreter interpreter;
 
@@ -33,11 +33,11 @@ public class SimpleFieldType implements ITokenParser {
 		this.datatype = datatype;
 		this.regex = regex;
 		this.mReadableName = name;
-		
+
 		mPattern = Pattern.compile(this.regex);
-		
+
 		interpreter = InterpreterFactory.GetParseInterpreter(datatype);
-		
+
 	}
 
 	public SimpleFieldType() {
@@ -50,8 +50,6 @@ public class SimpleFieldType implements ITokenParser {
 	public String getDataType() {
 		return datatype;
 	}
-
-	
 
 	/**
 	 * @param mReadableName
@@ -91,24 +89,27 @@ public class SimpleFieldType implements ITokenParser {
 		this.regex = regex;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.ITokenParser#getType()
 	 */
-	
+
 	public String getParsedDataType() {
 		// TODO Auto-generated method stub
 		return datatype;
 	}
-	
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.ITokenParser#Parse(java.lang.String)
 	 */
-	
+
 	public IParseResult Parse(String fragment) {
-				
-		//Pattern mPattern;
-		//mPattern = Pattern.compile(regex);
+
+		// Pattern mPattern;
+		// mPattern = Pattern.compile(regex);
 		Matcher matcher = mPattern.matcher(fragment);
 		boolean isMatched = matcher.find();
 		int maxSize = -1;
@@ -119,8 +120,9 @@ public class SimpleFieldType implements ITokenParser {
 		if (isMatched) {
 			for (int q = 0; q < matcher.groupCount(); q++) {
 
-				if(matcher.group(q) == null) {
-					//System.out.println("why the frack is this null " + q + " count: " + matcher.groupCount());
+				if (matcher.group(q) == null) {
+					// System.out.println("why the frack is this null " + q +
+					// " count: " + matcher.groupCount());
 					continue;
 				}
 				int currsize = matcher.group(q).length();
@@ -132,27 +134,29 @@ public class SimpleFieldType implements ITokenParser {
 			}
 			minstart = matcher.start(maxGroup);
 			maxend = matcher.end(maxGroup);
-			//System.out.println(matcher.group(maxGroup));
-		}
-		else {
+			// System.out.println(matcher.group(maxGroup));
+		} else {
 			return null;
 		}
-		
-		if(minstart < maxend) {
-			//System.out.println("\t\tFragmenting: " + minstart + "-" + maxend);
+
+		if (minstart < maxend) {
+			// System.out.println("\t\tFragmenting: " + minstart + "-" +
+			// maxend);
 			String parsed = fragment.substring(minstart, maxend);
-			
-			parsed = parsed.trim();			
-			//System.out.println("\t\tMatched fragment: ##" + parsed + "##");						
-			SimpleParseResult res = new SimpleParseResult(this,parsed, getInterpreter().interpretValue(parsed));
-			
+
+			parsed = parsed.trim();
+			// System.out.println("\t\tMatched fragment: ##" + parsed + "##");
+			SimpleParseResult res = new SimpleParseResult(this, parsed, getInterpreter().interpretValue(parsed));
+
 			return res;
 		} else {
 			return null;
-		}	
+		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.token.ITokenParser#getInterpreter()
 	 */
 	public IParseInterpreter getInterpreter() {
@@ -160,7 +164,9 @@ public class SimpleFieldType implements ITokenParser {
 		return interpreter;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.token.ITokenParser#getName()
 	 */
 	public String getReadableName() {

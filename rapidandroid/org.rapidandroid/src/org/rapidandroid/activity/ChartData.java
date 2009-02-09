@@ -3,7 +3,6 @@ package org.rapidandroid.activity;
 import java.util.Date;
 
 import org.rapidandroid.R;
-import org.rapidandroid.R.id;
 import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.activity.chart.form.FormDataBroker;
 import org.rapidandroid.activity.chart.message.MessageDataBroker;
@@ -17,14 +16,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
-import android.widget.ViewSwitcher;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -55,7 +52,6 @@ public class ChartData extends Activity {
 	private static final int ACTIVITY_DATERANGE = 7;
 	private static final int THINKING_DIALOG = 160;
 	private static final int NO_DATA_DIALOG = 170;
-	
 
 	private Date mStartDate;
 	private Date mEndDate;
@@ -83,8 +79,6 @@ public class ChartData extends Activity {
 		setContentView(org.rapidandroid.R.layout.data_chart);
 		mWebView = (WebView) findViewById(org.rapidandroid.R.id.wv1);
 		mWebView.getSettings().setJavaScriptEnabled(true);
-		
-		
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -99,17 +93,17 @@ public class ChartData extends Activity {
 			}
 			if (extras.containsKey(CallParams.CHART_FORM)) {
 				mForm = ModelTranslator.getFormById(extras.getInt(CallParams.CHART_FORM));
-				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
+				mBroker = new FormDataBroker(this, mWebView, mForm, mStartDate, mEndDate);
 			} else if (extras.containsKey(CallParams.CHART_MESSAGES)) {
 				mBroker = new MessageDataBroker(this, mWebView, mStartDate, mEndDate);
 			} else if (extras.containsKey(CallParams.CHART_MONITORS)) {
 
-			}			
-			if(savedInstanceState == null) {
+			}
+			if (savedInstanceState == null) {
 				mBroker.loadChartPage();
 			}
-			//mBroker.loadGraph();
-		}		
+			// mBroker.loadGraph();
+		}
 	}
 
 	/*
@@ -134,22 +128,22 @@ public class ChartData extends Activity {
 
 			if (chartfor.equals(CallParams.CHART_FORM)) {
 				mForm = ModelTranslator.getFormById(savedInstanceState.getInt(STATE_SELECTED_FORM));
-				mBroker = new FormDataBroker(this,mWebView, mForm, mStartDate, mEndDate);
+				mBroker = new FormDataBroker(this, mWebView, mForm, mStartDate, mEndDate);
 			} else if (chartfor.equals(CallParams.CHART_MESSAGES)) {
 				mBroker = new MessageDataBroker(this, mWebView, mStartDate, mEndDate);
 			} else if (chartfor.equals(CallParams.CHART_MONITORS)) {
 
 			}
-			
+
 			mBroker.setVariable(mVariable);
-			
+
 			mBroker.setGraphData(savedInstanceState.getString(STATE_GRAPH_DATA));
 			mBroker.setGraphOptions(savedInstanceState.getString(STATE_GRAPH_OPTION));
 		}
-		
+
 		mBroker.loadChartPage();
-		//mBroker.loadGraph();
-		//mWebView.debugDump();
+		// mBroker.loadGraph();
+		// mWebView.debugDump();
 	}
 
 	/*
@@ -165,12 +159,12 @@ public class ChartData extends Activity {
 		outState.putLong(STATE_END_DATE, mEndDate.getTime());
 		outState.putInt(STATE_SELECTED_VARIABLE, mVariable);
 		outState.putString(STATE_CHART_FOR, mBroker.getName());
-		
+
 		outState.putString(STATE_GRAPH_DATA, mBroker.getGraphData());
 		outState.putString(STATE_GRAPH_OPTION, mBroker.getGraphOptions());
-		if(mForm != null) {
+		if (mForm != null) {
 			outState.putInt(STATE_SELECTED_FORM, mForm.getFormId());
-		}		
+		}
 	}
 
 	/*
@@ -195,8 +189,9 @@ public class ChartData extends Activity {
 																									DialogInterface dialog,
 																									int whichButton) {
 																								mVariable = whichButton;
-																								mBroker.setVariable(whichButton);
-																								//dialog.dismiss();
+																								mBroker
+																										.setVariable(whichButton);
+																								// dialog.dismiss();
 																							}
 																						})
 																.setPositiveButton(
@@ -206,7 +201,7 @@ public class ChartData extends Activity {
 																								DialogInterface dialog,
 																								int whichButton) {
 
-																							mBroker.loadGraph();																							
+																							mBroker.loadGraph();
 																						}
 																					})
 																.setNegativeButton(
@@ -215,7 +210,7 @@ public class ChartData extends Activity {
 																						public void onClick(
 																								DialogInterface dialog,
 																								int whichButton) {
-																						
+
 																						}
 																					}).create();
 			case THINKING_DIALOG:
@@ -223,16 +218,22 @@ public class ChartData extends Activity {
 				loadingDialog.setTitle("Please wait");
 				loadingDialog.setMessage("Drawing graph...");
 				loadingDialog.setIndeterminate(true);
-				loadingDialog.setCancelable(false);				
-				return loadingDialog;				
+				loadingDialog.setCancelable(false);
+				return loadingDialog;
 			case NO_DATA_DIALOG:
-				return new AlertDialog.Builder(ChartData.this).setTitle("No Data").setMessage("Sorry, there was no data for the selected variable and date range.").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-					public void onClick(
-							DialogInterface dialog,
-							int whichButton) {
-					
-					}
-				}).create();
+				return new AlertDialog.Builder(ChartData.this)
+																.setTitle("No Data")
+																.setMessage(
+																			"Sorry, there was no data for the selected variable and date range.")
+																.setPositiveButton(
+																					"Ok",
+																					new DialogInterface.OnClickListener() {
+																						public void onClick(
+																								DialogInterface dialog,
+																								int whichButton) {
+
+																						}
+																					}).create();
 			default:
 				return null;
 		}
@@ -280,9 +281,6 @@ public class ChartData extends Activity {
 		startActivityForResult(i, ACTIVITY_DATERANGE);
 
 	}
-	
-	
-
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {

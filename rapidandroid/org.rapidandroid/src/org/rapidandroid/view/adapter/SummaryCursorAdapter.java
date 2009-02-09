@@ -5,18 +5,11 @@ import java.util.HashMap;
 import org.rapidandroid.view.SummaryCursorView;
 import org.rapidsms.java.core.model.Form;
 
-import android.R;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.PixelFormat;
-import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 import android.widget.CursorAdapter;
-import android.widget.TextView;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
@@ -24,10 +17,10 @@ import android.widget.TextView;
  */
 public class SummaryCursorAdapter extends CursorAdapter {
 
-//	private int newCount = 0;
-//	private int bindCount = 0;
+	// private int newCount = 0;
+	// private int bindCount = 0;
 	private int mLoadViewCount = 0;
-	
+
 	@Override
 	public void notifyDataSetInvalidated() {
 		// TODO Auto-generated method stub
@@ -41,7 +34,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		super.changeCursor(cursor);
 		mLoadViewCount = 0;
 	}
-	
+
 	@Override
 	protected void init(Context context, Cursor c, boolean autoRequery) {
 		// TODO Auto-generated method stub
@@ -69,8 +62,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 			mFields[i] = mForm.getFields()[i].getName();
 		}
 		mExpanded = new HashMap<Integer, Boolean>();
-		
-		
+
 	}
 
 	/*
@@ -89,7 +81,7 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		}
 		pmcv.setExpanded(mExpanded.get(intpos).booleanValue());
 
-//		bindCount++;
+		// bindCount++;
 		mLoadViewCount++;
 	}
 
@@ -104,9 +96,9 @@ public class SummaryCursorAdapter extends CursorAdapter {
 		// TODO Auto-generated method stub
 		Integer intpos = Integer.valueOf(cursor.getPosition());
 		mExpanded.put(intpos, bFalse);
-//		newCount++;
+		// newCount++;
 		return new SummaryCursorView(context, cursor, mFields, false);
-		
+
 	}
 
 	public void toggle(int position) {

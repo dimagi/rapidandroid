@@ -16,22 +16,26 @@ import org.rapidsms.java.core.parser.SimpleRegexParser;
  */
 public class ParsingService {
 
-	public enum ParserType { SIMPLEREGEX };
-	
+	public enum ParserType {
+		SIMPLEREGEX
+	};
+
 	private static SimpleRegexParser simpleRegexParser = new SimpleRegexParser();
-	
+
 	/**
-	 * For a given message, call the appropriate parsing class and return the parse results.
+	 * For a given message, call the appropriate parsing class and return the
+	 * parse results.
+	 * 
 	 * @param form
 	 * @param message
 	 * @return
 	 */
 	public static Vector<IParseResult> ParseMessage(Form form, String message) {
-		switch(form.getParserType()) {
+		switch (form.getParserType()) {
 			case SIMPLEREGEX:
-				return simpleRegexParser.ParseMessage(form, message);								
+				return simpleRegexParser.ParseMessage(form, message);
 			default:
 				throw new IllegalArgumentException("that parser does not exist");
-		}		
+		}
 	}
 }

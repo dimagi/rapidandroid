@@ -13,40 +13,32 @@ import org.rapidsms.java.core.parser.interpreter.StringInterpreter;
 
 public class InterpreterFactory {
 	public enum InterpreterType {
-		BOOLEAN,
-		NUMBER,
-		RATIO,
-		HEIGHT,
-		LENGTH,
-		WEIGHT,
-		WORD		
+		BOOLEAN, NUMBER, RATIO, HEIGHT, LENGTH, WEIGHT, WORD
 	}
-	
-	
-	private static IntegerInterpreter  integerInterpreter = new IntegerInterpreter();
-	private static BooleanInterpreter  booleanInterpreter = new BooleanInterpreter();
-	private static StringInterpreter  stringInterpreter = new StringInterpreter();
-	private static FloatInterpreter  floatInterpreter = new FloatInterpreter();
-	
+
+	private static IntegerInterpreter integerInterpreter = new IntegerInterpreter();
+	private static BooleanInterpreter booleanInterpreter = new BooleanInterpreter();
+	private static StringInterpreter stringInterpreter = new StringInterpreter();
+	private static FloatInterpreter floatInterpreter = new FloatInterpreter();
+
 	public static IParseInterpreter GetParseInterpreter(String typename) {
-			if(typename.equals("boolean"))
-				return booleanInterpreter;
-			if(typename.equals("number"))
-				return floatInterpreter;
-			if(typename.equals("word"))			
-				return stringInterpreter;
-			if(typename.equals("float"))			
-				return floatInterpreter;	
-			if(typename.equals("integer"))			
-				return integerInterpreter;
-			
-			throw new IllegalArgumentException("that parser does not exist " + typename);
-		
+		if (typename.equals("boolean"))
+			return booleanInterpreter;
+		if (typename.equals("number"))
+			return floatInterpreter;
+		if (typename.equals("word"))
+			return stringInterpreter;
+		if (typename.equals("float"))
+			return floatInterpreter;
+		if (typename.equals("integer"))
+			return integerInterpreter;
+
+		throw new IllegalArgumentException("that parser does not exist " + typename);
+
 	}
-	
-	
+
 	public static IParseInterpreter GetParseInterpreter(InterpreterType type) {
-		switch(type) {
+		switch (type) {
 			case BOOLEAN:
 				return booleanInterpreter;
 			case NUMBER:
@@ -60,10 +52,10 @@ public class InterpreterFactory {
 			case WEIGHT:
 				return floatInterpreter;
 			case WORD:
-				return stringInterpreter;				
+				return stringInterpreter;
 			default:
 				throw new IllegalArgumentException("that parser does not exist " + type.ordinal());
-		}		
+		}
 	}
 
 }

@@ -3,14 +3,12 @@
  */
 package org.rapidandroid.activity;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -32,7 +30,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -42,7 +39,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -92,7 +88,7 @@ public class FormCreator extends Activity {
 
 	private Vector<Field> mCurrentFields;
 	private String[] fieldStrings;
-	
+
 	private boolean mClosing = false;
 
 	private int selectedFieldPosition = -1;
@@ -104,7 +100,7 @@ public class FormCreator extends Activity {
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);	
+		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.form_create);
 
@@ -132,7 +128,7 @@ public class FormCreator extends Activity {
 		});
 		TextView noFields = new TextView(this);
 		noFields.setText("No fields");
-		lsv.setEmptyView(noFields);	
+		lsv.setEmptyView(noFields);
 		updateFieldList();
 	}
 
@@ -140,7 +136,7 @@ public class FormCreator extends Activity {
 	protected synchronized void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		if(!mClosing) {
+		if (!mClosing) {
 			saveState();
 		} else {
 			File f = this.getFileStreamPath("FormCreatorSavedState");
@@ -208,7 +204,7 @@ public class FormCreator extends Activity {
 		try {
 			File f = this.getFileStreamPath("FormCreatorSavedState");
 			if (f.exists()) {
-				//mCurrentFields = new Vector<Field>();
+				// mCurrentFields = new Vector<Field>();
 				FileInputStream fin = this.openFileInput("FormCreatorSavedState");
 				InputStreamReader irdr = new InputStreamReader(fin); // promote
 
@@ -243,7 +239,7 @@ public class FormCreator extends Activity {
 		} catch (Exception ex) {
 			Log.d("FormCreator", ex.getMessage());
 		}
-	}	
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -262,7 +258,7 @@ public class FormCreator extends Activity {
 
 		switch (requestCode) {
 			case ACTIVITY_ADDFIELD_ADDED:
-				if (extras != null) {					
+				if (extras != null) {
 					addNewFieldFromActivity(extras);
 				}
 				break;
@@ -309,18 +305,18 @@ public class FormCreator extends Activity {
 			newField.setFieldType(fieldtype);
 
 			int listSize = mCurrentFields.size();
-			
-			for(int i = 0; i < listSize; i++) {
+
+			for (int i = 0; i < listSize; i++) {
 				Field existingField = mCurrentFields.get(i);
-				if(existingField.getName().equals(newField.getName())) {
+				if (existingField.getName().equals(newField.getName())) {
 					return;
 				}
-			}			
+			}
 			if (listSize > 0) {
 				listSize = listSize - 1;
 			}
 			newField.setSequenceId(listSize);
-			
+
 			mCurrentFields.add(newField);
 
 			updateFieldList();
@@ -352,7 +348,8 @@ public class FormCreator extends Activity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save).setIcon(android.R.drawable.ic_menu_save);
 		menu.add(0, MENU_ADD_FIELD, 0, R.string.formeditor_menu_add_field).setIcon(android.R.drawable.ic_menu_add);
-		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel)
+			.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return true;
 	}
 
@@ -382,7 +379,7 @@ public class FormCreator extends Activity {
 				return true;
 			case MENU_ADD_FIELD:
 				Intent intent = new Intent(this, AddField.class);
-				//mUpdatedFromActivity = true;
+				// mUpdatedFromActivity = true;
 				if (mCurrentFields != null) {
 					int len = this.mCurrentFields.size();
 					for (int i = 0; i < len; i++) {

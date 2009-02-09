@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.rapidandroid.R;
-import org.rapidandroid.content.translation.MessageTranslator;
 import org.rapidandroid.content.translation.ModelTranslator;
 import org.rapidandroid.data.controller.DashboardDataLayer;
 import org.rapidandroid.data.controller.MessageDataReporter;
@@ -21,23 +20,18 @@ import org.rapidsms.java.core.Constants;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
-import sun.misc.GC;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -120,8 +114,8 @@ public class Dashboard extends Activity {
 	private static final String STATE_LSV_VIEWMODE = "viewmode";
 	private static final String STATE_RAD_INDEX = "radselected";
 
-//	private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
-//	private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
+	// private static final int CONTEXT_ITEM_SUMMARY_VIEW = Menu.FIRST;
+	// private static final int CONTEXT_ITEM_TABLE_VIEW = Menu.FIRST + 1;
 	// private static final int CONTEXT_ITEM_TEST3 = ContextMenu.FIRST + 2;
 	// private static final int CONTEXT_ITEM_TEST4 = ContextMenu.FIRST + 3;
 
@@ -134,11 +128,8 @@ public class Dashboard extends Activity {
 
 	private int mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
 	private ImageButton mBtnViewModeSwitcher;
-	
-	
+
 	private Form[] mAllForms;
-	
-	
 
 	boolean mIsInitializing = false;
 	boolean resetCursor = true;
@@ -152,7 +143,6 @@ public class Dashboard extends Activity {
 	private RadioButton rb100;
 	private RadioButton rb500;
 	private RadioButton rball;
-	
 
 	private OnClickListener radioClickListener = new OnClickListener() {
 
@@ -217,17 +207,19 @@ public class Dashboard extends Activity {
 
 		lsv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-//		// bind a context menu
-//		lsv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-//			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-//				if (mChosenForm != null) {
-//					menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
-//					menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
-//				} else {
-//					menu.clear();
-//				}
-//			}
-//		});
+		// // bind a context menu
+		// lsv.setOnCreateContextMenuListener(new
+		// View.OnCreateContextMenuListener() {
+		// public void onCreateContextMenu(ContextMenu menu, View v,
+		// ContextMenuInfo menuInfo) {
+		// if (mChosenForm != null) {
+		// menu.add(0, CONTEXT_ITEM_SUMMARY_VIEW, 0, "Summary View");
+		// menu.add(0, CONTEXT_ITEM_TABLE_VIEW, 0, "Table View");
+		// } else {
+		// menu.clear();
+		// }
+		// }
+		// });
 
 		lsv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long row) {
@@ -254,7 +246,7 @@ public class Dashboard extends Activity {
 
 		mViewSwitcher = (ViewSwitcher) findViewById(R.id.dashboard_switcher);
 
-		mHeaderTable =(TableLayout)findViewById(R.id.dashboard_headertbl); 
+		mHeaderTable = (TableLayout) findViewById(R.id.dashboard_headertbl);
 		// these animations are too fracking slow
 		// Animation in = AnimationUtils.loadAnimation(this,
 		// android.R.anim.fade_in);
@@ -262,25 +254,25 @@ public class Dashboard extends Activity {
 		// android.R.anim.fade_out);
 		// mViewSwitcher.setInAnimation(in);
 		// mViewSwitcher.setOutAnimation(out);
-		
-		this.mBtnViewModeSwitcher = (ImageButton)findViewById(R.id.btn_switch_mode);
+
+		this.mBtnViewModeSwitcher = (ImageButton) findViewById(R.id.btn_switch_mode);
 		mBtnViewModeSwitcher.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
 				// this is on click, so we want to toggle it!
-				switch(mFormViewMode) {
+				switch (mFormViewMode) {
 					case LISTVIEW_MODE_SUMMARY_VIEW:
-						mFormViewMode= LISTVIEW_MODE_TABLE_VIEW;
-						
+						mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
+
 						break;
 					case LISTVIEW_MODE_TABLE_VIEW:
-						mFormViewMode= LISTVIEW_MODE_SUMMARY_VIEW;
-						
+						mFormViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
+
 						break;
-				}						
+				}
 				resetCursor = false;
 				beginListViewReload();
-			}			
+			}
 		});
 	}
 
@@ -298,8 +290,8 @@ public class Dashboard extends Activity {
 					// && savedInstanceState.containsKey(STATE_LSV_POSITION)
 					&& savedInstanceState.containsKey(STATE_LSV_VIEWMODE)
 					&& savedInstanceState.containsKey(STATE_RAD_INDEX) // savedInstanceState.containsKey(STATE_DATE_START)
-																		// &&
-																		// savedInstanceState.containsKey(STATE_DATE_END)
+			// &&
+			// savedInstanceState.containsKey(STATE_DATE_END)
 			// STATE_RAD_COUNT
 			// && savedInstanceState.containsKey(STATE_SELECTED_FORM)
 			) {
@@ -460,29 +452,31 @@ public class Dashboard extends Activity {
 		return true;
 	}
 
-//	@Override
-//	// http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
-//	// UGH, things changed from .9 to 1.0
-//	public boolean onContextItemSelected(MenuItem item) {
-//		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-//		switch (item.getItemId()) {
-//			case CONTEXT_ITEM_SUMMARY_VIEW:
-//				mFormViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
-//				break;
-//			case CONTEXT_ITEM_TABLE_VIEW:
-//				mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
-//				break;
-//			default:
-//				return super.onContextItemSelected(item);
-//		}
-//		this.resetCursor = false;
-//		beginListViewReload();
-//		return true;
-//	}
+	// @Override
+	// // http://www.anddev.org/tinytutcontextmenu_for_listview-t4019.html
+	// // UGH, things changed from .9 to 1.0
+	// public boolean onContextItemSelected(MenuItem item) {
+	// AdapterView.AdapterContextMenuInfo menuInfo =
+	// (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+	// switch (item.getItemId()) {
+	// case CONTEXT_ITEM_SUMMARY_VIEW:
+	// mFormViewMode = LISTVIEW_MODE_SUMMARY_VIEW;
+	// break;
+	// case CONTEXT_ITEM_TABLE_VIEW:
+	// mFormViewMode = LISTVIEW_MODE_TABLE_VIEW;
+	// break;
+	// default:
+	// return super.onContextItemSelected(item);
+	// }
+	// this.resetCursor = false;
+	// beginListViewReload();
+	// return true;
+	// }
 
 	/**
 	 * @deprecated
 	 */
+	@Deprecated
 	private void startActivityDateRange() {
 		Intent i = new Intent(this, DateRange.class);
 		// Date endDate = java.sql.Date.
@@ -521,7 +515,7 @@ public class Dashboard extends Activity {
 	}
 
 	private void startActivityChart() {
-		//Debug.stopMethodTracing();
+		// Debug.stopMethodTracing();
 		if (mListviewCursor == null) {
 			Builder noDataDialog = new AlertDialog.Builder(this);
 			noDataDialog.setPositiveButton("Ok", null);
@@ -542,30 +536,31 @@ public class Dashboard extends Activity {
 				noDateDialog.setPositiveButton("Ok", null);
 				noDateDialog.setTitle("Alert");
 				noDateDialog.setMessage("This form has no messages or data to chart");
-				noDateDialog.show();				
+				noDateDialog.show();
 				return;
 			}
-						
-			
+
 			if (mListviewCursor.getCount() > 0) {
 				mListviewCursor.moveToLast();
-				//int msg_id = mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
-				String datestring = mListviewCursor.getString(mListviewCursor.getColumnCount() + Message.COL_JOINED_MESSAGE_TIME);
-				
+				// int msg_id =
+				// mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
+				String datestring = mListviewCursor.getString(mListviewCursor.getColumnCount()
+						+ Message.COL_JOINED_MESSAGE_TIME);
+
 				try {
 					startDate = Message.SQLDateFormatter.parse(datestring);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//Message m = MessageTranslator.GetMessage(this, msg_id);
-				
+				// Message m = MessageTranslator.GetMessage(this, msg_id);
+
 			} else {
 				Calendar startCal = Calendar.getInstance();
 				startCal.add(Calendar.DATE, -7);
-				startDate = startCal.getTime();				
+				startDate = startCal.getTime();
 			}
-			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());			
+			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());
 		} else if (mShowAllMessages) {
 			// Chart for messages
@@ -574,13 +569,13 @@ public class Dashboard extends Activity {
 			if (mListviewCursor.getCount() > 0) {
 				mListviewCursor.moveToLast();
 				try {
-					startDate = Message.SQLDateFormatter.parse(mListviewCursor.getString(Message.COL_TIME));	
+					startDate = Message.SQLDateFormatter.parse(mListviewCursor.getString(Message.COL_TIME));
 				} catch (ParseException e) {
 					setDate = true;
 				}
 			} else {
 				setDate = true;
-			} 
+			}
 			if (setDate) {
 				Calendar startCal = Calendar.getInstance();
 				startCal.add(Calendar.DATE, -7);
@@ -589,12 +584,12 @@ public class Dashboard extends Activity {
 
 			mListviewCursor.moveToLast();
 			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());
-			
+
 			i.putExtra(ChartData.CallParams.CHART_MESSAGES, true);
 		}
-		
-//		i.putExtra(ChartData.CallParams.START_DATE, mStartDate.getTime());
-//		i.putExtra(ChartData.CallParams.END_DATE, mEndDate.getTime());
+
+		// i.putExtra(ChartData.CallParams.START_DATE, mStartDate.getTime());
+		// i.putExtra(ChartData.CallParams.END_DATE, mEndDate.getTime());
 		startActivityForResult(i, ACTIVITY_CHARTS);
 	}
 
@@ -658,8 +653,8 @@ public class Dashboard extends Activity {
 			lsv.setAdapter(messageCursorAdapter);
 		}
 		// lsv.setVisibility(View.VISIBLE);
-		
-		//Debug.stopMethodTracing();
+
+		// Debug.stopMethodTracing();
 	}
 
 	final Handler mDashboardHandler = new Handler();
@@ -673,16 +668,16 @@ public class Dashboard extends Activity {
 	};
 
 	private synchronized void beginListViewReload() {
-//		Debug.startMethodTracing("listview_load" + traceCount++);
-		switch(mFormViewMode) {
+		// Debug.startMethodTracing("listview_load" + traceCount++);
+		switch (mFormViewMode) {
 			case LISTVIEW_MODE_SUMMARY_VIEW:
-				mBtnViewModeSwitcher.setImageResource(R.drawable.summaryview);				
+				mBtnViewModeSwitcher.setImageResource(R.drawable.summaryview);
 				break;
 			case LISTVIEW_MODE_TABLE_VIEW:
 				mBtnViewModeSwitcher.setImageResource(R.drawable.gridview);
 				break;
-		}		
-	
+		}
+
 		this.mIsInitializing = true;
 		TextView lbl_recents = (TextView) findViewById(R.id.lbl_dashboardmessages);
 		lbl_recents.setText(TXT_WAIT);
@@ -701,9 +696,9 @@ public class Dashboard extends Activity {
 	private synchronized void fillCursorInBackground() {
 		if (mListviewCursor == null) {
 			if (mChosenForm != null && !mShowAllMessages) {
-				mListviewCursor = DashboardDataLayer.getCursorForFormData(this, mChosenForm, mListCount);				
+				mListviewCursor = DashboardDataLayer.getCursorForFormData(this, mChosenForm, mListCount);
 			} else if (mShowAllMessages && mChosenForm == null) {
-				mListviewCursor = DashboardDataLayer.getCursorForRawMessages(this, mListCount);				
+				mListviewCursor = DashboardDataLayer.getCursorForRawMessages(this, mListCount);
 			}
 		}
 	}
@@ -711,8 +706,8 @@ public class Dashboard extends Activity {
 	// this is a call to the DB to update the ListView with the messages for a
 	// selected form
 	private void loadListViewWithFormData() {
-		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);	
-		this.mBtnViewModeSwitcher.setVisibility(View.VISIBLE);		
+		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
+		this.mBtnViewModeSwitcher.setVisibility(View.VISIBLE);
 		if (mChosenForm == null) {
 			lsv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
 													new String[] { "Select an item" }));
@@ -733,19 +728,18 @@ public class Dashboard extends Activity {
 			 * (formdata_bednets.message_id = rapidandroid_message._id)
 			 */
 
-				
 			if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_SUMMARY_VIEW) {
 				this.summaryView = new SummaryCursorAdapter(this, mListviewCursor, mChosenForm);
 				lsv.setAdapter(summaryView);
 			} else if (this.mFormViewMode == Dashboard.LISTVIEW_MODE_TABLE_VIEW) {
 				if (this.headerView == null) {
-					headerView = new SingleRowHeaderView(this,mChosenForm,mScreenWidth);
+					headerView = new SingleRowHeaderView(this, mChosenForm, mScreenWidth);
 					mHeaderTable.addView(headerView);
 					int colcount = headerView.getColCount();
-					for(int i = 0; i < colcount; i++) {
+					for (int i = 0; i < colcount; i++) {
 						mHeaderTable.setColumnShrinkable(i, true);
-					}					
-				}				 				
+					}
+				}
 				rowView = new FormDataGridCursorAdapter(this, mChosenForm, mListviewCursor, mScreenWidth);
 				lsv.setAdapter(rowView);
 			}
@@ -758,14 +752,14 @@ public class Dashboard extends Activity {
 	 */
 	private void resetListAdapters() {
 		ListView lsv = (ListView) findViewById(R.id.lsv_dashboardmessages);
-		
+
 		if (this.headerView != null) {
 			mHeaderTable.removeAllViews();
-			headerView = null;			
+			headerView = null;
 		}
-		
+
 		if (rowView != null) {
-			
+
 			rowView = null;
 		}
 		if (summaryView != null) {

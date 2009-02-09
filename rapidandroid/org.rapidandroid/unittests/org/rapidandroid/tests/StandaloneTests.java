@@ -11,7 +11,9 @@ import android.test.AndroidTestCase;
  */
 public class StandaloneTests extends AndroidTestCase {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.AndroidTestCase#setUp()
 	 */
 	@Override
@@ -20,7 +22,9 @@ public class StandaloneTests extends AndroidTestCase {
 		super.setUp();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.AndroidTestCase#tearDown()
 	 */
 	@Override
@@ -28,16 +32,16 @@ public class StandaloneTests extends AndroidTestCase {
 		// TODO Auto-generated method stub
 		super.tearDown();
 	}
-	
+
 	public void testSimple() {
 		System.out.println("Test Hello");
 		assertEquals(true, true);
 	}
-	
+
 	public void testContext() {
-//		System.out.println("Test Context");
-//		Context c = getContext();
-//		assertTrue(true);
+		// System.out.println("Test Context");
+		// Context c = getContext();
+		// assertTrue(true);
 	}
 
 }

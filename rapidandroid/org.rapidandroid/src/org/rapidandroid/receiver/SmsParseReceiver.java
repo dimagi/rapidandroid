@@ -27,14 +27,13 @@ import android.util.Log;
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 12, 2009
  * 
- * 
- * 
  */
 public class SmsParseReceiver extends BroadcastReceiver {
 
 	private static String[] prefixes = null;
 	private static Form[] forms = null;
-	//private Context mContext = null;
+
+	// private Context mContext = null;
 
 	public synchronized static void initFormCache() {
 		forms = ModelTranslator.getAllForms();
@@ -56,48 +55,52 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	}
 
 	/**
-	 * Upon message receipt, determine the form in question, then call the corresponding parsing logic.
+	 * Upon message receipt, determine the form in question, then call the
+	 * corresponding parsing logic.
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-//		if (mContext == null) {
-//			mContext = context;
-//		}
+		// if (mContext == null) {
+		// mContext = context;
+		// }
 		if (prefixes == null) {
-			initFormCache();	//profiler shows us that this is being called frequently on new messages.
+			initFormCache(); // profiler shows us that this is being called
+								// frequently on new messages.
 		}
 		// TODO Auto-generated method stub
 		String body = intent.getStringExtra("body");
-		
-		if(body.startsWith("notifications@dimagi.com /  / ")) {
+
+		if (body.startsWith("notifications@dimagi.com /  / ")) {
 			body = body.replace("notifications@dimagi.com /  / ", "");
-			Log.d("SmsParseReceiver","Debug, snipping out the email address");
+			Log.d("SmsParseReceiver", "Debug, snipping out the email address");
 		}
-		
+
 		int msgid = intent.getIntExtra("msgid", 0);
 
 		Form form = determineForm(body);
 		if (form == null) {
 			Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
-			broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));			
+			broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));
 			broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, "Your message could not be parsed");
 			context.sendBroadcast(broadcast);
 			return;
 		} else {
-			Monitor mon = MessageTranslator.GetMonitorAndInsertIfNew(context, intent.getStringExtra("from"));			
-//			if(mon.getReplyPreference()) {
-//			if(true) {
-//				//for debug purposes, we'll just ack every time.
-//				Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
-//				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));			
-//				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, "Message parse successful, thank you!");
-//				context.sendBroadcast(broadcast);
-//			}			
-			
+			Monitor mon = MessageTranslator.GetMonitorAndInsertIfNew(context, intent.getStringExtra("from"));
+			// if(mon.getReplyPreference()) {
+			// if(true) {
+			// //for debug purposes, we'll just ack every time.
+			// Intent broadcast = new
+			// Intent("org.rapidandroid.intents.SMS_REPLY");
+			// broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE,
+			// intent.getStringExtra("from"));
+			// broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE,
+			// "Message parse successful, thank you!");
+			// context.sendBroadcast(broadcast);
+			// }
+
 			Vector<IParseResult> results = ParsingService.ParseMessage(form, body);
 			ParsedDataTranslator.InsertFormData(context, form, msgid, results);
-			
-			
+
 		}
 	}
 }

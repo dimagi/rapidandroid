@@ -3,7 +3,6 @@ package org.rapidandroid.data.controller;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.model.Message;
 
@@ -15,7 +14,7 @@ public class MessageDataReporter {
 
 	public static Date getOldestMessageDate(Context context) {
 		StringBuilder query = new StringBuilder();
-		query.append("select min(time) ");		
+		query.append("select min(time) ");
 		query.append(" from rapidandroid_message");
 		SmsDbHelper mHelper = new SmsDbHelper(context);
 		SQLiteDatabase db = mHelper.getReadableDatabase();
@@ -28,11 +27,11 @@ public class MessageDataReporter {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 		cr.close();
 		db.close();
 		mHelper.close();
 		return ret;
 	}
-	
+
 }

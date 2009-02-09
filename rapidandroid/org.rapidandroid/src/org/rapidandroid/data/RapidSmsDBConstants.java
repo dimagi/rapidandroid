@@ -27,25 +27,24 @@ public final class RapidSmsDBConstants {
 		public static final String TABLE = "rapidandroid_message";
 
 		public static final String URI_PART = "message";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);
-		public static final String CONTENT_URI_STRING = "content://"
-			+ AUTHORITY + "/" + URI_PART + "/";
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+		public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.message";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.message";
 
-		
 		// Section Table columns ##########################################
 		/**
 		 * 
-		 * Phone field is a helper for inserting to the content provider.  columnm is there as legacy, but shouldn't be used.
+		 * Phone field is a helper for inserting to the content provider.
+		 * columnm is there as legacy, but shouldn't be used.
 		 */
 		public static final String PHONE = "phone";
-		
+
 		public static final String MESSAGE = "message";
 		/**
-		 * The monitorID of the sender. theMonitor must exist before a message can be inserted.
+		 * The monitorID of the sender. theMonitor must exist before a message
+		 * can be inserted.
 		 */
 		public static final String MONITOR = "monitor_id";
 		public static final String TIME = "time";
@@ -66,11 +65,9 @@ public final class RapidSmsDBConstants {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.monitor";
 
 		public static final String URI_PART = "mMonitorString";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
 
-		public static final Uri MESSAGE_BY_MONITOR_URI = Uri.parse("content://"
-				+ AUTHORITY + "/messagesbymonitor");
+		public static final Uri MESSAGE_BY_MONITOR_URI = Uri.parse("content://" + AUTHORITY + "/messagesbymonitor");
 
 		// Section Table columns ##########################################
 		public static final String LAST_NAME = "last_name";
@@ -91,10 +88,8 @@ public final class RapidSmsDBConstants {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.form";
 
 		public static final String URI_PART = "form";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);
-		public static final String CONTENT_URI_STRING = "content://"
-				+ AUTHORITY + "/" + URI_PART + "/";
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+		public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
 
 		// Section Table columns ##########################################
 		public static final String FORMNAME = "formname";
@@ -112,10 +107,8 @@ public final class RapidSmsDBConstants {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.field";
 
 		public static final String URI_PART = "field";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);
-		public static final String CONTENT_URI_STRING = "content://"
-				+ AUTHORITY + "/" + URI_PART + "/";
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+		public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
 
 		// Section Table columns ##########################################
 		public static final String FORM = "form_id";
@@ -133,10 +126,8 @@ public final class RapidSmsDBConstants {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/org.rapidandroid.data.fieldtype";
 
 		public static final String URI_PART = "fieldtype";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);
-		public static final String CONTENT_URI_STRING = "content://"
-				+ AUTHORITY + "/" + URI_PART + "/";
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);
+		public static final String CONTENT_URI_STRING = "content://" + AUTHORITY + "/" + URI_PART + "/";
 
 		// Section Table columns ##########################################
 		public static final String NAME = "name";
@@ -146,32 +137,42 @@ public final class RapidSmsDBConstants {
 	}
 
 	/**
-	 * Helper constants for accessing the FormData tables.  You must have access to the Form object for these to be userul
+	 * Helper constants for accessing the FormData tables. You must have access
+	 * to the Form object for these to be userul
+	 * 
 	 * @author dmyung
 	 * @created Feb 2, 2009
 	 */
 	public static final class FormData implements BaseColumns {
 		// Structural stuffs
 		/**
-		 * To access the data for a given form, you must access the table by using this prefix and concat the form's PREFIX.
-		 * <br><br>
-		 * This will give you the tablename where formdata is stored.
-		 * <br><br>
-		 * The table structure has the following fixed 2 columns at the beginning (_id, message_id).  After that, it's the ordered list of fields. 
+		 * To access the data for a given form, you must access the table by
+		 * using this prefix and concat the form's PREFIX. <br>
+		 * <br>
+		 * This will give you the tablename where formdata is stored. <br>
+		 * <br>
+		 * The table structure has the following fixed 2 columns at the
+		 * beginning (_id, message_id). After that, it's the ordered list of
+		 * fields.
 		 */
 		public static final String TABLE_PREFIX = "formdata_"; // and put the
-																// formprefix
-																// there!
+		// formprefix
+		// there!
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/org.rapidandroid.data.formdata";
 		// public static final String CONTENT_ITEM_TYPE =
 		// "vnd.android.cursor.item/org.rapidandroid.data.formdata";
 
 		public static final String URI_PART = "formdata";
-		public static final Uri CONTENT_URI = Uri.parse("content://"
-				+ AUTHORITY + "/" + URI_PART);// hrmm, this is tricky
-		public static final String CONTENT_URI_PREFIX = "content://"
-				+ AUTHORITY + "/" + URI_PART + "/"; // needs to add the id
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + URI_PART);// hrmm,
+																									// this
+																									// is
+																									// tricky
+		public static final String CONTENT_URI_PREFIX = "content://" + AUTHORITY + "/" + URI_PART + "/"; // needs
+																											// to
+																											// add
+																											// the
+																											// id
 
 		// Section Table columns ##########################################
 		/**

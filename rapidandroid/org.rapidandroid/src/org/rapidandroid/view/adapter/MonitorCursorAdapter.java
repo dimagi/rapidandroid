@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 public class MonitorCursorAdapter extends BaseAdapter {
-	
+
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -25,7 +25,5 @@ public class MonitorCursorAdapter extends BaseAdapter {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
 
 }

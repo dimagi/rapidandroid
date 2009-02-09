@@ -20,7 +20,7 @@ import android.webkit.WebView;
  */
 public class MessageDataBroker extends ChartBroker {
 	public MessageDataBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
-		super(activity,appView,startDate,endDate);
+		super(activity, appView, startDate, endDate);
 		mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
 	}
 
@@ -29,6 +29,7 @@ public class MessageDataBroker extends ChartBroker {
 	 * 
 	 * @see org.rapidandroid.activity.chart.ChartBroker#getGraphTitle()
 	 */
+	@Override
 	public String getGraphTitle() {
 		// TODO Auto-generated method stub
 		return "message graphs";
@@ -40,11 +41,13 @@ public class MessageDataBroker extends ChartBroker {
 	 * @see org.rapidandroid.activity.chart.ChartBroker#loadGraph()
 	 */
 
+	@Override
 	public void doLoadGraph() {
-		//mParentActivity.showDialog(160);
-		//Progress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);		
-		//isLoading..mToggleThinkerHandler.post(mToggleThinker);
-		JSONGraphData allData  = null;
+		// mParentActivity.showDialog(160);
+		// Progress = ProgressDialog.show(mAppView.getContext(),
+		// "Rendering Graph...", "Please Wait",true,false);
+		// isLoading..mToggleThinkerHandler.post(mToggleThinker);
+		JSONGraphData allData = null;
 		if (mChosenVariable == 0) {
 			// this is a count of messages per day
 			// select date(time), count(*) from rapidandroid_message group by
@@ -65,25 +68,26 @@ public class MessageDataBroker extends ChartBroker {
 
 	private JSONGraphData loadMessageTrends() {
 		SQLiteDatabase db = rawDB.getReadableDatabase();
-		
+
 		Date startDateToUse = mStartDate;
-//		if (firstDateFromForm.after(mStartDate)) {
-//			// first date in the form is more recent than the start date, so just go with that.
-//			startDateToUse = firstDateFromForm;
-//		}
+		// if (firstDateFromForm.after(mStartDate)) {
+		// // first date in the form is more recent than the start date, so just
+		// go with that.
+		// startDateToUse = firstDateFromForm;
+		// }
 		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
-		
+
 		String selectionArg = getSelectionString(displayType);
-		
+
 		StringBuilder rawQuery = new StringBuilder();
 		rawQuery.append("select time, count(*) from rapidandroid_message ");
-		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		if (startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse)
+					+ "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
-		rawQuery.append(" group by ").append(selectionArg);		
+		rawQuery.append(" group by ").append(selectionArg);
 		rawQuery.append(" order by ").append(selectionArg).append(" ASC");
-		
-		
+
 		// the X date value is column 0
 		// the y value magnitude is column 1
 
@@ -122,12 +126,12 @@ public class MessageDataBroker extends ChartBroker {
 			} catch (Exception ex) {
 
 			}
-			cr.close();	
+			cr.close();
 			JSONArray values = new JSONArray();
 			values.put(result);
 			return new JSONGraphData(values, new JSONObject());
 		}
-		//either there was no data or something bad happened
+		// either there was no data or something bad happened
 		return new JSONGraphData(getEmptyData(), new JSONObject());
 	}
 
@@ -143,6 +147,7 @@ public class MessageDataBroker extends ChartBroker {
 		return arr;
 	}
 
+	@Override
 	public String getName() {
 		return "graph_msg";
 	}

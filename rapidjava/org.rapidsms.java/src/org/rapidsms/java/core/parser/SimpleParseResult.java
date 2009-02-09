@@ -3,7 +3,6 @@
  */
 package org.rapidsms.java.core.parser;
 
-
 import org.rapidsms.java.core.parser.token.ITokenParser;
 
 /**
@@ -20,36 +19,42 @@ import org.rapidsms.java.core.parser.token.ITokenParser;
  * 
  */
 
-public class SimpleParseResult  implements IParseResult {
+public class SimpleParseResult implements IParseResult {
 	ITokenParser fieldType;
 	Object value;
 	String token;
-	
+
 	public SimpleParseResult(ITokenParser fieldType, String token, Object val) {
 		this.fieldType = fieldType;
 		this.value = val;
 		this.token = token;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.IParseResult#getSource()
 	 */
-	
+
 	public String getSource() {
 		// TODO Auto-generated method stub
 		return fieldType.getReadableName();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.IParseResult#getValue()
 	 */
-	
+
 	public Object getValue() {
 		// TODO Auto-generated method stub
 		return value;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidsms.java.core.parser.IParseResult#getParsedToken()
 	 */
 	public String getParsedToken() {

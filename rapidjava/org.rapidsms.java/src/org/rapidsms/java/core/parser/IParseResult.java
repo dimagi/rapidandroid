@@ -11,6 +11,8 @@ package org.rapidsms.java.core.parser;
  */
 public interface IParseResult {
 	String getSource();
+
 	String getParsedToken();
+
 	Object getValue();
 }

@@ -10,5 +10,5 @@ package org.rapidsms.java.core.parser.interpreter;
  * @created Jan 23, 2009
  */
 public interface IParseInterpreter {
-	Object interpretValue(String token);	
+	Object interpretValue(String token);
 }

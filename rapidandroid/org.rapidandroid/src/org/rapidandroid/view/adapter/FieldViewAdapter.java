@@ -1,12 +1,7 @@
 package org.rapidandroid.view.adapter;
 
-
 import org.rapidandroid.view.SimpleFieldView;
 import org.rapidsms.java.core.model.Field;
-import org.rapidsms.java.core.model.Form;
-import org.rapidsms.java.core.model.Message;
-import org.rapidsms.java.core.parser.IParseResult;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,19 +9,22 @@ import android.widget.BaseAdapter;
 
 /**
  * @author Daniel Myung dmyung@dimagi.com
- * @created Feb 5, 2009
- * Summary:
+ * @created Feb 5, 2009 Summary:
  */
 public class FieldViewAdapter extends BaseAdapter {
 
 	private Context mContext;
+
 	public FieldViewAdapter(Context context, Field[] fields) {
 		mContext = context;
 		mFields = fields;
 	}
-	
+
 	private Field[] mFields;
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
@@ -47,18 +45,21 @@ public class FieldViewAdapter extends BaseAdapter {
 		return position;
 	}
 
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.widget.Adapter#getView(int, android.view.View,
+	 * android.view.ViewGroup)
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 		SimpleFieldView fv;
 		Field f = mFields[position];
-		
-		if (convertView == null) {			
-			fv = new SimpleFieldView(mContext, f);			
+
+		if (convertView == null) {
+			fv = new SimpleFieldView(mContext, f);
 		} else {
-			fv = (SimpleFieldView)convertView;
-			fv.setField(f);			
+			fv = (SimpleFieldView) convertView;
+			fv.setField(f);
 		}
 		return fv;
 	}

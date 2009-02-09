@@ -14,7 +14,7 @@ public class SmsReplyReceiver extends BroadcastReceiver {
 
 	public static final String KEY_DESTINATION_PHONE = "tophone";
 	public static final String KEY_MESSAGE = "msg";
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -23,13 +23,13 @@ public class SmsReplyReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		SmsManager smgr = SmsManager.getDefault();		
+		SmsManager smgr = SmsManager.getDefault();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			if (extras.containsKey(KEY_DESTINATION_PHONE) && extras.containsKey(KEY_MESSAGE)) {
 				String destinationAddr = extras.getString(KEY_DESTINATION_PHONE);
 				String mesg = extras.getString(KEY_MESSAGE);
-				smgr.sendTextMessage(destinationAddr, null, mesg, null, null);				
+				smgr.sendTextMessage(destinationAddr, null, mesg, null, null);
 			}
 		}
 	}

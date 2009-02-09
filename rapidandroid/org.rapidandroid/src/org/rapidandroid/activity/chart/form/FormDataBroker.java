@@ -1,17 +1,13 @@
 package org.rapidandroid.activity.chart.form;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.activity.chart.ChartBroker;
 import org.rapidandroid.activity.chart.JSONGraphData;
-import org.rapidandroid.activity.chart.ChartBroker.DateDisplayTypes;
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.controller.ParsedDataReporter;
 import org.rapidsms.java.core.Constants;
@@ -20,7 +16,6 @@ import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.Message;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -35,69 +30,70 @@ public class FormDataBroker extends ChartBroker {
 
 	private Form mForm;
 	private Field fieldToPlot;
-	
+
 	public FormDataBroker(Activity parentActivity, WebView appView, Form form, Date startDate, Date endDate) {
-		super(parentActivity,appView,startDate,endDate);
+		super(parentActivity, appView, startDate, endDate);
 		mForm = form;
-		mVariableStrings= new String[mForm.getFields().length+1];
+		mVariableStrings = new String[mForm.getFields().length + 1];
 		mVariableStrings[0] = "Messages over time";
 		for (int i = 1; i < mVariableStrings.length; i++) {
-			Field f = mForm.getFields()[i-1];
+			Field f = mForm.getFields()[i - 1];
 			mVariableStrings[i] = f.getName() + "  [" + f.getFieldType().getParsedDataType() + "]";
-		}		
+		}
 	}
 
+	@Override
 	public void doLoadGraph() {
-		//mProgress = ProgressDialog.show(mAppView.getContext(), "Rendering Graph...", "Please Wait",true,false);
-		JSONGraphData allData  = null;
-		
+		// mProgress = ProgressDialog.show(mAppView.getContext(),
+		// "Rendering Graph...", "Please Wait",true,false);
+		JSONGraphData allData = null;
+
 		if (fieldToPlot == null) {
-			//we're going to do all messages over timereturn;
+			// we're going to do all messages over timereturn;
 			allData = loadMessageOverTimeHistogram();
 		} else if (fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("word")) {
-			allData = loadHistogramFromField(); 
-		} else if (fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("boolean") || fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("yes/no")) {
-			allData = loadBooleanPlot(); 
+			allData = loadHistogramFromField();
+		} else if (fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("boolean")
+				|| fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("yes/no")) {
+			allData = loadBooleanPlot();
 		} else {
-			allData = loadNumericLine(); 
-			//data.put(loadNumericLine());
+			allData = loadNumericLine();
+			// data.put(loadNumericLine());
 		}
 		if (allData != null) {
 			mGraphData = allData.getData();
 			mGraphOptions = allData.getOptions();
-		} 
-		Log.d("FormDataBroker",mGraphData.toString());
-		Log.d("FormDataBroker",mGraphOptions.toString());		
+		}
+		Log.d("FormDataBroker", mGraphData.toString());
+		Log.d("FormDataBroker", mGraphOptions.toString());
 	}
 
-	
 	private JSONGraphData loadBooleanPlot() {
-		
+
 		Date startDateToUse = getStartDate();
 		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
-		
+
 		String selectionArg = getSelectionString(displayType);
-		
+
 		StringBuilder rawQuery = new StringBuilder();
-		
-		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX+ fieldToPlot.getName();
-		
+
+		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX + fieldToPlot.getName();
+
 		rawQuery.append("select time, " + fieldcol + ", count(*) from  ");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
-		
+
 		rawQuery.append(" join rapidandroid_message on (");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
-		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		if (startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse)
+					+ "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
-		
-		rawQuery.append(" group by ").append(selectionArg).append(", "  + fieldcol );		
+
+		rawQuery.append(" group by ").append(selectionArg).append(", " + fieldcol);
 		rawQuery.append(" order by ").append("time").append(" ASC");
-		
-	
-		
+
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 		// the string value is column 0
 		// the magnitude is column 1
@@ -111,26 +107,25 @@ public class FormDataBroker extends ChartBroker {
 			cr.close();
 		} else {
 			List<Date> xValsTrue = new ArrayList<Date>();
-			//Date[] xValsTrue = new Date[barCount];
+			// Date[] xValsTrue = new Date[barCount];
 			List<Integer> yValsTrue = new ArrayList<Integer>();
 			List<Date> xValsFalse = new ArrayList<Date>();
-			//Date[] xValsTrue = new Date[barCount];
-			List<Integer> yValsFalse= new ArrayList<Integer>();
+			// Date[] xValsTrue = new Date[barCount];
+			List<Integer> yValsFalse = new ArrayList<Integer>();
 			cr.moveToFirst();
 			int i = 0;
 			do {
 				String trueFalse = cr.getString(1);
-				//int trueFalse2 = cr.getInt(fieldcol);
-				//String trueFalseStr = cr.getString(1);
-				
+				// int trueFalse2 = cr.getInt(fieldcol);
+				// String trueFalseStr = cr.getString(1);
+
 				Date thisDate = getDate(displayType, cr.getString(0));
-				Log.d("FormDataBroker: ",cr.getString(0) + ", " + trueFalse + " , " + cr.getInt(2));
-				
+				Log.d("FormDataBroker: ", cr.getString(0) + ", " + trueFalse + " , " + cr.getInt(2));
+
 				if (trueFalse.equals("true")) {
 					xValsFalse.add(thisDate);
 					yValsFalse.add(new Integer(cr.getInt(2)));
-				}
-				else {
+				} else {
 					xValsTrue.add(thisDate);
 					yValsTrue.add(new Integer(cr.getInt(2)));
 				}
@@ -140,11 +135,11 @@ public class FormDataBroker extends ChartBroker {
 
 			try {
 				String legend = this.getLegendString(displayType);
-				int[] yVals = getIntsFromList(yValsTrue); 
+				int[] yVals = getIntsFromList(yValsTrue);
 				JSONArray trueArray = getJSONArrayForValues(displayType, xValsTrue.toArray(new Date[0]), yVals);
-				yVals = getIntsFromList(yValsFalse); 
+				yVals = getIntsFromList(yValsFalse);
 				JSONArray falseArray = getJSONArrayForValues(displayType, xValsFalse.toArray(new Date[0]), yVals);
-				JSONArray finalValues= new JSONArray();
+				JSONArray finalValues = new JSONArray();
 				JSONObject trueElem = new JSONObject();
 				trueElem.put("data", trueArray);
 				trueElem.put("label", "Yes");
@@ -155,16 +150,16 @@ public class FormDataBroker extends ChartBroker {
 				falseElem.put("label", "No");
 				falseElem.put("lines", getShowTrue());
 				finalValues.put(falseElem);
-				return new JSONGraphData(finalValues,loadOptionsForDateGraph(allDates, true, displayType) );
-				
+				return new JSONGraphData(finalValues, loadOptionsForDateGraph(allDates, true, displayType));
+
 			} catch (Exception ex) {
 
 			} finally {
 				if (!cr.isClosed()) {
-					
+
 					cr.close();
 				}
-				if(db.isOpen()) {
+				if (db.isOpen()) {
 					db.close();
 				}
 			}
@@ -175,7 +170,7 @@ public class FormDataBroker extends ChartBroker {
 
 	private int[] getIntsFromList(List<Integer> values) {
 		int[] toReturn = new int[values.size()];
-		for (int i =0 ; i <values.size(); i++) {
+		for (int i = 0; i < values.size(); i++) {
 			toReturn[i] = values.get(i);
 		}
 		return toReturn;
@@ -183,25 +178,23 @@ public class FormDataBroker extends ChartBroker {
 
 	private JSONGraphData loadNumericLine() {
 		Date startDateToUse = getStartDate();
-		
+
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
-		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX
-				+ fieldToPlot.getName();
+		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX + fieldToPlot.getName();
 		StringBuilder rawQuery = new StringBuilder();
 		rawQuery.append("select rapidandroid_message.time, " + fieldcol);
 		rawQuery.append(" from ");
-		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
-				+ mForm.getPrefix());
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 
 		rawQuery.append(" join rapidandroid_message on (");
-		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
-				+ mForm.getPrefix());
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
-		
-		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+
+		if (startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse)
+					+ "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 
 		rawQuery.append(" order by rapidandroid_message.time ASC");
@@ -233,22 +226,21 @@ public class FormDataBroker extends ChartBroker {
 			// [Math.PI * 3/2, "3\u03c0/2"], [Math.PI * 2, "2\u03c0"]]},
 
 			try {
-				return new JSONGraphData(prepareDateData(xVals, yVals),loadOptionsForDateGraph(xVals, false, DateDisplayTypes.Daily ));
+				return new JSONGraphData(prepareDateData(xVals, yVals), loadOptionsForDateGraph(xVals, false,
+																								DateDisplayTypes.Daily));
 			} catch (Exception ex) {
 
-			}
-			finally {
+			} finally {
 				if (!cr.isClosed()) {
 					cr.close();
 				}
 			}
-			
+
 		}
 		// either there was no data or something bad happened
-		return new JSONGraphData(getEmptyData(), new JSONObject());	
+		return new JSONGraphData(getEmptyData(), new JSONObject());
 	}
 
-	
 	private JSONArray prepareDateData(Date[] xvals, int[] yvals) {
 		JSONArray outerArray = new JSONArray();
 		JSONArray innerArray = new JSONArray();
@@ -262,47 +254,44 @@ public class FormDataBroker extends ChartBroker {
 		outerArray.put(innerArray);
 		return outerArray;
 	}
-	
+
 	private JSONGraphData loadMessageOverTimeHistogram() {
 		Date startDateToUse = getStartDate();
 		DateDisplayTypes displayType = this.getDisplayType(startDateToUse, mEndDate);
-		
+
 		String selectionArg = getSelectionString(displayType);
-		
+
 		StringBuilder rawQuery = new StringBuilder();
-		
+
 		rawQuery.append("select time, count(*) from  ");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
-		
+
 		rawQuery.append(" join rapidandroid_message on (");
 		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
-		if(startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+		if (startDateToUse.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(startDateToUse)
+					+ "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
-		
-		rawQuery.append(" group by ").append(selectionArg);		
+
+		rawQuery.append(" group by ").append(selectionArg);
 		rawQuery.append("order by ").append(selectionArg).append(" ASC");
-		
-	
+
 		// the X date value is column 0
 		// the y value magnitude is column 1
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 		Cursor cr = db.rawQuery(rawQuery.toString(), null);
 		return getDateQuery(displayType, cr, db);
-			
-	}
-	
 
-	
-	
-	
+	}
+
 	private Date getStartDate() {
 		// TODO Auto-generated method stub
-		Date firstDateFromForm = ParsedDataReporter.getOldestMessageDate(rawDB, mForm); 
+		Date firstDateFromForm = ParsedDataReporter.getOldestMessageDate(rawDB, mForm);
 		if (firstDateFromForm.after(mStartDate)) {
-			// first date in the form is more recent than the start date, so just go with that.
+			// first date in the form is more recent than the start date, so
+			// just go with that.
 			return firstDateFromForm;
 		} else {
 			return mStartDate;
@@ -310,33 +299,31 @@ public class FormDataBroker extends ChartBroker {
 	}
 
 	/**
-	 * Should return a two element array - the first element is the data, 
-	 * the second are the options
+	 * Should return a two element array - the first element is the data, the
+	 * second are the options
+	 * 
 	 * @return
 	 */
 	private JSONGraphData loadHistogramFromField() {
-		//JSONObject result = new JSONObject();
+		// JSONObject result = new JSONObject();
 		SQLiteDatabase db = rawDB.getReadableDatabase();
 
-		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX
-				+ fieldToPlot.getName();
+		String fieldcol = RapidSmsDBConstants.FormData.COLUMN_PREFIX + fieldToPlot.getName();
 		StringBuilder rawQuery = new StringBuilder();
 		rawQuery.append("select " + fieldcol);
 		rawQuery.append(", count(*) from ");
-		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
-				+ mForm.getPrefix());
-		
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
+
 		rawQuery.append(" join rapidandroid_message on (");
-		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX
-				+ mForm.getPrefix());
+		rawQuery.append(RapidSmsDBConstants.FormData.TABLE_PREFIX + mForm.getPrefix());
 		rawQuery.append(".message_id = rapidandroid_message._id");
 		rawQuery.append(") ");
-		
-		if(mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
-			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate) + "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
+
+		if (mStartDate.compareTo(Constants.NULLDATE) != 0 && mEndDate.compareTo(Constants.NULLDATE) != 0) {
+			rawQuery.append(" WHERE rapidandroid_message.time > '" + Message.SQLDateFormatter.format(mStartDate)
+					+ "' AND rapidandroid_message.time < '" + Message.SQLDateFormatter.format(mEndDate) + "' ");
 		}
 
-		
 		rawQuery.append(" group by " + fieldcol);
 		rawQuery.append(" order by " + fieldcol);
 
@@ -361,18 +348,18 @@ public class FormDataBroker extends ChartBroker {
 			// [Math.PI * 3/2, "3\u03c0/2"], [Math.PI * 2, "2\u03c0"]]},
 
 			try {
-				//result.put("label", fieldToPlot.getName());
-				//result.put("data", prepareData(xVals, yVals));
-				//result.put("bars", getShowTrue());
-				//result.put("xaxis", getXaxisOptions(xVals));
-				return new JSONGraphData(prepareHistogramData(xVals, yVals),loadOptionsForHistogram(xVals) );
+				// result.put("label", fieldToPlot.getName());
+				// result.put("data", prepareData(xVals, yVals));
+				// result.put("bars", getShowTrue());
+				// result.put("xaxis", getXaxisOptions(xVals));
+				return new JSONGraphData(prepareHistogramData(xVals, yVals), loadOptionsForHistogram(xVals));
 			} catch (Exception ex) {
 
 			} finally {
 				if (!cr.isClosed()) {
 					cr.close();
 				}
-				if(db.isOpen()) {
+				if (db.isOpen()) {
 					db.close();
 				}
 			}
@@ -386,7 +373,7 @@ public class FormDataBroker extends ChartBroker {
 		JSONArray arr = new JSONArray();
 		int datalen = names.length;
 		for (int i = 0; i < datalen; i++) {
-			
+
 			JSONObject elem = new JSONObject();
 			// values will just be an array of length 1 with a single value
 			JSONArray values = new JSONArray();
@@ -401,8 +388,8 @@ public class FormDataBroker extends ChartBroker {
 		}
 		return arr;
 	}
-	
-	
+
+	@Override
 	public String getGraphTitle() {
 		return "Form Data";
 	}
@@ -413,21 +400,26 @@ public class FormDataBroker extends ChartBroker {
 	 * @see org.rapidandroid.activity.chart.ChartBroker#setVariable(int)
 	 */
 
+	@Override
 	public void setVariable(int id) {
 		// TODO Auto-generated method stub
-		if(id == 0) {
+		if (id == 0) {
 			this.fieldToPlot = null;
 		} else {
-			this.fieldToPlot = mForm.getFields()[id-1];
+			this.fieldToPlot = mForm.getFields()[id - 1];
 		}
 		mChosenVariable = id;
 		this.mGraphData = null;
 		this.mGraphOptions = null;
 	}
-/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */
-	
+
+	@Override
 	public String getName() {
 		return "graph_form";
 	}

@@ -11,23 +11,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rapidandroid.data.SmsDbHelper;
 import org.rapidsms.java.core.Constants;
-import org.rapidsms.java.core.model.Message;
-
 import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;
-import android.widget.ViewSwitcher;
-
 
 /**
  * Interface for simple chart display.
  * 
- * The implementers of this interface will need access to database methods to prepare data and output to the graphing system. * 
- * This class is the exposed Java object that the WebView will need to call, specifically the method loadGraph().
+ * The implementers of this interface will need access to database methods to
+ * prepare data and output to the graphing system. * This class is the exposed
+ * Java object that the WebView will need to call, specifically the method
+ * loadGraph().
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 29, 2009
@@ -38,47 +35,46 @@ public abstract class ChartBroker {
 	private static final String CHART_FILE = "file:///android_asset/flot/html/basechart.html";
 	private static final String JAVASCRIPT_PROPERTYNAME = "graphdata";
 	private static final String EMPTY_FILE = "file:///android_asset/flot/html/empty.html";
-	
+
 	/**
 	 * Enumeration for display types (date) for level of bucketization
+	 * 
 	 * @author Cory Zue
-	 *
+	 * 
 	 */
 	public enum DateDisplayTypes {
-		Hourly,
-		Daily,
-		Weekly,
-		Monthly,
-		Yearly
+		Hourly, Daily, Weekly, Monthly, Yearly
 	}
-	
+
 	protected boolean isLoading;
 	protected Date mStartDate = Constants.NULLDATE;
 	protected Date mEndDate = Constants.NULLDATE;
-//	protected Calendar mStartCal = Constants.NULLCALENDAR;	//we may need to switch to using calendar's due to the sheer number of conversions we're doing with them back and forth.
-//	protected Calendar mEndCal = Constants.NULLCALENDAR;
-	
+	// protected Calendar mStartCal = Constants.NULLCALENDAR; //we may need to
+	// switch to using calendar's due to the sheer number of conversions we're
+	// doing with them back and forth.
+	// protected Calendar mEndCal = Constants.NULLCALENDAR;
+
 	protected SmsDbHelper rawDB;
 	protected WebView mAppView;
-	
+
 	private int traceCount = 0;
-	
+
 	protected String[] mVariableStrings;
 	protected int mChosenVariable = 0;
 	protected Activity mParentActivity;
 	protected boolean isShowing = false;
 	private String mGraphTitle = "";
-	
+
 	protected JSONArray mGraphData;
 	protected JSONObject mGraphOptions;
-	
+
 	protected final Handler mTitleHandler = new Handler();
 	protected final Runnable mUpdateActivityTitle = new Runnable() {
 		public void run() {
 			mParentActivity.setTitle(mGraphTitle);
 		}
 	};
-	
+
 	protected final Handler mDialogHandler = new Handler();
 	protected final Runnable mStartThinker = new Runnable() {
 		public void run() {
@@ -90,35 +86,37 @@ public abstract class ChartBroker {
 			mParentActivity.dismissDialog(160);
 		}
 	};
-	
+
 	protected final Runnable mEmptyData = new Runnable() {
 		public void run() {
 			mParentActivity.showDialog(170);
 			isShowing = true;
 		}
 	};
-//	private boolean mChartPageLoaded;
-//	private boolean mAlreadyLoading;
+	// private boolean mChartPageLoaded;
+	// private boolean mAlreadyLoading;
 	private final DateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+
 	protected ChartBroker(Activity activity, WebView appView, Date startDate, Date endDate) {
 		mParentActivity = activity;
 		mAppView = appView;
 		rawDB = new SmsDbHelper(appView.getContext());
-		//mVariableStrings = new String[] { "Trends by day", "Receipt time of day" };
+		// mVariableStrings = new String[] { "Trends by day",
+		// "Receipt time of day" };
 		mStartDate = startDate;
-		mEndDate= endDate;
+		mEndDate = endDate;
 	}
-	
+
 	public String getGraphData() {
-		if(mGraphData != null) {
+		if (mGraphData != null) {
 			return mGraphData.toString();
 		} else {
 			return null;
 		}
 	}
-	public synchronized void  setGraphData(String jsonarr) {
-		
+
+	public synchronized void setGraphData(String jsonarr) {
+
 		try {
 			this.mGraphData = new JSONArray(jsonarr);
 		} catch (JSONException e) {
@@ -126,9 +124,9 @@ public abstract class ChartBroker {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public synchronized void setGraphOptions(String jsonobj) {
-		
+
 		try {
 			this.mGraphOptions = new JSONObject(jsonobj);
 		} catch (JSONException e) {
@@ -136,42 +134,44 @@ public abstract class ChartBroker {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public synchronized String getGraphOptions() {
-		if(mGraphOptions != null) {
+		if (mGraphOptions != null) {
 			return mGraphOptions.toString();
 		} else {
 			return null;
 		}
 	}
-	
+
 	protected abstract void doLoadGraph();
-	
+
 	/**
-	 * This is the primary method that the JavaScript in our HTML form will need access to in order to display graph data. 
+	 * This is the primary method that the JavaScript in our HTML form will need
+	 * access to in order to display graph data.
 	 */
 	public synchronized final void loadGraph() {
-		//Debug.startMethodTracing("graphing_" + this.getClass().getName() + traceCount++);
+		// Debug.startMethodTracing("graphing_" + this.getClass().getName() +
+		// traceCount++);
 		// trying to get this to work, but it's quite annoying
-		//if (!mAlreadyLoading) {
-			mDialogHandler.post(mStartThinker);
-			if(mGraphData == null && mGraphOptions == null) {
-				doLoadGraph();
-			}
-			loadGraphFinish();	
-//		} else {
-//			mAlreadyLoading = false;
-//		}
+		// if (!mAlreadyLoading) {
+		mDialogHandler.post(mStartThinker);
+		if (mGraphData == null && mGraphOptions == null) {
+			doLoadGraph();
+		}
+		loadGraphFinish();
+		// } else {
+		// mAlreadyLoading = false;
+		// }
 	}
-	
+
 	protected void getPrettyTitleString() {
 		StringBuilder tl = new StringBuilder();
 		tl.append(mVariableStrings[mChosenVariable]).append(" :: ");
 		DateFormat df = null;
-		//yyyy-MM-dd HH:mm:ss
+		// yyyy-MM-dd HH:mm:ss
 		DateDisplayTypes dtype = getDisplayType(mStartDate, mEndDate);
-		switch (dtype) {		
-			case Hourly:				
+		switch (dtype) {
+			case Hourly:
 				df = new SimpleDateFormat("MM/dd HH:mm");
 				break;
 			case Daily:
@@ -182,26 +182,26 @@ public abstract class ChartBroker {
 			case Monthly:
 				df = new SimpleDateFormat("MM/yyyy");
 			case Yearly:
-				df = new SimpleDateFormat("yyyy");				
-		}			
+				df = new SimpleDateFormat("yyyy");
+		}
 		tl.append(df.format(mStartDate)).append(" - ");
 		tl.append(df.format(mEndDate));
 		mGraphTitle = tl.toString();
-		
+
 	}
-	
-	protected void loadGraphFinish(){
+
+	protected void loadGraphFinish() {
 		if (!hasData()) {
-			//mAppView.loadUrl(EMPTY_FILE);
-			//mChartPageLoaded = false;
-			//finishGraph();
-			//return;
+			// mAppView.loadUrl(EMPTY_FILE);
+			// mChartPageLoaded = false;
+			// finishGraph();
+			// return;
 			// TODO add android popup
-		} 
-//		else if (!mChartPageLoaded) {
-//			mAlreadyLoading = true;
-//			reloadChartPage();
-//		}
+		}
+		// else if (!mChartPageLoaded) {
+		// mAlreadyLoading = true;
+		// reloadChartPage();
+		// }
 		int width = mAppView.getWidth();
 		int height = 0;
 		if (width == 480) {
@@ -210,7 +210,7 @@ public abstract class ChartBroker {
 			height = 480;
 		}
 		height = height - 50;
-		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height	+ "px\")");
+		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height + "px\")");
 		mAppView.loadUrl("javascript:GotGraph(" + mGraphData.toString() + "," + mGraphOptions.toString() + ")");
 	}
 
@@ -221,25 +221,25 @@ public abstract class ChartBroker {
 		return true;
 	}
 
-//	private void reloadChartPage() {
-//		// don't add the js interface
-//		mAppView.loadUrl(CHART_FILE);
-//		mChartPageLoaded = true;
-//	}
+	// private void reloadChartPage() {
+	// // don't add the js interface
+	// mAppView.loadUrl(CHART_FILE);
+	// mChartPageLoaded = true;
+	// }
 
 	public void loadChartPage() {
-		
-		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);		
+
+		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);
 		mAppView.loadUrl(CHART_FILE);
-		//mChartPageLoaded = true;
+		// mChartPageLoaded = true;
 	}
 
 	/**
 	 * Gets the display type for this, based on the start and end dates
+	 * 
 	 * @return
 	 */
-	protected DateDisplayTypes getDisplayType(Date startDate, Date endDate)
-	{
+	protected DateDisplayTypes getDisplayType(Date startDate, Date endDate) {
 		Calendar startCal = Calendar.getInstance();
 		startCal.setTime(startDate);
 		Calendar endCal = Calendar.getInstance();
@@ -249,35 +249,37 @@ public abstract class ChartBroker {
 		tempCal.setTime(startDate);
 		tempCal.add(Calendar.DATE, 3);
 		if (endCal.before(tempCal)) {
-			//within 3 days, we do it by hour. with day shading
+			// within 3 days, we do it by hour. with day shading
 			return DateDisplayTypes.Hourly;
-		} 
-		
+		}
+
 		tempCal.setTime(startDate);
 		tempCal.add(Calendar.MONTH, 3);
-		
+
 		if (endCal.before(tempCal)) {
-			//within 3 months, we break it down by day with week & month shading?
+			// within 3 months, we break it down by day with week & month
+			// shading?
 			return DateDisplayTypes.Daily;
 		}
 		tempCal.setTime(startDate);
 		tempCal.add(Calendar.YEAR, 2);
 		if (endCal.before(tempCal)) {
-			//within 2 years, we break it down by week with month shading
+			// within 2 years, we break it down by week with month shading
 			return DateDisplayTypes.Weekly;
 		}
 		tempCal.setTime(startDate);
 		tempCal.add(Calendar.YEAR, 4);
-		
+
 		if (endCal.before(tempCal)) {
 			// 2-4 years break it down by month with year shading
 			return DateDisplayTypes.Monthly;
-		} else {  // if(endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR) >= 4) {
-			//we need to break it down by year. with year shading
+		} else { // if(endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR)
+					// >= 4) {
+			// we need to break it down by year. with year shading
 			return DateDisplayTypes.Yearly;
-		} 
+		}
 	}
-	
+
 	protected String getSelectionString(DateDisplayTypes displayType) {
 		switch (displayType) {
 			case Hourly:
@@ -292,66 +294,64 @@ public abstract class ChartBroker {
 				return " strftime('%Y',time) ";
 			default:
 				return "";
-		
+
 		}
 	}
 
 	protected String getLegendString(DateDisplayTypes displayType) {
 		switch (displayType) {
-		case Hourly:
-			return "Hourly count";
-		case Daily:
-			return "Daily count";
-		case Weekly:
-			return "Weekly count";
-		case Monthly:
-			return "Monthly count";
-		case Yearly:
-			return "Annual count";
-		default:
-			return "";
+			case Hourly:
+				return "Hourly count";
+			case Daily:
+				return "Daily count";
+			case Weekly:
+				return "Weekly count";
+			case Monthly:
+				return "Monthly count";
+			case Yearly:
+				return "Annual count";
+			default:
+				return "";
 		}
 	}
 
-	
 	private String getFormatString(DateDisplayTypes displayType) {
 		switch (displayType) {
-		case Hourly:
-			return "%m/%d %H:%M";
-		case Daily:
-		case Weekly:
-			return "%m/%d/%y";
-		case Monthly:
-			return "%m/%y";
-		case Yearly:
-			return "%y";
-		default:
-			return "%m/%d/%y";
+			case Hourly:
+				return "%m/%d %H:%M";
+			case Daily:
+			case Weekly:
+				return "%m/%d/%y";
+			case Monthly:
+				return "%m/%y";
+			case Yearly:
+				return "%y";
+			default:
+				return "%m/%d/%y";
 		}
 	}
 
-	
 	protected Date getNextValue(DateDisplayTypes displayType, Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		switch (displayType) {
-		case Hourly:
-			cal.add(Calendar.HOUR, 1);
-			break;
-		case Daily:
-			cal.add(Calendar.DATE, 1);
-			break;
-		case Weekly:
-			cal.add(Calendar.WEEK_OF_YEAR, 1);
-			break;
-		case Monthly:
-			cal.add(Calendar.MONTH, 1);
-			break;
-		case Yearly:
-			cal.add(Calendar.YEAR, 1);
-			break;
-		default:
-			throw new IllegalArgumentException("Bad display type: " + displayType); 
+			case Hourly:
+				cal.add(Calendar.HOUR, 1);
+				break;
+			case Daily:
+				cal.add(Calendar.DATE, 1);
+				break;
+			case Weekly:
+				cal.add(Calendar.WEEK_OF_YEAR, 1);
+				break;
+			case Monthly:
+				cal.add(Calendar.MONTH, 1);
+				break;
+			case Yearly:
+				cal.add(Calendar.YEAR, 1);
+				break;
+			default:
+				throw new IllegalArgumentException("Bad display type: " + displayType);
 		}
 		return cal.getTime();
 	}
@@ -363,11 +363,12 @@ public abstract class ChartBroker {
 		cal2.setTime(date2);
 		if (cal2.before(cal1)) {
 			return false;
-		}		
-		// i really feel like there should be a cleaner way to do this but it escapes me
+		}
+		// i really feel like there should be a cleaner way to do this but it
+		// escapes me
 		if (cal1.get(Calendar.YEAR) < cal2.get(Calendar.YEAR)) {
 			return true;
-		} else if (cal1.get(Calendar.YEAR) > cal2.get(Calendar.YEAR) || displayType == DateDisplayTypes.Yearly	) {
+		} else if (cal1.get(Calendar.YEAR) > cal2.get(Calendar.YEAR) || displayType == DateDisplayTypes.Yearly) {
 			return false;
 		}
 		// we know the years are the same and we're comparing less than years
@@ -376,70 +377,73 @@ public abstract class ChartBroker {
 		} else if (cal1.get(Calendar.MONTH) > cal2.get(Calendar.MONTH) || displayType == DateDisplayTypes.Monthly) {
 			return false;
 		}
-		// we know months and years are the same and we're comparing less than months
+		// we know months and years are the same and we're comparing less than
+		// months
 		if (cal1.get(Calendar.WEEK_OF_YEAR) < cal2.get(Calendar.WEEK_OF_YEAR)) {
 			return true;
-		} else if (cal1.get(Calendar.WEEK_OF_YEAR) > cal2.get(Calendar.WEEK_OF_YEAR) || displayType == DateDisplayTypes.Weekly) {
+		} else if (cal1.get(Calendar.WEEK_OF_YEAR) > cal2.get(Calendar.WEEK_OF_YEAR)
+				|| displayType == DateDisplayTypes.Weekly) {
 			return false;
 		}
-		// we know months, years, and weeks are the same and we're comparing less than weeks
+		// we know months, years, and weeks are the same and we're comparing
+		// less than weeks
 		if (cal1.get(Calendar.DATE) < cal2.get(Calendar.DATE)) {
 			return true;
 		} else if (cal1.get(Calendar.DATE) > cal2.get(Calendar.DATE) || displayType == DateDisplayTypes.Daily) {
 			return false;
 		}
-		// we know months, years,weeks, and days are the same and we're comparing less than days
+		// we know months, years,weeks, and days are the same and we're
+		// comparing less than days
 		if (cal1.get(Calendar.HOUR) < cal2.get(Calendar.HOUR)) {
 			return true;
-		}  
+		}
 		// anything else is not before
 		return false;
 	}
 
-		
 	protected Date getDate(DateDisplayTypes displayType, String string) {
-		
+
 		Date rawDate;
 		try {
 			rawDate = sqlDateFormat.parse(string);
 		} catch (ParseException e) {
-			Log.d("ChartBroker","unparseable date: " + string);
-			// this is actually a hard failure.  Just not sure what to do 
+			Log.d("ChartBroker", "unparseable date: " + string);
+			// this is actually a hard failure. Just not sure what to do
 			return Constants.NULLDATE;
 		}
 		Calendar rawCal = Calendar.getInstance();
 		rawCal.setTime(rawDate);
-		Calendar calToReturn =Calendar.getInstance();
+		Calendar calToReturn = Calendar.getInstance();
 		rawCal.set(Calendar.MINUTE, 0);
 		rawCal.set(Calendar.SECOND, 0);
 		switch (displayType) {
-		case Hourly:
-			break;
-		case Daily:
-			rawCal.set(Calendar.HOUR, 0);
-			break;
-		case Weekly:
-			rawCal.set(Calendar.HOUR, 0);
-			rawCal.set(Calendar.DAY_OF_WEEK, 1);
-			break;
-		case Monthly:
-			rawCal.set(Calendar.HOUR, 0);
-			rawCal.set(Calendar.DAY_OF_MONTH, 1);
-			break;
-		case Yearly:
-			rawCal.set(Calendar.HOUR, 0);
-			rawCal.set(Calendar.DAY_OF_MONTH, 1);
-			rawCal.set(Calendar.MONTH, 1);
-			break;
-		default:
-			return rawCal.getTime();
+			case Hourly:
+				break;
+			case Daily:
+				rawCal.set(Calendar.HOUR, 0);
+				break;
+			case Weekly:
+				rawCal.set(Calendar.HOUR, 0);
+				rawCal.set(Calendar.DAY_OF_WEEK, 1);
+				break;
+			case Monthly:
+				rawCal.set(Calendar.HOUR, 0);
+				rawCal.set(Calendar.DAY_OF_MONTH, 1);
+				break;
+			case Yearly:
+				rawCal.set(Calendar.HOUR, 0);
+				rawCal.set(Calendar.DAY_OF_MONTH, 1);
+				rawCal.set(Calendar.MONTH, 1);
+				break;
+			default:
+				return rawCal.getTime();
 		}
 		Date toReturn = calToReturn.getTime();
 		Date reallyToReturn = rawCal.getTime();
 		return reallyToReturn;
 
 	}
-	
+
 	protected JSONGraphData getDateQuery(DateDisplayTypes displayType, Cursor cr, SQLiteDatabase db) {
 		// TODO Auto-generated method stub
 		int barCount = cr.getCount();
@@ -459,22 +463,23 @@ public abstract class ChartBroker {
 			} while (cr.moveToNext());
 
 			try {
-				//result.put("label", fieldToPlot.getName());
-				//result.put("data", prepareData(xVals, yVals));
-				//result.put("bars", getShowTrue());
-				//result.put("xaxis", getXaxisOptions(xVals));
-				// todo 
+				// result.put("label", fieldToPlot.getName());
+				// result.put("data", prepareData(xVals, yVals));
+				// result.put("bars", getShowTrue());
+				// result.put("xaxis", getXaxisOptions(xVals));
+				// todo
 				String legend = this.getLegendString(displayType);
-				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),loadOptionsForDateGraph(xVals, true, displayType) );
-				
+				return new JSONGraphData(prepareDateHistogramData(displayType, xVals, yVals, legend),
+											loadOptionsForDateGraph(xVals, true, displayType));
+
 			} catch (Exception ex) {
 
 			} finally {
 				if (!cr.isClosed()) {
-					
+
 					cr.close();
 				}
-				if(db.isOpen()) {
+				if (db.isOpen()) {
 					db.close();
 				}
 			}
@@ -483,27 +488,29 @@ public abstract class ChartBroker {
 		return new JSONGraphData(getEmptyData(), new JSONObject());
 	}
 
-	protected JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend, DateDisplayTypes displayType) throws JSONException {
+	protected JSONObject loadOptionsForDateGraph(Date[] vals, boolean displayLegend, DateDisplayTypes displayType)
+			throws JSONException {
 
 		JSONObject toReturn = new JSONObject();
-		//bars: { show: true }, points: { show: false }, xaxis: { mode: "time", timeformat:"%y/%m/%d" }
+		// bars: { show: true }, points: { show: false }, xaxis: { mode: "time",
+		// timeformat:"%y/%m/%d" }
 		toReturn.put("bars", getShowFalse());
 		toReturn.put("lines", getShowTrue());
 		// if just a couple points, show them
 		if (vals.length < 10) {
-			toReturn.put("points", getShowTrue());	
+			toReturn.put("points", getShowTrue());
 		} else {
 			toReturn.put("points", getShowFalse());
 		}
-		
+
 		toReturn.put("xaxis", getXaxisOptionsForDate(displayType));
 		if (displayLegend) {
 			toReturn.put("legend", getShowTrue());
-		} 
+		}
 		toReturn.put("grid", getJSONObject("clickable", false));
 		return toReturn;
 	}
-	
+
 	protected static JSONObject getShowTrue() {
 		JSONObject ret = new JSONObject();
 		try {
@@ -530,15 +537,15 @@ public abstract class ChartBroker {
 		toReturn.put("timeformat", getFormatString(displayType));
 		return toReturn;
 	}
-	
+
 	protected JSONObject loadOptionsForHistogram(String[] labels) throws JSONException {
-		
+
 		JSONObject toReturn = new JSONObject();
 		toReturn.put("xaxis", this.getXaxisOptions(labels));
 		toReturn.put("grid", getJSONObject("clickable", true));
 		return toReturn;
 	}
-	
+
 	protected JSONObject getXaxisOptions(String[] tickvalues) {
 		JSONObject rootxaxis = new JSONObject();
 		JSONArray arr = new JSONArray();
@@ -571,9 +578,8 @@ public abstract class ChartBroker {
 		return toReturn;
 	}
 
-	
-
-	private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend) throws JSONException {
+	private JSONArray prepareDateHistogramData(DateDisplayTypes displayType, Date[] xvals, int[] yvals, String legend)
+			throws JSONException {
 		JSONArray outerArray = new JSONArray();
 		JSONArray innerArray = getJSONArrayForValues(displayType, xvals, yvals);
 		JSONObject finalObj = new JSONObject();
@@ -582,7 +588,7 @@ public abstract class ChartBroker {
 		outerArray.put(finalObj);
 		return outerArray;
 	}
-	
+
 	protected JSONArray getJSONArrayForValues(DateDisplayTypes displayType, Date[] xvals, int[] yvals) {
 		JSONArray toReturn = new JSONArray();
 		int datalen = xvals.length;
@@ -592,8 +598,7 @@ public abstract class ChartBroker {
 			if (prevVal != null) {
 				// add logic to fill in zeros
 				Date nextInSeries = getNextValue(displayType, prevVal);
-				while (isBefore(displayType, nextInSeries, thisVal))
-				{
+				while (isBefore(displayType, nextInSeries, thisVal)) {
 					JSONArray elem = new JSONArray();
 					elem.put(nextInSeries.getTime());
 					elem.put(0);
@@ -619,38 +624,39 @@ public abstract class ChartBroker {
 		return toReturn;
 	}
 
-	
 	/**
 	 * This gets called by the javascript file after the graph is done plotting
 	 */
 	public void finishGraph() {
 		getPrettyTitleString();
-		mDialogHandler.post(mStopThinker);		
+		mDialogHandler.post(mStopThinker);
 		mTitleHandler.post(mUpdateActivityTitle);
 		if (!hasData()) {
-			mDialogHandler.post(mEmptyData);		
+			mDialogHandler.post(mEmptyData);
 		}
-			
-		//Debug.stopMethodTracing();
+
+		// Debug.stopMethodTracing();
 	}
+
 	public abstract String getGraphTitle();
-	
+
 	public synchronized void setVariable(int id) {
 		mChosenVariable = id;
 		mGraphData = null;
 		mGraphOptions = null;
 	}
-	
+
 	public synchronized void setRange(Date startTime, Date endTime) {
 		mStartDate = startTime;
 		mEndDate = endTime;
-		
+
 		mGraphData = null;
 		mGraphOptions = null;
 	}
-	
+
 	public String[] getVariables() {
 		return mVariableStrings;
 	}
+
 	public abstract String getName();
 }

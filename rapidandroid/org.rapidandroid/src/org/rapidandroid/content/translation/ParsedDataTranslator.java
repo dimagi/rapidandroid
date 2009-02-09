@@ -29,8 +29,8 @@ import android.net.Uri;
 public class ParsedDataTranslator {
 
 	/**
-	 * Called after a message is parsed.
-	 * For a given form, the results are put into a ParseResult for each field, typed out according to the fieldtype
+	 * Called after a message is parsed. For a given form, the results are put
+	 * into a ParseResult for each field, typed out according to the fieldtype
 	 * 
 	 * @param context
 	 * @param f
@@ -38,8 +38,7 @@ public class ParsedDataTranslator {
 	 * @param results
 	 * @return
 	 */
-	public static boolean InsertFormData(Context context, Form f,
-			int message_id, Vector<IParseResult> results) {
+	public static boolean InsertFormData(Context context, Form f, int message_id, Vector<IParseResult> results) {
 
 		ContentValues cv = new ContentValues();
 		cv.put(RapidSmsDBConstants.FormData.MESSAGE, message_id);
@@ -51,28 +50,28 @@ public class ParsedDataTranslator {
 			Field field = fields[i];
 			IParseResult res = results.get(i);
 			if (res != null) {
-				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX
-						+ field.getName(), res.getValue().toString());
+				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(), res.getValue().toString());
 			} else {
-				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX
-						+ field.getName(), "");
+				cv.put(RapidSmsDBConstants.FormData.COLUMN_PREFIX + field.getName(), "");
 			}
 		}
 		Uri inserted = context.getContentResolver().insert(
-				Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
-						+ f.getFormId()), cv);
+															Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
+																	+ f.getFormId()), cv);
 		return true;
 	}
 
 	/**
-	 * An expensive call to get all parsed messages for a given Form.  Loads it all into memory.
+	 * An expensive call to get all parsed messages for a given Form. Loads it
+	 * all into memory.
+	 * 
 	 * @deprecated
 	 * @param context
 	 * @param f
 	 * @return
 	 */
-	public static HashMap<Message, IParseResult[]> getParsedMessagesForForm(
-			Context context, Form f) {
+	@Deprecated
+	public static HashMap<Message, IParseResult[]> getParsedMessagesForForm(Context context, Form f) {
 
 		HashMap<Message, IParseResult[]> ret = new HashMap<Message, IParseResult[]>();
 		int formid = f.getFormId();
@@ -80,8 +79,8 @@ public class ParsedDataTranslator {
 		int fieldsLen = formFields.length;
 
 		Cursor cursor = context.getContentResolver().query(
-		Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
-								+ formid), null, null, null, null);
+															Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
+																	+ formid), null, null, null, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
 			return null;
@@ -91,8 +90,7 @@ public class ParsedDataTranslator {
 			int message_id = cursor.getInt(Message.COL_PARSED_MESSAGE_ID);
 			Message msg = MessageTranslator.GetMessage(context, message_id);
 
-			IParseResult[] singleParsed = new SimpleParseResult[cursor
-					.getColumnCount() - 2];
+			IParseResult[] singleParsed = new SimpleParseResult[cursor.getColumnCount() - 2];
 
 			int fieldcount = 0;
 			for (int i = 0; i < fieldsLen; i++) {
@@ -101,24 +99,18 @@ public class ParsedDataTranslator {
 				String type = sfieldType.getParsedDataType();
 
 				if (type.equals("boolean")) {
-					parsedValue = cursor.getInt(i
-							+ Message.COL_PARSED_FIELDS_OFFSET) != 0;
+					parsedValue = cursor.getInt(i + Message.COL_PARSED_FIELDS_OFFSET) != 0;
 				} else if (type.equals("number")) {
-					parsedValue = cursor.getFloat(i
-							+ Message.COL_PARSED_FIELDS_OFFSET);
+					parsedValue = cursor.getFloat(i + Message.COL_PARSED_FIELDS_OFFSET);
 				} else if (type.equals("word")) {
-					parsedValue = cursor.getString(i
-							+ Message.COL_PARSED_FIELDS_OFFSET);
+					parsedValue = cursor.getString(i + Message.COL_PARSED_FIELDS_OFFSET);
 				} else if (type.equals("float")) {
-					parsedValue = cursor.getFloat(i
-							+ Message.COL_PARSED_FIELDS_OFFSET);
+					parsedValue = cursor.getFloat(i + Message.COL_PARSED_FIELDS_OFFSET);
 				} else if (type.equals("integer")) {
-					parsedValue = cursor.getInt(i
-							+ Message.COL_PARSED_FIELDS_OFFSET);
+					parsedValue = cursor.getInt(i + Message.COL_PARSED_FIELDS_OFFSET);
 				}
 
-				SimpleParseResult res = new SimpleParseResult(formFields[i]
-						.getFieldType(), null, parsedValue);
+				SimpleParseResult res = new SimpleParseResult(formFields[i].getFieldType(), null, parsedValue);
 				singleParsed[fieldcount++] = res;
 			}
 			ret.put(msg, singleParsed);
