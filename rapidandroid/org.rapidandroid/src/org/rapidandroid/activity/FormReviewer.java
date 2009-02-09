@@ -159,8 +159,7 @@ public class FormReviewer extends Activity {
 		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv)
 				.setIcon(android.R.drawable.ic_menu_upload);
 
-		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(
-				android.R.drawable.ic_menu_manage);
+		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(android.R.drawable.ic_menu_manage);
 		return true;
 	}
 

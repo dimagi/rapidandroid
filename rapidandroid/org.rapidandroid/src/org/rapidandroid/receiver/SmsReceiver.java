@@ -105,6 +105,8 @@ public class SmsReceiver extends BroadcastReceiver {
 			context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + thread_id), null, null);
 			c.close();
 		} catch (Exception ex) {
+			//deletions don't work most of the time since the timing of the receipt and saving to the inbox
+			//makes it difficult to match up perfectly.  the SMS might not be in the inbox yet when this receiver triggers!
 			Log.d("SmsReceiver", "Error deleting sms from inbox: " + ex.getMessage());
 		}
 	}

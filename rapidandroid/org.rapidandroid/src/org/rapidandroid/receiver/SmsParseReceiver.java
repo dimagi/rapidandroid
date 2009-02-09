@@ -32,9 +32,9 @@ import android.util.Log;
  */
 public class SmsParseReceiver extends BroadcastReceiver {
 
-	private String[] prefixes = null;
-	private Form[] forms = null;
-	private Context mContext = null;
+	private static String[] prefixes = null;
+	private static Form[] forms = null;
+	//private Context mContext = null;
 
 	private void initLists() {
 		forms = ModelTranslator.getAllForms();
@@ -60,9 +60,9 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (mContext == null) {
-			mContext = context;
-		}
+//		if (mContext == null) {
+//			mContext = context;
+//		}
 		if (prefixes == null) {
 			initLists();	//profiler shows us that this is being called frequently on new messages.
 		}
@@ -92,9 +92,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 //				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));			
 //				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, "Message parse successful, thank you!");
 //				context.sendBroadcast(broadcast);
-//			}
-			
-			
+//			}			
 			
 			Vector<IParseResult> results = ParsingService.ParseMessage(form, body);
 			ParsedDataTranslator.InsertFormData(context, form, msgid, results);

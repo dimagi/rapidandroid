@@ -54,9 +54,9 @@ public class FormDataBroker extends ChartBroker {
 		if (fieldToPlot == null) {
 			//we're going to do all messages over timereturn;
 			allData = loadMessageOverTimeHistogram();
-		} else if (fieldToPlot.getFieldType().getParsedDataType().equals("word")) {
+		} else if (fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("word")) {
 			allData = loadHistogramFromField(); 
-		} else if (fieldToPlot.getFieldType().getParsedDataType().equals("boolean")) {
+		} else if (fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("boolean") || fieldToPlot.getFieldType().getParsedDataType().toLowerCase().equals("yes/no")) {
 			allData = loadBooleanPlot(); 
 		} else {
 			allData = loadNumericLine(); 
