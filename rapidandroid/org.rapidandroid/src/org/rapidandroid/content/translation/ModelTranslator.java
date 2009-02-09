@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import org.rapidandroid.data.RapidSmsDBConstants;
 import org.rapidandroid.data.SmsDbHelper;
+import org.rapidandroid.receiver.SmsParseReceiver;
 import org.rapidsms.java.core.model.Field;
 import org.rapidsms.java.core.model.Form;
 import org.rapidsms.java.core.model.SimpleFieldType;
@@ -131,6 +132,8 @@ public class ModelTranslator {
 		
 		//ok, so form and fields have been inserted.  Now we need to generate the form table if it doesn't exist yet.
 		generateFormTable(f);
+		
+		SmsParseReceiver.initFormCache();
 	}
 	
 	/**

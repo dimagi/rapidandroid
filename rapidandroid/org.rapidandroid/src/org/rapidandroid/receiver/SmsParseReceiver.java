@@ -36,7 +36,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	private static Form[] forms = null;
 	//private Context mContext = null;
 
-	private void initLists() {
+	public synchronized static void initFormCache() {
 		forms = ModelTranslator.getAllForms();
 		prefixes = new String[forms.length];
 		for (int i = 0; i < forms.length; i++) {
@@ -64,7 +64,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 //			mContext = context;
 //		}
 		if (prefixes == null) {
-			initLists();	//profiler shows us that this is being called frequently on new messages.
+			initFormCache();	//profiler shows us that this is being called frequently on new messages.
 		}
 		// TODO Auto-generated method stub
 		String body = intent.getStringExtra("body");
