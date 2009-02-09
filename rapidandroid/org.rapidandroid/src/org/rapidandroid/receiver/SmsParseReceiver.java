@@ -64,7 +64,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 			mContext = context;
 		}
 		if (prefixes == null) {
-			initLists();
+			initLists();	//profiler shows us that this is being called frequently on new messages.
 		}
 		// TODO Auto-generated method stub
 		String body = intent.getStringExtra("body");

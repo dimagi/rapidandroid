@@ -82,7 +82,8 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 				+ "\"phone\" varchar(30) NULL,"
 				+ "\"monitor_id\" integer NULL REFERENCES \"rapidandroid_monitor\" (\"id\"),"
 				+ "\"time\" datetime NOT NULL," + "\"message\" varchar(160) NOT NULL,"
-				+ "\"is_outgoing\" bool NOT NULL," + "\"is_virtual\" bool NOT NULL);";
+				+ "\"is_outgoing\" bool NOT NULL," + "\"is_virtual\" bool NOT NULL,"
+				+ "\"receive_time\" datetime NULL);";
 
 		String mCreateTable_Monitor = "CREATE TABLE \"rapidandroid_monitor\" ("
 				+ "\"_id\" integer NOT NULL PRIMARY KEY," + "\"first_name\" varchar(50) NOT NULL,"

@@ -521,6 +521,7 @@ public class Dashboard extends Activity {
 	}
 
 	private void startActivityChart() {
+		Debug.stopMethodTracing();
 		if (mListviewCursor == null) {
 			Builder noDataDialog = new AlertDialog.Builder(this);
 			noDataDialog.setPositiveButton("Ok", null);

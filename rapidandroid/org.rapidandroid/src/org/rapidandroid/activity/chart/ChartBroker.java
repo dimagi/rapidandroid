@@ -55,6 +55,8 @@ public abstract class ChartBroker {
 	protected boolean isLoading;
 	protected Date mStartDate = Constants.NULLDATE;
 	protected Date mEndDate = Constants.NULLDATE;
+//	protected Calendar mStartCal = Constants.NULLCALENDAR;	//we may need to switch to using calendar's due to the sheer number of conversions we're doing with them back and forth.
+//	protected Calendar mEndCal = Constants.NULLCALENDAR;
 	
 	protected SmsDbHelper rawDB;
 	protected WebView mAppView;

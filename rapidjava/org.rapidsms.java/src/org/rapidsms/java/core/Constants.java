@@ -1,5 +1,6 @@
 package org.rapidsms.java.core;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -10,4 +11,5 @@ import java.util.GregorianCalendar;
  */
 public class Constants {
 	public static final Date NULLDATE = new GregorianCalendar(1900,1,1,5,0).getTime();
+	public static final Calendar NULLCALENDAR = new GregorianCalendar(1900,1,1,5,0);
 }

@@ -65,10 +65,12 @@ public class SmsReceiver extends BroadcastReceiver {
 		Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(context, mesg.getOriginatingAddress());
 
 		messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
-		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));
+		messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(ts));	//expensive string formatting operation.
+		//messageValues.put(RapidSmsDBConstants.Message.TIME, mesg.getTimestampMillis());	//longs don't store as datetimes
 		messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 		Date now = new Date();
-		messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(now));
+		messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(now));		//profile has shown this  is an expensive operation
+		//messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, now.getTime());	//but this doesn't fracking work to convert to a datetime value.
 		boolean successfulSave = false;
 		Uri msgUri = null;
 		try {
