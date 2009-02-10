@@ -140,15 +140,18 @@ public class ParsedDataReporter {
 				+ (1 + endDate.get(Calendar.MONTH)) + "-" + endDate.get(Calendar.DATE) + "';");
 
 		Cursor cr = mHelper.getReadableDatabase().rawQuery(query.toString(), null);
-
-		File sdcard = Environment.getExternalStorageDirectory();
-		File destinationdir = new File(sdcard, "rapidandroid/exports");
-		destinationdir.mkdir();
-		Date now = new Date();
-		File destinationfile = new File(destinationdir, "formdata_" + f.getPrefix() + now.getYear() + now.getMonth()
-				+ now.getDate() + "-" + now.getHours() + now.getMinutes() + ".csv");
 		FileOutputStream fOut = null;
+		
 		try {
+
+			File sdcard = Environment.getExternalStorageDirectory();
+			File destinationdir = new File(sdcard, "rapidandroid/exports");
+			destinationdir.mkdir();
+			Date now = new Date();
+			File destinationfile = new File(destinationdir, "formdata_" + f.getPrefix() + now.getYear()
+					+ now.getMonth() + now.getDate() + "-" + now.getHours() + now.getMinutes() + ".csv");
+			
+		
 			destinationfile.createNewFile();
 			fOut = new FileOutputStream(destinationfile);
 			String[] cols = cr.getColumnNames();

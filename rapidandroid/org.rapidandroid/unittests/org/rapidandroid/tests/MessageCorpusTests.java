@@ -64,8 +64,7 @@ public class MessageCorpusTests extends AndroidTestCase {
 		prefixes = new String[forms.length];
 		for (int i = 0; i < forms.length; i++) {
 			prefixes[i] = forms[i].getPrefix();
-			getContext().getContentResolver().delete(
-														Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
+			getContext().getContentResolver().delete(Uri.parse(RapidSmsDBConstants.FormData.CONTENT_URI_PREFIX
 																+ forms[i].getFormId()), null, null);
 
 		}

@@ -252,6 +252,7 @@ public class FormCreator extends Activity {
 						i++;
 					}
 				} while (checkForFields);
+				fin.close();				
 				f.delete();
 			}
 		} catch (Exception ex) {

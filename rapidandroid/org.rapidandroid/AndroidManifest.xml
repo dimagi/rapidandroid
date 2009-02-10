@@ -5,7 +5,7 @@
 
 
 
-	<application android:icon="@drawable/icon" android:label="@string/app_name" android:name="RapidAndroidApplication">
+	<application android:label="@string/app_name" android:name="RapidAndroidApplication" android:icon="@drawable/rapidandroid">
 		<provider android:authorities="org.rapidandroid.provider.RapidSms" android:name=".content.RapidSmsContentProvider">
 		</provider>
 		<activity android:label="@string/app_name" android:name=".activity.Dashboard">
@@ -62,6 +62,7 @@
 <intent-filter><action android:name="org.rapidandroid.intents.SMS_REPLY"></action>
 </intent-filter>
 </receiver>
+<activity android:name=".activity.GlobalSettings"></activity>
 </application>
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner"

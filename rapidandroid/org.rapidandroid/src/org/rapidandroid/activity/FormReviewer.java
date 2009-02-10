@@ -21,10 +21,16 @@
  */
 package org.rapidandroid.activity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -157,9 +163,9 @@ public class FormReviewer extends Activity {
 
 		menu.add(0, MENU_DUMP_CSV, 0, R.string.formreview_dump_csv).setIcon(android.R.drawable.ic_menu_save);
 
-		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv).setIcon(android.R.drawable.ic_menu_upload);
+//		menu.add(0, MENU_HTTP_UPLOAD, 0, R.string.formreview_upload_csv).setIcon(android.R.drawable.ic_menu_upload);
 
-		menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(android.R.drawable.ic_menu_manage);
+		//menu.add(0, MENU_INJECT_DEBUG, 0, "Generate Data").setIcon(android.R.drawable.ic_menu_manage);
 		return true;
 	}
 
@@ -343,14 +349,117 @@ public class FormReviewer extends Activity {
 		Thread t = new Thread() {
 			@Override
 			public void run() {
-				doInjection();
+				if(mForm.getFormName().toLowerCase().equals("bednets")) {
+					doCsvDirectBednetsInjection();
+				} else {
+					doRandomizedInjection();
+				}
 				mDebugHandler.post(mUpdateResults);
 			}
 		};
 		t.start();
 	}
 
-	private void doInjection() {
+	
+	private void doCsvDirectBednetsInjection() {
+		String rawMessageText = "";
+		
+		try {
+			InputStream is = this.getAssets().open("testdata/rawdata.csv");
+
+			int size = is.available();
+
+			// Read the entire asset into a local byte buffer.
+			byte[] buffer = new byte[size];
+			is.read(buffer);
+			is.close();
+
+			// Convert the buffer into a Java string.
+			String text = new String(buffer);
+
+			rawMessageText = text;
+
+		} catch (IOException e) {
+			// Should never happen!
+			throw new RuntimeException(e);
+		}
+
+		
+		StringReader sr = new StringReader(rawMessageText);
+		BufferedReader bufRdr = new BufferedReader(sr);
+
+		String line = null;
+		int row = 0;
+		int col = 0;
+		Vector<String[]> lines = new Vector<String[]>();
+		// read each line of text file
+		try {
+			while ((line = bufRdr.readLine()) != null) {
+				StringTokenizer st = new StringTokenizer(line, ",");
+				int tokCount = st.countTokens();
+
+				String[] tokenizedLine = new String[tokCount];
+				int toki = 0;
+				while (st.hasMoreTokens()) {
+					tokenizedLine[toki] = st.nextToken();
+					toki++;
+				}
+				lines.add(tokenizedLine);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+
+			try {
+				sr.close();
+				bufRdr.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		int len = lines.size();
+
+		for (int i = 0; i < len; i++) {
+			String[] csvline = lines.get(i);
+
+			String datestr = csvline[0];
+
+			Date dateval = new Date();
+			try {
+				dateval = Message.SQLDateFormatter.parse(datestr);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+			String sender = csvline[1];
+			String text = csvline[2];
+			
+			Monitor monitor = MessageTranslator.GetMonitorAndInsertIfNew(this, sender);
+
+			ContentValues messageValues = new ContentValues();
+			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, text);
+			messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
+
+			messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(getRandomDate()));
+			messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(dateval));
+			messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
+
+			Uri msgUri = null;
+			
+			msgUri = this.getContentResolver().insert(RapidSmsDBConstants.Message.CONTENT_URI, messageValues);
+			Vector<IParseResult> results = ParsingService.ParseMessage(mForm, text);
+			ParsedDataTranslator.InsertFormData(this, mForm, Integer.valueOf(msgUri.getPathSegments().get(1))
+																			.intValue(), results);
+		}
+
+
+
+	}
+	
+	private void doRandomizedInjection() {
 		Random r = new Random();
 
 		// Debug.startMethodTracing("injection");

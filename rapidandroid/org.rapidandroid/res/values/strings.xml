@@ -47,4 +47,9 @@
 <string name="rad_last100">Last 100</string>
 <string name="rad_last500">Last 500</string>
 <string name="rad_all">All</string>
+<string name="glbsettings_parse_ack">Successful Parse Reply</string>
+<string name="glbsettings_noparse_ack">Failed Parse Reply</string>
+<string name="glb_chk_noparse_text">Reply on failed parses</string>
+<string name="glb_chk_parse_text">Reply on successful parses</string>
+<string name="glbsettings_heading">Global reply settings</string>
 </resources>

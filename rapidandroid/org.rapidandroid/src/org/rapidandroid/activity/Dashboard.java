@@ -70,8 +70,6 @@ import android.widget.AdapterView.OnItemClickListener;
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 9, 2009
  * 
- * 
- * 
  */
 public class Dashboard extends Activity {
 
@@ -115,11 +113,13 @@ public class Dashboard extends Activity {
 	private static final int ACTIVITY_FORM_REVIEW = 1;
 	// private static final int ACTIVITY_DATERANGE = 2;
 	private static final int ACTIVITY_CHARTS = 3; // this and ACTIVITY_CHARTS
+	private static final int ACTIVITY_GLOBALSETTINGS = 4;
 
 	private static final int MENU_CREATE_ID = Menu.FIRST;
 	private static final int MENU_FORM_REVIEW_ID = Menu.FIRST + 1;
 	private static final int MENU_CHANGE_DATERANGE = Menu.FIRST + 2;
 	private static final int MENU_CHARTS_ID = Menu.FIRST + 3;
+	private static final int MENU_GLOBAL_SETTINGS = Menu.FIRST + 4;
 	// private static final int MENU_SHOW_REPORTS = Menu.FIRST + 3;
 	// private static final int MENU_EXIT = Menu.FIRST + 3; //waitaminute, we
 	// don't want to exit this thing, do we?
@@ -401,6 +401,10 @@ public class Dashboard extends Activity {
 				resetCursor = true;
 				beginListViewReload();
 				break;
+			case ACTIVITY_GLOBALSETTINGS:
+				resetCursor = true;
+				beginListViewReload();
+				break;
 			// case ACTIVITY_DATERANGE:
 			// if (extras != null) {
 			// mStartDate = new
@@ -425,6 +429,7 @@ public class Dashboard extends Activity {
 		// menu.add(0, MENU_CHANGE_DATERANGE, 0,
 		// R.string.chart_menu_change_parameters.setIcon(android.R.drawable.ic_menu_recent_history);
 		menu.add(0, MENU_CHARTS_ID, 0, R.string.dashboard_menu_view).setIcon(android.R.drawable.ic_menu_sort_by_size);
+		menu.add(0, MENU_GLOBAL_SETTINGS, 0, "Change Settings").setIcon(android.R.drawable.ic_menu_preferences);
 		// menu.add(0, MENU_SHOW_REPORTS, 0,
 		// R.string.dashboard_menu_show_reports);
 		return true;
@@ -448,9 +453,14 @@ public class Dashboard extends Activity {
 			case MENU_CHARTS_ID:
 				startActivityChart();
 				return true;
+			case MENU_GLOBAL_SETTINGS:
+				startActivityGlobalSettings();
+				return true;
 		}
 		return true;
 	}
+
+	
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
@@ -517,6 +527,16 @@ public class Dashboard extends Activity {
 
 	}
 
+	/**
+	 * 
+	 */
+	private void startActivityGlobalSettings() {
+		Intent i;
+		i = new Intent(this, GlobalSettings.class);
+		startActivityForResult(i, ACTIVITY_GLOBALSETTINGS);
+		
+	}
+	
 	// Start the form edit/create activity
 	private void startActivityFormReview() {
 		Intent i;
