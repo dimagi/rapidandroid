@@ -52,9 +52,9 @@ public class GlobalSettings extends Activity {
 
 		public void onClick(View v) {
 			if (v.equals(mParseCheckbox)) {
-				mNoparseCheckBox.setEnabled(mParseCheckbox.isChecked());
+				mParseReplyText.setEnabled(mParseCheckbox.isChecked());
 			} else if (v.equals(mNoparseCheckBox)) {
-				mNoparseCheckBox.setEnabled(mNoparseCheckBox.isChecked());
+				mNoparseReplyText.setEnabled(mNoparseCheckBox.isChecked());
 			}
 		}
 	};
