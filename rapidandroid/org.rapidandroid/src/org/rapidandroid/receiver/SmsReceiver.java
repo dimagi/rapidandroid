@@ -116,7 +116,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			broadcast.putExtra("from", mesg.getOriginatingAddress());
 			broadcast.putExtra("body", mesg.getMessageBody());
 			broadcast.putExtra("msgid", Integer.valueOf(msgUri.getPathSegments().get(1)));
-			DeleteSMSFromInbox(context, mesg);
+			//DeleteSMSFromInbox(context, mesg);
 			context.sendBroadcast(broadcast);
 		}
 	}

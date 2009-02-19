@@ -52,4 +52,5 @@
 <string name="glb_chk_noparse_text">Reply on failed parses</string>
 <string name="glb_chk_parse_text">Reply on successful parses</string>
 <string name="glbsettings_heading">Global reply settings</string>
+<string name="glb_lbl_activeall">Activate all SMS features</string>
 </resources>

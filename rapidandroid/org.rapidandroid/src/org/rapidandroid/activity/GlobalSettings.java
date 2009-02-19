@@ -42,6 +42,7 @@ public class GlobalSettings extends Activity {
 	
 	private static final int MENU_DONE = Menu.FIRST;
 	
+	private CheckBox mActiveSwitch;
 	private CheckBox mParseCheckbox;
 	private EditText mParseReplyText;
 	private CheckBox mNoparseCheckBox;
@@ -51,11 +52,21 @@ public class GlobalSettings extends Activity {
 	private OnClickListener mCheckChangeListener = new OnClickListener() {
 
 		public void onClick(View v) {
-			if (v.equals(mParseCheckbox)) {
-				mParseReplyText.setEnabled(mParseCheckbox.isChecked());
-			} else if (v.equals(mNoparseCheckBox)) {
-				mNoparseReplyText.setEnabled(mNoparseCheckBox.isChecked());
+			if(v.equals(mActiveSwitch)) {
+				mParseReplyText.setEnabled(mActiveSwitch.isChecked());
+				mNoparseReplyText.setEnabled(mActiveSwitch.isChecked());
+				
+				mParseCheckbox.setEnabled(mActiveSwitch.isChecked());
+				mNoparseCheckBox.setEnabled(mActiveSwitch.isChecked());
 			}
+			
+			if (mActiveSwitch.isChecked()) {
+				if (v.equals(mParseCheckbox)) {
+					mParseReplyText.setEnabled(mParseCheckbox.isChecked());
+				} else if (v.equals(mNoparseCheckBox)) {
+					mNoparseReplyText.setEnabled(mNoparseCheckBox.isChecked());
+				}
+			} 
 		}
 	};
 
@@ -72,6 +83,10 @@ public class GlobalSettings extends Activity {
 		setTitle(ACTIVITY_TITLE_STRING);
 		setContentView(R.layout.global_settings);
 
+		
+		mActiveSwitch = (CheckBox) findViewById(R.id.glb_chk_activeall);
+		mActiveSwitch.setOnClickListener(mCheckChangeListener);
+		
 		mParseCheckbox = (CheckBox) findViewById(R.id.glb_chk_parse);
 		mParseCheckbox.setOnClickListener(mCheckChangeListener);
 		this.mParseReplyText = (EditText) findViewById(R.id.glb_etx_success);
@@ -81,6 +96,12 @@ public class GlobalSettings extends Activity {
 		this.mNoparseReplyText = (EditText) findViewById(R.id.glb_etx_failed);
 		
 		loadSettingsFromGlobals();
+		
+		mParseReplyText.setEnabled(mActiveSwitch.isChecked());
+		mNoparseReplyText.setEnabled(mActiveSwitch.isChecked());
+		
+		mParseCheckbox.setEnabled(mActiveSwitch.isChecked());
+		mNoparseCheckBox.setEnabled(mActiveSwitch.isChecked());
 	}
 
 	/**
@@ -90,6 +111,7 @@ public class GlobalSettings extends Activity {
 		// TODO Auto-generated method stub
 		JSONObject globals = ApplicationGlobals.loadSettingsFromFile(this);
 		try {
+			mActiveSwitch.setChecked(globals.getBoolean(ApplicationGlobals.KEY_ACTIVE_ALL));			
 			mParseCheckbox.setChecked(globals.getBoolean(ApplicationGlobals.KEY_PARSE_REPLY));
 			mParseReplyText.setText(globals.getString(ApplicationGlobals.KEY_PARSE_REPLY_TEXT));
 			mNoparseCheckBox.setChecked(globals.getBoolean(ApplicationGlobals.KEY_FAILED_REPLY));
@@ -136,7 +158,7 @@ public class GlobalSettings extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		ApplicationGlobals.saveGlobalSettings(this, mParseCheckbox.isChecked(), 
+		ApplicationGlobals.saveGlobalSettings(this,mActiveSwitch.isChecked(),mParseCheckbox.isChecked(), 
 		                                      mParseReplyText.getText().toString(), 
 		                                      mNoparseCheckBox.isChecked(), 
 		                                      mNoparseReplyText.getText().toString());

@@ -443,7 +443,7 @@ public class FormReviewer extends Activity {
 			messageValues.put(RapidSmsDBConstants.Message.MESSAGE, text);
 			messageValues.put(RapidSmsDBConstants.Message.MONITOR, monitor.getID());
 
-			messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(getRandomDate()));
+			messageValues.put(RapidSmsDBConstants.Message.TIME, Message.SQLDateFormatter.format(dateval));
 			messageValues.put(RapidSmsDBConstants.Message.RECEIVE_TIME, Message.SQLDateFormatter.format(dateval));
 			messageValues.put(RapidSmsDBConstants.Message.IS_OUTGOING, false);
 

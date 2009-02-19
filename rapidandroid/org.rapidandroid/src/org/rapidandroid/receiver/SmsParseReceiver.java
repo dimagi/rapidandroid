@@ -54,29 +54,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	private static Form[] forms = null;
 	
 	
-	private static boolean globalsLoaded = false;
-	private static boolean mReplyParse = true;
-	private static boolean mReplyFail = true;
 	
-	private static String mReplyParseText = "";
-	private static String mReplyFailText = "";
-	
-	
-	public static void initGlobals(Context context) {
-		if(!globalsLoaded) {
-			JSONObject globals = ApplicationGlobals.loadSettingsFromFile(context);
-			try {
-				mReplyParse = globals.getBoolean(ApplicationGlobals.KEY_PARSE_REPLY);
-				mReplyFail = globals.getBoolean(ApplicationGlobals.KEY_FAILED_REPLY);
-				mReplyParseText = globals.getString(ApplicationGlobals.KEY_PARSE_REPLY_TEXT);
-				mReplyFailText = globals.getString(ApplicationGlobals.KEY_FAILED_REPLY_TEXT);
-				globalsLoaded = true;
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
 
 	// private Context mContext = null;
 
@@ -105,7 +83,7 @@ public class SmsParseReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		initGlobals(context);
+		ApplicationGlobals.initGlobals(context);
 	
 		if (prefixes == null) {
 			initFormCache(); // profiler shows us that this is being called
@@ -122,24 +100,22 @@ public class SmsParseReceiver extends BroadcastReceiver {
 		int msgid = intent.getIntExtra("msgid", 0);
 
 		Form form = determineForm(body);
-		if (form == null) {
-			
-			
-			if (mReplyFail) {
+		if (form == null) {			
+			if (ApplicationGlobals.doReplyOnFail()) {
 				Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
 				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));
-				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, mReplyFailText);
+				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, ApplicationGlobals.getParseFailText());
 				context.sendBroadcast(broadcast);
 			}
 			return;
 		} else {
 			Monitor mon = MessageTranslator.GetMonitorAndInsertIfNew(context, intent.getStringExtra("from"));
 			// if(mon.getReplyPreference()) {
-			if (mReplyParse) {
+			if (ApplicationGlobals.doReplyOnParse()) {
 				// for debug purposes, we'll just ack every time.
 				Intent broadcast = new Intent("org.rapidandroid.intents.SMS_REPLY");
 				broadcast.putExtra(SmsReplyReceiver.KEY_DESTINATION_PHONE, intent.getStringExtra("from"));
-				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, mReplyParseText);
+				broadcast.putExtra(SmsReplyReceiver.KEY_MESSAGE, ApplicationGlobals.getParseSuccessText());
 				context.sendBroadcast(broadcast);
 			}
 			Vector<IParseResult> results = ParsingService.ParseMessage(form, body);

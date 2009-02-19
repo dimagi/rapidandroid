@@ -21,6 +21,64 @@ import android.util.Log;
  */
 public class ApplicationGlobals {
 
+	private static boolean globalsLoaded = false;
+	
+	private static boolean mActive = false; 
+	private static boolean mReplyParse = false;
+	private static boolean mReplyFail = false;
+	
+	private static String mReplyParseText = "";
+	private static String mReplyFailText = "";
+	
+	
+	public static void initGlobals(Context context) {
+		if(!globalsLoaded) {
+			JSONObject globals = ApplicationGlobals.loadSettingsFromFile(context);
+			try {
+				
+				if(globals.has(KEY_ACTIVE_ALL)) {
+					mActive = globals.getBoolean(KEY_ACTIVE_ALL);
+					
+				} else {
+					mActive = false;
+				}
+				mReplyParse = globals.getBoolean(KEY_PARSE_REPLY);
+				mReplyFail = globals.getBoolean(KEY_FAILED_REPLY);
+				mReplyParseText = globals.getString(KEY_PARSE_REPLY_TEXT);
+				mReplyFailText = globals.getString(KEY_FAILED_REPLY_TEXT);
+				globalsLoaded = true;
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	public static boolean doReplyOnFail() {
+		if(mActive) {
+			return mReplyFail;
+		} else {
+			return false;
+		}
+	}
+	
+	public static boolean doReplyOnParse() {
+		if(mActive) {
+			return mReplyParse;
+		} else {
+			return false;
+		}
+	}
+	
+	public static String getParseSuccessText() {
+		return mReplyParseText;
+	}
+	
+	public static String getParseFailText() {
+		return mReplyFailText;
+	}
+	
 	
 	public static void checkGlobals(Context context) {		
 		File f = context.getFileStreamPath(SETTINGS_FILE);
@@ -31,9 +89,16 @@ public class ApplicationGlobals {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			saveGlobalSettings(context, true, "Message parsed successfully, thank you", true, "Unable to understand your message, please try again");
+			saveGlobalSettings(context, false, false, "Message parsed successfully, thank you", false, "Unable to understand your message, please try again");
+			
 		}
 	}
+	
+	/**
+	 * 
+	 */
+	public static final String KEY_ACTIVE_ALL = "ActivateAll";
+	
 	
 	/**
 	 * 
@@ -80,6 +145,12 @@ public class ApplicationGlobals {
 
 			String contents = new String(data);
 			readobject = new JSONObject(contents);
+			
+			if(!readobject.has(KEY_ACTIVE_ALL)) {
+				//dmyung hack to keep compatability with new version
+				readobject.put(KEY_ACTIVE_ALL, false);
+			}
+			
 //			mParseCheckbox.setChecked(readobject.getBoolean(KEY_PARSE_REPLY));
 //			mParseReplyText.setText(readobject.getString(KEY_PARSE_REPLY_TEXT));
 //			mNoparseCheckBox.setChecked(readobject.getBoolean(KEY_FAILED_REPLY));
@@ -113,10 +184,11 @@ public class ApplicationGlobals {
 	/**
 	 * 
 	 */
-	public static void saveGlobalSettings(Context context, boolean parseReply, String parseReplyText, boolean failedReply, String failedReplyText) {		
+	public static void saveGlobalSettings(Context context,boolean activateAll, boolean parseReply, String parseReplyText, boolean failedReply, String failedReplyText) {		
 		JSONObject settingsObj = new JSONObject();
 		FileOutputStream fos = null;
 		try {
+			settingsObj.put(KEY_ACTIVE_ALL, activateAll);
 			settingsObj.put(KEY_PARSE_REPLY, parseReply);
 			settingsObj.put(KEY_PARSE_REPLY_TEXT, parseReplyText);
 			settingsObj.put(KEY_FAILED_REPLY, failedReply);
@@ -146,7 +218,8 @@ public class ApplicationGlobals {
 					e.printStackTrace();
 				}
 			}
-			SmsParseReceiver.initGlobals(context);
+			globalsLoaded = false;
+			ApplicationGlobals.initGlobals(context);
 		}
 	}
 }
