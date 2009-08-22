@@ -120,7 +120,8 @@ public class SmsDbHelper extends SQLiteOpenHelper {
 
 		String mCreateTable_Field = "CREATE TABLE \"rapidandroid_field\" (" + "\"_id\" integer NOT NULL PRIMARY KEY,"
 				+ "\"form_id\" integer NOT NULL REFERENCES \"rapidandroid_form\" (\"id\"),"
-				+ "\"sequence\" integer unsigned NOT NULL," + "\"name\" varchar(32) NOT NULL UNIQUE,"
+				+ "\"sequence\" integer unsigned NOT NULL," 
+				+ "\"name\" varchar(32) NOT NULL,"
 				+ "\"prompt\" varchar(64) NOT NULL,"
 				+ "\"fieldtype_id\" integer NOT NULL REFERENCES \"rapidandroid_fieldtype\" (\"id\"));";
 

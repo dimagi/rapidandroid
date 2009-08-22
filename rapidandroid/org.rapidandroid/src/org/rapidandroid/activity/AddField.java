@@ -193,7 +193,7 @@ public class AddField extends Activity {
 			// ugly validation logic
 			lblFieldPrompt.setText("Prompt:");
 		}
-		// iterate over the prior created fieldnames from teh bundle
+		// iterate over the prior created fieldnames from the bundle
 		if (existingFields != null) {
 			String name = etxName.getText().toString();
 			boolean duplicate = false;
