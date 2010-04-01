@@ -36,6 +36,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -76,7 +77,7 @@ public class ChartData extends Activity {
 
 	private Form mForm;
 	ChartBroker mBroker;
-	private WebView mWebView;
+	private WebView mWebView;	
 
 	/*
 	 * (non-Javadoc)
@@ -95,7 +96,7 @@ public class ChartData extends Activity {
 
 		setContentView(org.rapidandroid.R.layout.data_chart);
 		mWebView = (WebView) findViewById(org.rapidandroid.R.id.wv1);
-		mWebView.getSettings().setJavaScriptEnabled(true);
+		mWebView.getSettings().setJavaScriptEnabled(true);		
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -117,9 +118,8 @@ public class ChartData extends Activity {
 
 			}
 			if (savedInstanceState == null) {
-				mBroker.loadChartPage();
-			}
-			// mBroker.loadGraph();
+				mBroker.bindChartToHTML();
+			} 
 		}
 	}
 
@@ -157,10 +157,7 @@ public class ChartData extends Activity {
 			mBroker.setGraphData(savedInstanceState.getString(STATE_GRAPH_DATA));
 			mBroker.setGraphOptions(savedInstanceState.getString(STATE_GRAPH_OPTION));
 		}
-
-		mBroker.loadChartPage();
-		// mBroker.loadGraph();
-		// mWebView.debugDump();
+		mBroker.bindChartToHTML();		
 	}
 
 	/*
@@ -218,7 +215,7 @@ public class ChartData extends Activity {
 																								DialogInterface dialog,
 																								int whichButton) {
 
-																							mBroker.loadGraph();
+																							mBroker.jsLoadGraph();
 																						}
 																					})
 																.setNegativeButton(
@@ -315,7 +312,7 @@ public class ChartData extends Activity {
 					mStartDate.setTime(extras.getLong(DateRange.ResultParams.RESULT_START_DATE));
 					mEndDate.setTime(extras.getLong(DateRange.ResultParams.RESULT_END_DATE));
 					mBroker.setRange(mStartDate, mEndDate);
-					mBroker.loadGraph();
+					mBroker.jsLoadGraph();
 				}
 				break;
 

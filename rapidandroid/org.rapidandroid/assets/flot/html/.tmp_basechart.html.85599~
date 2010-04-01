@@ -27,11 +27,11 @@
 function load(){
 	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle("wassup", 5);
 	//document.getElementById('graphtitle').innerHTML = window.graphdata.getGraphTitle();
-	window.graphdata.jsLoadGraph();
+	window.graphdata.loadGraph();
 }
 
 function SetGraph(gwidth, gheight) {
-	window.graphdata.jsPrintDebug("SetGraph " + gwidth + " - " + gheight)
+	window.graphdata.js
 	var graphObj = document.getElementById("placeholder");
 	graphObj.style.width = gwidth;
 	graphObj.style.height = gheight;	
@@ -49,7 +49,7 @@ function GotGraph(gData, gOptions) {
        }
     });
 	
-	window.graphdata.jsFinishGraph();
+	window.graphdata.finishGraph();
 	}
 </script>
     

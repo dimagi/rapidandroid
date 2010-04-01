@@ -55,7 +55,7 @@ public class MessageDataBroker extends ChartBroker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.rapidandroid.activity.chart.ChartBroker#loadGraph()
+	 * @see org.rapidandroid.activity.chart.ChartBroker#doLoadGraph()
 	 */
 
 	@Override

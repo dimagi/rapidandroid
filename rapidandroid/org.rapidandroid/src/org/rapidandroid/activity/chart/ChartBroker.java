@@ -33,6 +33,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
 import android.webkit.WebView;
 
 /**
@@ -41,7 +42,7 @@ import android.webkit.WebView;
  * The implementers of this interface will need access to database methods to
  * prepare data and output to the graphing system. * This class is the exposed
  * Java object that the WebView will need to call, specifically the method
- * loadGraph().
+ * jsLoadGraph().
  * 
  * @author Daniel Myung dmyung@dimagi.com
  * @created Jan 29, 2009
@@ -132,6 +133,10 @@ public abstract class ChartBroker {
 		}
 	}
 
+	public synchronized void jsPrintDebug(String debugstring) {
+		Log.d("ChartBroker", "JavaScript Debug Printout: " + debugstring);
+	}
+	
 	public synchronized void setGraphData(String jsonarr) {
 
 		try {
@@ -165,8 +170,10 @@ public abstract class ChartBroker {
 	/**
 	 * This is the primary method that the JavaScript in our HTML form will need
 	 * access to in order to display graph data.
+	 * 
+	 * This SHOULD NOT be called from java, javascript should call it.
 	 */
-	public synchronized final void loadGraph() {
+	public synchronized final void jsLoadGraph() {		
 		// Debug.startMethodTracing("graphing_" + this.getClass().getName() +
 		// traceCount++);
 		// trying to get this to work, but it's quite annoying
@@ -204,31 +211,26 @@ public abstract class ChartBroker {
 		tl.append(df.format(mStartDate)).append(" - ");
 		tl.append(df.format(mEndDate));
 		mGraphTitle = tl.toString();
+		Log.d("ChartBroker", "end getPrettyTitleString");
 
 	}
 
-	protected void loadGraphFinish() {
-		if (!hasData()) {
-			// mAppView.loadUrl(EMPTY_FILE);
-			// mChartPageLoaded = false;
-			// finishGraph();
-			// return;
-			// TODO add android popup
-		}
-		// else if (!mChartPageLoaded) {
-		// mAlreadyLoading = true;
-		// reloadChartPage();
-		// }
-		int width = mAppView.getWidth();
-		int height = 0;
-		if (width == 480) {
-			height = 320;
-		} else if (width == 320) {
-			height = 480;
-		}
+	protected void loadGraphFinish() {		
+		Display display = this.mParentActivity.getWindowManager().getDefaultDisplay();
+		//Get the screen orientation
+			
+		int width = display.getWidth();
+		int height = display.getHeight();	
+		
+		Log.d("ChartBroker", "getWidth: " + width);
+		Log.d("ChartBroker", "getHeight: " + height);
+				
 		height = height - 50;
 		mAppView.loadUrl("javascript:SetGraph(\"" + width + "px\", \"" + height + "px\")");
+		Log.d("ChartBroker", "javascript:SetGraph(\"" + width + "px\", \"" + height + "px\")");
+		
 		mAppView.loadUrl("javascript:GotGraph(" + mGraphData.toString() + "," + mGraphOptions.toString() + ")");
+		Log.d("ChartBroker", "javascript:GotGraph(" + mGraphData.toString() + "," + mGraphOptions.toString() + ")");
 	}
 
 	private boolean hasData() {
@@ -236,19 +238,16 @@ public abstract class ChartBroker {
 			return false;
 		}
 		return true;
-	}
+	}	
 
-	// private void reloadChartPage() {
-	// // don't add the js interface
-	// mAppView.loadUrl(CHART_FILE);
-	// mChartPageLoaded = true;
-	// }
-
-	public void loadChartPage() {
-
+	/**
+	 * Register this ChartBroker to the WebView as a javascript interface.
+	 */
+	public void bindChartToHTML() {
 		mAppView.addJavascriptInterface(this, JAVASCRIPT_PROPERTYNAME);
+		Log.d("ChartBroker", "addJavascriptInterface: " + JAVASCRIPT_PROPERTYNAME);
 		mAppView.loadUrl(CHART_FILE);
-		// mChartPageLoaded = true;
+		Log.d("ChartBroker", "loadUrl: " + CHART_FILE);
 	}
 
 	/**
@@ -644,15 +643,19 @@ public abstract class ChartBroker {
 	/**
 	 * This gets called by the javascript file after the graph is done plotting
 	 */
-	public void finishGraph() {
+	public void jsFinishGraph() {
+		Log.d("ChartBroker", "begin finishGraph");
 		getPrettyTitleString();
 		mDialogHandler.post(mStopThinker);
+		Log.d("ChartBroker", "stopped thinker");
 		mTitleHandler.post(mUpdateActivityTitle);
 		if (!hasData()) {
 			mDialogHandler.post(mEmptyData);
 		}
-
-		// Debug.stopMethodTracing();
+		Log.d("ChartBroker", "end finishGraph");
+		this.isShowing = true;
+		this.mAppView.setVisibility(0);
+		
 	}
 
 	public abstract String getGraphTitle();

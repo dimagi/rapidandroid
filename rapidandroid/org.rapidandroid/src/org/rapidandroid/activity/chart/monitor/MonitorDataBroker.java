@@ -93,7 +93,7 @@ public class MonitorDataBroker extends ChartBroker {
 	 * @see org.rapidandroid.activity.chart.ChartBroker#finishGraph()
 	 */
 	@Override
-	public void finishGraph() {
+	public void jsFinishGraph() {
 		// TODO Auto-generated method stub
 
 	}
