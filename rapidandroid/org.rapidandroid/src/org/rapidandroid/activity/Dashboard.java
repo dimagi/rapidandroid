@@ -565,7 +565,8 @@ public class Dashboard extends Activity {
 		Intent i = new Intent(this, ChartData.class);
 		Date now = new Date();
 		i.putExtra(ChartData.CallParams.END_DATE, now.getTime());
-		// we want to chart for a form
+		 
+		//we want to chart for a form, let's set the startdate for this interval.
 		if (mChosenForm != null && !mShowAllMessages) {
 			Date startDate = ParsedDataReporter.getOldestMessageDate(this, mChosenForm);
 			if (startDate.equals(Constants.NULLDATE)) {
@@ -577,26 +578,27 @@ public class Dashboard extends Activity {
 				return;
 			}
 
-			if (mListviewCursor.getCount() > 0) {
-				mListviewCursor.moveToLast();
-				// int msg_id =
-				// mListviewCursor.getInt(Message.COL_PARSED_MESSAGE_ID);
-				String datestring = mListviewCursor.getString(mListviewCursor.getColumnCount()
-						+ Message.COL_JOINED_MESSAGE_TIME);
-
-				try {
-					startDate = Message.SQLDateFormatter.parse(datestring);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// Message m = MessageTranslator.GetMessage(this, msg_id);
-
-			} else {
-				Calendar startCal = Calendar.getInstance();
-				startCal.add(Calendar.DATE, -7);
-				startDate = startCal.getTime();
-			}
+//			if (mListviewCursor.getCount() > 0) {
+//				mListviewCursor.moveToLast();
+//				String datestring = mListviewCursor.getString(mListviewCursor.getColumnCount()
+//						+ Message.COL_JOINED_MESSAGE_TIME);
+//
+//				try {
+//					startDate = Message.SQLDateFormatter.parse(datestring);
+//				} catch (ParseException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				// Message m = MessageTranslator.GetMessage(this, msg_id);
+//
+//			} else {
+//				Calendar startCal = Calendar.getInstance();
+//				startCal.add(Calendar.DATE, -7);
+//				startDate = startCal.getTime();
+//			}
+			Calendar startCal = Calendar.getInstance();
+			startCal.add(Calendar.DATE, -7);
+			startDate = startCal.getTime();
 			i.putExtra(ChartData.CallParams.START_DATE, startDate.getTime());
 			i.putExtra(ChartData.CallParams.CHART_FORM, mChosenForm.getFormId());
 		} else if (mShowAllMessages) {

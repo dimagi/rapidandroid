@@ -81,7 +81,8 @@ public class AddField extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			existingFields = extras.keySet().toArray(new String[extras.keySet().size()]);
+			existingFields = extras.keySet().toArray(
+					new String[extras.keySet().size()]);
 		}
 
 		if (savedInstanceState != null) {
@@ -89,9 +90,12 @@ public class AddField extends Activity {
 			EditText etxPrompt = (EditText) findViewById(R.id.etx_fieldprompt);
 			Spinner spinnerFieldTypes = (Spinner) findViewById(R.id.cbx_fieldtype);
 
-			etxName.setText(savedInstanceState.getString(ResultConstants.RESULT_KEY_FIELDNAME));
-			etxPrompt.setText(savedInstanceState.getString(ResultConstants.RESULT_KEY_DESCRIPTION));
-			int position = savedInstanceState.getInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID);
+			etxName.setText(savedInstanceState
+					.getString(ResultConstants.RESULT_KEY_FIELDNAME));
+			etxPrompt.setText(savedInstanceState
+					.getString(ResultConstants.RESULT_KEY_DESCRIPTION));
+			int position = savedInstanceState
+					.getInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID);
 			if (position >= 0) {
 				spinnerFieldTypes.setSelection(position);
 			}
@@ -108,9 +112,12 @@ public class AddField extends Activity {
 		EditText etxPrompt = (EditText) findViewById(R.id.etx_fieldprompt);
 		Spinner spinnerFieldTypes = (Spinner) findViewById(R.id.cbx_fieldtype);
 
-		outState.putString(ResultConstants.RESULT_KEY_FIELDNAME, etxName.getText().toString());
-		outState.putString(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt.getText().toString());
-		outState.putInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID, spinnerFieldTypes.getSelectedItemPosition());
+		outState.putString(ResultConstants.RESULT_KEY_FIELDNAME, etxName
+				.getText().toString());
+		outState.putString(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt
+				.getText().toString());
+		outState.putInt(ResultConstants.RESULT_KEY_FIELDTYPE_ID,
+				spinnerFieldTypes.getSelectedItemPosition());
 	}
 
 	private void loadFieldTypes() {
@@ -124,8 +131,8 @@ public class AddField extends Activity {
 			}
 		}
 		// simple_spinner_dropdown_item
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
-																fieldTypeNames);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, fieldTypeNames);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		spinnerFieldTypes.setAdapter(adapter);
@@ -135,9 +142,10 @@ public class AddField extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save).setIcon(android.R.drawable.ic_menu_save);
-		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel)
-			.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		menu.add(0, MENU_SAVE, 0, R.string.formeditor_menu_save).setIcon(
+				android.R.drawable.ic_menu_save);
+		menu.add(0, MENU_CANCEL, 0, R.string.formeditor_menu_cancel).setIcon(
+				android.R.drawable.ic_menu_close_clear_cancel);
 		return true;
 	}
 
@@ -145,26 +153,30 @@ public class AddField extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
-			case MENU_SAVE:
-				if (saveNewField()) {
-					EditText etxName = (EditText) findViewById(R.id.etx_fieldname);
-					EditText etxPrompt = (EditText) findViewById(R.id.etx_fieldprompt);
-					Spinner spinnerFieldTypes = (Spinner) findViewById(R.id.cbx_fieldtype);
+		case MENU_SAVE:
+			if (saveNewField()) {
+				EditText etxName = (EditText) findViewById(R.id.etx_fieldname);
+				EditText etxPrompt = (EditText) findViewById(R.id.etx_fieldprompt);
+				Spinner spinnerFieldTypes = (Spinner) findViewById(R.id.cbx_fieldtype);
 
-					Intent ret = new Intent();
-					ret.putExtra(ResultConstants.RESULT_KEY_FIELDNAME, etxName.getText().toString());
-					ret.putExtra(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt.getText().toString());
-					int pos = spinnerFieldTypes.getSelectedItemPosition();
-					int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos]).getId();
-					ret.putExtra(ResultConstants.RESULT_KEY_FIELDTYPE_ID, fieldTypeIdHack);
-					setResult(FormCreator.ACTIVITY_ADDFIELD_ADDED, ret);
-					finish();
-				}
-				return true;
-			case MENU_CANCEL:
-				setResult(FormCreator.ACTIVITY_ADDFIELD_CANCEL);
+				Intent ret = new Intent();
+				ret.putExtra(ResultConstants.RESULT_KEY_FIELDNAME, etxName
+						.getText().toString());
+				ret.putExtra(ResultConstants.RESULT_KEY_DESCRIPTION, etxPrompt
+						.getText().toString());
+				int pos = spinnerFieldTypes.getSelectedItemPosition();
+				int fieldTypeIdHack = ((SimpleFieldType) fieldTypes[pos])
+						.getId();
+				ret.putExtra(ResultConstants.RESULT_KEY_FIELDTYPE_ID,
+						fieldTypeIdHack);
+				setResult(FormCreator.ACTIVITY_ADDFIELD_ADDED, ret);
 				finish();
-				return true;
+			}
+			return true;
+		case MENU_CANCEL:
+			setResult(FormCreator.ACTIVITY_ADDFIELD_CANCEL);
+			finish();
+			return true;
 		}
 
 		return true;
@@ -181,6 +193,40 @@ public class AddField extends Activity {
 			return false;
 		} else {
 			// ugly validation logic
+			// just strip out and prompt if there are any bad characters, space,
+			// quote, comma, dash, apostrophe
+			String fieldname = etxName.getText().toString();
+			if (fieldname.indexOf(' ') > -1) {
+				lblFieldName.setText("Name: * No whitespace allowed");
+				return false;
+			}
+			if (
+					fieldname.indexOf(',') > -1 
+					|| fieldname.indexOf('.') > -1					
+					|| fieldname.indexOf('*') > -1
+					|| fieldname.indexOf('\'') > -1
+					|| fieldname.indexOf('"') > -1
+					|| fieldname.indexOf('*') > -1
+					|| fieldname.indexOf('%') > -1
+					|| fieldname.indexOf('^') > -1
+					|| fieldname.indexOf('(') > -1
+					|| fieldname.indexOf(')') > -1
+					|| fieldname.indexOf('[') > -1
+					|| fieldname.indexOf(']') > -1
+					|| fieldname.indexOf('{') > -1
+					|| fieldname.indexOf('}') > -1
+					|| fieldname.indexOf('<') > -1
+					|| fieldname.indexOf('>') > -1
+					|| fieldname.indexOf('?') > -1
+					|| fieldname.indexOf('!') > -1
+					|| fieldname.indexOf('/') > -1
+					|| fieldname.indexOf('\\') > -1
+					|| fieldname.indexOf('&') > -1) {
+				lblFieldName.setText("Name: * No special characters allowed");
+				return false;
+
+			}
+
 			lblFieldName.setText("Name:");
 		}
 		EditText etxPrompt = (EditText) findViewById(R.id.etx_fieldprompt);
@@ -205,7 +251,8 @@ public class AddField extends Activity {
 				}
 			}
 			if (duplicate) {
-				lblFieldName.setText("* Field name must be unique to this form");
+				lblFieldName
+						.setText("* Field name must be unique to this form");
 				return false;
 			}
 		}

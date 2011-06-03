@@ -91,10 +91,11 @@ public class FormCreator extends Activity {
 	private static final int DIALOG_FORM_INVALID_NOFORMNAME = 0;
 	private static final int DIALOG_FORM_INVALID_NOPREFIX = 1;
 	private static final int DIALOG_FORM_INVALID_NOTUNIQUE = 2;
-	private static final int DIALOG_FORM_INVALID_NOFIELDS = 3;
+	private static final int DIALOG_FORM_INVALID_NOFIELDS = 3;	
 	private static final int DIALOG_CONFIRM_CLOSURE = 4;
 	private static final int DIALOG_FORM_CREATE_FAIL = 5;
-
+	private static final int DIALOG_FORM_INVALID_STRINGS = 6;
+	
 	private static final int DIALOGRESULT_CLOSE_INFORMATIONAL = 0;
 	private static final int DIALOGRESULT_OK_DONT_SAVE = 1;
 	private static final int DIALOGRESULT_CANCEL_KEEP_WORKING = 2;
@@ -424,10 +425,68 @@ public class FormCreator extends Activity {
 
 		if (etxFormName.getText().length() == 0) {
 			return FormCreator.DIALOG_FORM_INVALID_NOFORMNAME;
+		}		
+		
+		String formNameString = etxFormName.getText().toString();
+		if (
+				formNameString.indexOf(' ') > -1
+				|| formNameString.indexOf(',') > -1 
+				|| formNameString.indexOf('.') > -1					
+				|| formNameString.indexOf('*') > -1
+				|| formNameString.indexOf('\'') > -1
+				|| formNameString.indexOf('"') > -1
+				|| formNameString.indexOf('*') > -1
+				|| formNameString.indexOf('%') > -1
+				|| formNameString.indexOf('^') > -1
+				|| formNameString.indexOf('(') > -1
+				|| formNameString.indexOf(')') > -1
+				|| formNameString.indexOf('[') > -1
+				|| formNameString.indexOf(']') > -1
+				|| formNameString.indexOf('{') > -1
+				|| formNameString.indexOf('}') > -1
+				|| formNameString.indexOf('<') > -1
+				|| formNameString.indexOf('>') > -1
+				|| formNameString.indexOf('?') > -1
+				|| formNameString.indexOf('!') > -1
+				|| formNameString.indexOf('/') > -1
+				|| formNameString.indexOf('\\') > -1
+				|| formNameString.indexOf('&') > -1) {
+			return FormCreator.DIALOG_FORM_INVALID_STRINGS;
 		}
+		
+		
+		
 		if (etxFormPrefix.getText().length() == 0) {
 			return FormCreator.DIALOG_FORM_INVALID_NOPREFIX;
 		}
+		
+		String prefixString = etxFormPrefix.getText().toString();
+		if (
+				formNameString.indexOf(' ') > -1
+				|| prefixString.indexOf(',') > -1 
+				|| prefixString.indexOf('.') > -1					
+				|| prefixString.indexOf('*') > -1
+				|| prefixString.indexOf('\'') > -1
+				|| prefixString.indexOf('"') > -1
+				|| prefixString.indexOf('*') > -1
+				|| prefixString.indexOf('%') > -1
+				|| prefixString.indexOf('^') > -1
+				|| prefixString.indexOf('(') > -1
+				|| prefixString.indexOf(')') > -1
+				|| prefixString.indexOf('[') > -1
+				|| prefixString.indexOf(']') > -1
+				|| prefixString.indexOf('{') > -1
+				|| prefixString.indexOf('}') > -1
+				|| prefixString.indexOf('<') > -1
+				|| prefixString.indexOf('>') > -1
+				|| prefixString.indexOf('?') > -1
+				|| prefixString.indexOf('!') > -1
+				|| prefixString.indexOf('/') > -1
+				|| prefixString.indexOf('\\') > -1
+				|| prefixString.indexOf('&') > -1) {
+			return FormCreator.DIALOG_FORM_INVALID_STRINGS;
+		}
+		
 
 		if (this.mCurrentFields.size() == 0) {
 			return FormCreator.DIALOG_FORM_INVALID_NOFIELDS;
@@ -587,6 +646,10 @@ public class FormCreator extends Activity {
 				message = "Unable to create the form and its support tables.  Check the logs.";
 				return new AlertDialog.Builder(FormCreator.this).setTitle(title).setMessage(message)
 																.setPositiveButton("Ok", null).create();
+			case DIALOG_FORM_INVALID_STRINGS:
+				title = "Invalid form";
+				message = "Invalid characters were in the form definition.  There cannot be any space or other special characters.";
+				break;
 			case DIALOG_CONFIRM_CLOSURE:
 				// for confirm closure, we actually just return the dialog as we
 				// want it here.

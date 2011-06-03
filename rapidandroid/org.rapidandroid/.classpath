@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="C:/Users/dmyung/workspaces/rapidandroid/rapidandroid/rapidandroid/org.rapidandroid/lib/httpmime-4.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/dmyung/workspaces/rapidandroid/rapidandroid/rapidandroid/org.rapidandroid/lib/apache-mime4j-0.6.1.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.rapidsms.java"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="unittests"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.rapidsms.java"/>
-	<classpathentry kind="lib" path="lib/apache-mime4j-0.5.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.0-beta2.jar"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

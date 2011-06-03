@@ -404,6 +404,7 @@ public class FormReviewer extends Activity {
 					toki++;
 				}
 				lines.add(tokenizedLine);
+				
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
